@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { NH3 } from 'naive-ui';
 import { computed } from 'vue';
-import { currentStar } from '../stars';
+import { currentStar } from '@renderer/stars';
 
 const name = computed<string>(() =>
   currentStar.value
@@ -13,9 +14,13 @@ const name = computed<string>(() =>
 </script>
 
 <template>
-  <div v-if="currentStar">
+  <n-h3 v-if="currentStar">
     <strong>{{ name }}</strong> ({{ currentStar.x }}, {{ currentStar.y }}, {{ currentStar.z }})
-  </div>
+  </n-h3>
 </template>
 
-<style scoped></style>
+<style scoped>
+.n-h3 {
+  margin: 0;
+}
+</style>

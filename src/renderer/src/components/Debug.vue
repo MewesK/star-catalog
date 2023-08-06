@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { reactive } from 'vue';
-import { stars } from '../stars';
+import { NIcon } from 'naive-ui';
+import { BoxDismiss20Regular, BoxCheckmark20Regular, Star12Filled } from '@vicons/fluent';
 
-const versions = reactive({ ...window.electron.process.versions });
-const env = reactive({ ...window.electron.process.env });
+import { isDev, versions } from '@renderer/helper';
+import { selectedStars, stars } from '@renderer/stars';
 </script>
 
 <template>
@@ -12,8 +12,28 @@ const env = reactive({ ...window.electron.process.env });
     <li>Chromium v{{ versions.chrome }}</li>
     <li>Node v{{ versions.node }}</li>
     <li>V8 v{{ versions.v8 }}</li>
-    <li>{{ stars.length }} stars loaded</li>
-    <li>{{ env.NODE_ENV_ELECTRON_VITE ?? 'production' }}</li>
+    <li>
+      {{ stars.length }}
+      <n-icon size="10">
+        <Star12Filled />
+      </n-icon>
+      loaded
+    </li>
+    <li>
+      {{ selectedStars.length }}
+      <n-icon size="10">
+        <Star12Filled />
+      </n-icon>
+      selected
+    </li>
+    <li>
+      <n-icon v-if="isDev" size="20" title="Development mode">
+        <BoxDismiss20Regular />
+      </n-icon>
+      <n-icon v-else size="20" title="Production mode">
+        <BoxCheckmark20Regular />
+      </n-icon>
+    </li>
   </ul>
 </template>
 
@@ -21,12 +41,14 @@ const env = reactive({ ...window.electron.process.env });
 ul {
   list-style: none;
   margin: 0;
+  padding: 0;
 }
 
 li {
   display: inline-block;
   opacity: 0.8;
   padding: 0 0.5rem;
+  vertical-align: top;
 }
 
 li:not(:last-child) {

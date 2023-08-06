@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { MapControls } from 'three/examples/jsm/controls/MapControls';
-import { currentStar, nearbyStars, stars } from './stars';
+import { currentStar, selectedStars, stars } from '@renderer/stars';
 
 export let camera: THREE.PerspectiveCamera;
 export let controls: MapControls;
@@ -47,7 +47,7 @@ export function initialize(canvasElement: HTMLCanvasElement, width: number, heig
 export function initializeScene(onlyNearbyStars: boolean): void {
   scene.clear();
 
-  (onlyNearbyStars ? [currentStar.value, ...nearbyStars.value] : stars.value).forEach((star) => {
+  (onlyNearbyStars ? [currentStar.value, ...selectedStars.value] : stars.value).forEach((star) => {
     if (!star) {
       return;
     }

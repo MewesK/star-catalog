@@ -1,15 +1,23 @@
 <script setup lang="ts">
-import { nearbyStars } from '../stars';
-import StarBrowserItem from './StarBrowserItem.vue';
+import { NList, NListItem } from 'naive-ui';
+import { selectedStars } from '@renderer/stars';
+
+function format(number: number): string {
+  return Number(number).toFixed(2);
+}
 </script>
 
 <template>
-  <strong>Nearby stars: {{ nearbyStars.length }}</strong>
-  <ul>
-    <li v-for="star in nearbyStars" :key="star.id">
-      <StarBrowserItem :star="star"></StarBrowserItem>
-    </li>
-  </ul>
+  <n-list hoverable clickable>
+    <n-list-item v-for="star in selectedStars" :key="star.id">
+      {{ star.proper || star.bf || star.gl || `#${star.id}` }}<br />
+      <small>({{ format(star.x) }}, {{ format(star.y) }}, {{ format(star.z) }})</small>
+    </n-list-item>
+  </n-list>
 </template>
 
-<style scoped></style>
+<style scoped>
+.n-list-item {
+  padding: 8px 10px;
+}
+</style>

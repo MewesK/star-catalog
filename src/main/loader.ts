@@ -7,7 +7,7 @@ import hygData35Csv from '../../resources/hygdata_v35.csv?asset';
 export default async function (): Promise<Star[]> {
   const records = [] as Star[];
   const input = await fs.readFile(hygData35Csv);
-  await new Promise((resolve, reject) => {
+  await new Promise<Star[]>((resolve, reject) => {
     const parser = parse(input, {
       columns: true,
       delimiter: ',',
