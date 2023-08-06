@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, watchEffect } from 'vue';
-import { useResizeObserver } from '@vueuse/core';
+import { useDebounceFn, useResizeObserver } from '@vueuse/core';
 import { resize, initialize, initializeScene, stats } from '@renderer/three';
 
 const env = reactive({ ...window.electron.process.env });
@@ -9,11 +9,14 @@ const canvasElement = ref<HTMLCanvasElement | null>(null);
 const canvasContainerElement = ref<HTMLElement | null>(null);
 const isDev = env.NODE_ENV_ELECTRON_VITE === 'development';
 
-useResizeObserver(canvasContainerElement, (entries) => {
-  console.log('Resizing canavs...');
-  const { width, height } = entries[0].contentRect;
-  resize(width, height);
-});
+useResizeObserver(
+  canvasContainerElement,
+  useDebounceFn((entries) => {
+    console.log('Resizing canavs...');
+    const { width, height } = entries[0].contentRect;
+    resize(width, height);
+  }, 100)
+);
 
 onMounted(async () => {
   if (!canvasElement.value || !canvasContainerElement.value) {
