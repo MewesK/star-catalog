@@ -18,6 +18,6 @@ function format(number: number): string {
 
 <style scoped>
 .n-list-item {
-  padding: 8px 10px;
+  padding: 8px 10px !important;
 }
 </style>

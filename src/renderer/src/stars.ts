@@ -2,7 +2,7 @@ import { computed, ref } from 'vue';
 import { Star } from '@renderer/../../types';
 import { isDev } from '@renderer/helper';
 
-const DISTANCE = 15.0;
+const DISTANCE = 25.0;
 
 export const loading = ref(true);
 export const stars = ref<Star[]>([]);

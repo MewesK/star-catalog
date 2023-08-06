@@ -34,7 +34,7 @@ const loaded = ref(false);
             has-sider
             position="absolute"
             sider-placement="right"
-            style="top: 48px; bottom: 48px"
+            style="top: 64px; bottom: 48px"
           >
             <n-layout-content>
               <StarCanvas />
@@ -59,13 +59,12 @@ const loaded = ref(false);
 </template>
 
 <style>
-.n-layout-header,
-.n-layout-footer {
-  height: 48px;
+.n-layout-header {
+  height: 64px;
   background: rgba(128, 128, 128, 0.2);
   display: flex;
-  justify-content: center;
   align-items: center;
+  padding-left: 1rem;;
 }
 
 .n-layout-sider {
@@ -74,5 +73,13 @@ const loaded = ref(false);
 
 .n-layout-content {
   background: rgba(128, 128, 128, 0.4);
+}
+
+.n-layout-footer {
+  height: 48px;
+  background: rgba(128, 128, 128, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
