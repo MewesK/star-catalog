@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue';
-import { resize, initialize, stats } from '../three';
+import { ref, onMounted, reactive, watchEffect } from 'vue';
+import { useResizeObserver } from '@vueuse/core';
+import { resize, initialize, initializeScene, stats } from '@renderer/three';
 
 const env = reactive({ ...window.electron.process.env });
 
 const canvasElement = ref<HTMLCanvasElement | null>(null);
 const canvasContainerElement = ref<HTMLElement | null>(null);
+const isDev = env.NODE_ENV_ELECTRON_VITE === 'development';
+
+useResizeObserver(canvasContainerElement, (entries) => {
+  console.log('Resizing canavs...');
+  const { width, height } = entries[0].contentRect;
+  resize(width, height);
+});
 
 onMounted(async () => {
   if (!canvasElement.value || !canvasContainerElement.value) {
@@ -13,34 +21,32 @@ onMounted(async () => {
   }
 
   const { width, height } = canvasContainerElement.value.getBoundingClientRect();
-  initialize(canvasElement.value, width, height, env.NODE_ENV_ELECTRON_VITE === 'development');
+  initialize(canvasElement.value, width, height);
   stats.dom.classList.add('stats');
   canvasContainerElement.value.appendChild(stats.dom);
 
-  // Resize renderer if necessary
-  window.addEventListener(
-    'resize',
-    () => {
-      if (canvasContainerElement.value) {
-        const { width, height } = canvasContainerElement.value.getBoundingClientRect();
-        resize(width, height);
-      }
-    },
-    false
-  );
+  watchEffect(() => {
+    console.log('Initializing scene...');
+    initializeScene(isDev);
+  });
 });
 </script>
 
 <template>
-  <div ref="canvasContainerElement" class="canvas-container">
-    <canvas ref="canvasElement"></canvas>
+  <div ref="canvasContainerElement" class="container">
+    <canvas ref="canvasElement" class="canvas"></canvas>
   </div>
 </template>
 
 <style scoped>
-.canvas-container {
+.container {
+  display: flex;
+  height: 100%;
+  background-color: black;
+}
+canvas {
   flex-grow: 1;
-  position: relative;
+  height: 100%;
 }
 :deep(.stats) {
   position: absolute !important;

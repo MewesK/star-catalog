@@ -19,26 +19,17 @@ const env = reactive({ ...window.electron.process.env });
 
 <style scoped>
 ul {
-  margin: 0 auto;
-  float: none;
-  clear: both;
-  overflow: hidden;
-  font-family: 'Menlo', 'Lucida Console', monospace;
-  color: #c2f5ff;
-  line-height: 1;
-  transition: all 0.3s;
+  list-style: none;
+  margin: 0;
 }
 
 li {
-  display: block;
-  float: left;
-  border-right: 1px solid rgba(194, 245, 255, 0.4);
-  padding: 0 20px;
-  font-size: 13px;
+  display: inline-block;
   opacity: 0.8;
+  padding: 0 0.5rem;
 }
 
-li:last-child {
-  border: none;
+li:not(:last-child) {
+  border-right: 1px solid black;
 }
 </style>

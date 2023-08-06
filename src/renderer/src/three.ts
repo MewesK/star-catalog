@@ -12,12 +12,7 @@ export let stats: Stats;
 /**
  * Initializes the canvas.
  */
-export function initialize(
-  canvasElement: HTMLCanvasElement,
-  width: number,
-  height: number,
-  onlyNearbyStars = true
-): void {
+export function initialize(canvasElement: HTMLCanvasElement, width: number, height: number): void {
   camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 7500);
   camera.position.z = 0;
 
@@ -34,28 +29,7 @@ export function initialize(
   controls.maxPolarAngle = Math.PI / 2;
 
   stats = new Stats();
-
-  initializeScene(onlyNearbyStars);
-}
-
-/**
- * Initializes the galaxy scene.
- */
-function initializeScene(onlyNearbyStars: boolean): void {
   scene = new THREE.Scene();
-
-  (onlyNearbyStars ? [currentStar.value, ...nearbyStars.value] : stars.value).forEach((star) => {
-    const starMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(1, 16, 8),
-      new THREE.MeshBasicMaterial({ color: bvToColor(star.ci) })
-    );
-    starMesh.position.x = star.x * 100;
-    starMesh.position.y = star.y * 100;
-    starMesh.position.z = star.z * 100;
-    starMesh.updateMatrix();
-    starMesh.matrixAutoUpdate = false;
-    scene.add(starMesh);
-  });
 
   // Animation loop
   function animate(): void {
@@ -65,6 +39,31 @@ function initializeScene(onlyNearbyStars: boolean): void {
     window.requestAnimationFrame(animate);
   }
   animate();
+}
+
+/**
+ * Initializes the galaxy scene.
+ */
+export function initializeScene(onlyNearbyStars: boolean): void {
+  scene.clear();
+
+  (onlyNearbyStars ? [currentStar.value, ...nearbyStars.value] : stars.value).forEach((star) => {
+    if (!star) {
+      return;
+    }
+
+    const starMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(1, 16, 8),
+      new THREE.MeshBasicMaterial({ color: bvToColor(star.ci) })
+    );
+    starMesh.position.x = star.x * 100;
+    starMesh.position.y = star.y * 100;
+    starMesh.position.z = star.z * 100;
+    starMesh.updateMatrix();
+    starMesh.matrixAutoUpdate = false;
+
+    scene.add(starMesh);
+  });
 }
 
 /**
