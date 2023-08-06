@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: star-catalog
+productName: Star Catalog
 directories:
   buildResources: build
 files:
