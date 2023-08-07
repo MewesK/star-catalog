@@ -45,6 +45,7 @@ const loaded = ref(false);
               :collapsed-width="0"
               :native-scrollbar="false"
               :width="240"
+              :show-collapsed-content="false"
             >
               <StarBrowser></StarBrowser>
             </n-layout-sider>
@@ -64,7 +65,7 @@ const loaded = ref(false);
   background: rgba(128, 128, 128, 0.2);
   display: flex;
   align-items: center;
-  padding-left: 1rem;;
+  padding-left: 1rem;
 }
 
 .n-layout-sider {
