@@ -28,7 +28,7 @@ const loaded = ref(false);
       <div style="height: 100vh; position: relative">
         <n-layout v-if="loaded" position="absolute">
           <n-layout-header bordered>
-            <StarDetails />
+            <star-details />
           </n-layout-header>
           <n-layout
             has-sider
@@ -37,21 +37,22 @@ const loaded = ref(false);
             style="top: 64px; bottom: 48px"
           >
             <n-layout-content>
-              <StarCanvas />
+              <star-canvas />
             </n-layout-content>
             <n-layout-sider
               bordered
               show-trigger="bar"
               :collapsed-width="0"
+              :default-collapsed="true"
               :native-scrollbar="false"
               :width="240"
               :show-collapsed-content="false"
             >
-              <StarBrowser></StarBrowser>
+              <star-browser />
             </n-layout-sider>
           </n-layout>
           <n-layout-footer bordered position="absolute">
-            <Debug />
+            <debug />
           </n-layout-footer>
         </n-layout>
       </div>

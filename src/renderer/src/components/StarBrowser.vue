@@ -8,7 +8,7 @@ function format(number: number): string {
 </script>
 
 <template>
-  <n-list hoverable clickable>
+  <n-list v-if="false" hoverable clickable>
     <n-list-item v-for="star in selectedStars" :key="star.id">
       {{ star.proper || star.bf || star.gl || `#${star.id}` }}<br />
       <small>({{ format(star.x) }}, {{ format(star.y) }}, {{ format(star.z) }})</small>
