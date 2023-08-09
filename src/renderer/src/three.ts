@@ -13,7 +13,7 @@ export let stats: Stats;
  * Initializes the canvas.
  */
 export function initialize(canvasElement: HTMLCanvasElement, width: number, height: number): void {
-  camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 7500);
+  camera = new THREE.PerspectiveCamera(45, width / height, 1, 15000);
   camera.position.z = 0;
 
   renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvasElement });
@@ -52,17 +52,30 @@ export function initializeScene(onlyNearbyStars: boolean): void {
       return;
     }
 
-    const starMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(1, 16, 8),
-      new THREE.MeshBasicMaterial({ color: bvToColor(star.ci) })
-    );
-    starMesh.position.x = star.x * 100;
-    starMesh.position.y = star.y * 100;
-    starMesh.position.z = star.z * 100;
-    starMesh.updateMatrix();
-    starMesh.matrixAutoUpdate = false;
+    const lodGeometries = [
+      { geometry: new THREE.IcosahedronGeometry(100, 16), distance: 50 },
+      { geometry: new THREE.IcosahedronGeometry(100, 8), distance: 300 },
+      { geometry: new THREE.IcosahedronGeometry(100, 4), distance: 1000 },
+      { geometry: new THREE.IcosahedronGeometry(100, 2), distance: 2000 },
+      { geometry: new THREE.IcosahedronGeometry(100, 1), distance: 8000 }
+    ];
 
-    scene.add(starMesh);
+    const material = new THREE.MeshBasicMaterial({ color: bvToColor(star.ci) });
+    const starLod = new THREE.LOD();
+    for (let i = 0; i < 3; i++) {
+      const mesh = new THREE.Mesh(lodGeometries[i].geometry, material);
+      mesh.scale.set(0.01, 0.01, 0.01);
+      mesh.updateMatrix();
+      mesh.matrixAutoUpdate = false;
+      starLod.addLevel(mesh, lodGeometries[i].distance);
+    }
+    starLod.position.x = star.x * 200;
+    starLod.position.y = star.y * 200;
+    starLod.position.z = star.z * 200;
+    starLod.updateMatrix();
+    starLod.matrixAutoUpdate = false;
+
+    scene.add(starLod);
   });
 }
 
