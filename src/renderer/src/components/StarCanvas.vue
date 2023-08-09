@@ -52,6 +52,9 @@ canvas {
   height: 100%;
 }
 :deep(.stats) {
-  position: absolute !important;
+  top: inherit !important;
+  left: inherit !important;
+  bottom: 22px;
+  right: 0;
 }
 </style>

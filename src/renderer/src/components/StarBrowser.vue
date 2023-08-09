@@ -1,23 +1,21 @@
 <script setup lang="ts">
-import { NList, NListItem } from 'naive-ui';
+import { format } from '@renderer/helper';
 import { selectedStars } from '@renderer/stars';
-
-function format(number: number): string {
-  return Number(number).toFixed(2);
-}
 </script>
 
 <template>
-  <n-list v-if="false" hoverable clickable>
-    <n-list-item v-for="star in selectedStars" :key="star.id">
-      {{ star.proper || star.bf || star.gl || `#${star.id}` }}<br />
-      <small>({{ format(star.x) }}, {{ format(star.y) }}, {{ format(star.z) }})</small>
-    </n-list-item>
-  </n-list>
+  <v-virtual-scroll :items="selectedStars">
+    <template #default="{ item }">
+      <v-list-item
+        :title="item.proper || item.bf || item.gl || `#${item.id}`"
+        :subtitle="`(${format(item.x)}, ${format(item.y)}, ${format(item.z)})`"
+      >
+        <template #append>
+          <v-btn icon="navigate_next" size="xx-small" variant="tonal" />
+        </template>
+      </v-list-item>
+    </template>
+  </v-virtual-scroll>
 </template>
 
-<style scoped>
-.n-list-item {
-  padding: 8px 10px !important;
-}
-</style>
+<style scoped></style>

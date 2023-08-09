@@ -1,87 +1,138 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import {
-  darkTheme,
-  NConfigProvider,
-  NLoadingBarProvider,
-  NLayout,
-  NLayoutHeader,
-  NLayoutSider,
-  NLayoutFooter,
-  NLayoutContent,
-  NGlobalStyle
-} from 'naive-ui';
+import { computed, onMounted, ref } from 'vue';
+import { useTheme } from 'vuetify';
+import { loading, stars } from '@renderer/stars';
+import { isDev } from '@renderer/helper';
+
+import Debug from '@renderer/components/Debug.vue';
 import StarBrowser from '@renderer/components/StarBrowser.vue';
 import StarCanvas from '@renderer/components/StarCanvas.vue';
 import StarDetails from '@renderer/components/StarDetails.vue';
-import Debug from '@renderer/components/Debug.vue';
-import Loader from '@renderer/components/Loader.vue';
 
-const loaded = ref(false);
+const theme = useTheme();
+
+const menu = ref(true);
+const browser = ref(false);
+const details = ref(false);
+
+const error = ref<Error | null>(null);
+const hasError = computed(() => error.value !== null);
+const progress = ref(0);
+
+onMounted(() => {
+  window.api
+    .load()
+    .then((_stars) => {
+      stars.value = _stars;
+      progress.value = 100;
+    })
+    .catch((e: Error) => {
+      error.value = e;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+});
 </script>
 
 <template>
-  <n-config-provider :theme="darkTheme" :theme-overrides="{ common: { fontWeightStrong: '600' } }">
-    <n-global-style />
-    <n-loading-bar-provider>
-      <loader @loaded="loaded = true" />
-      <div style="height: 100vh; position: relative">
-        <n-layout v-if="loaded" position="absolute">
-          <n-layout-header bordered>
-            <star-details />
-          </n-layout-header>
-          <n-layout
-            has-sider
-            position="absolute"
-            sider-placement="right"
-            style="top: 64px; bottom: 48px"
-          >
-            <n-layout-content>
-              <star-canvas />
-            </n-layout-content>
-            <n-layout-sider
-              bordered
-              show-trigger="bar"
-              :collapsed-width="0"
-              :default-collapsed="true"
-              :native-scrollbar="false"
-              :width="240"
-              :show-collapsed-content="false"
-            >
-              <star-browser />
-            </n-layout-sider>
-          </n-layout>
-          <n-layout-footer bordered position="absolute">
-            <debug />
-          </n-layout-footer>
-        </n-layout>
-      </div>
-    </n-loading-bar-provider>
-  </n-config-provider>
+  <v-app>
+    <v-app-bar color="primary" density="compact" image="./assets/carina_nebula.png">
+      <v-progress-linear
+        :active="loading"
+        :indeterminate="loading"
+        color="white"
+        height="4"
+        absolute
+        bottom
+      />
+
+      <template #image>
+        <v-img eager gradient="to top right, rgba(19,84,122,.8), rgba(128,208,199,.8)"></v-img>
+      </template>
+
+      <template #prepend>
+        <v-app-bar-nav-icon
+          variant="text"
+          @click.stop="
+            menu = !menu;
+            browser = false;
+            details = false;
+          "
+        ></v-app-bar-nav-icon>
+      </template>
+
+      <v-app-bar-title>Space Catalog</v-app-bar-title>
+
+      <template #append>
+        <v-icon v-if="isDev" icon="code" title="Development mode" />
+        <v-icon v-else icon="code_off" title="Production mode" />
+        <v-btn
+          v-if="theme.global.current.value.dark"
+          icon="dark_mode"
+          variant="text"
+          title="Dark mode"
+          @click="theme.global.name.value = 'light'"
+        />
+        <v-btn
+          v-else
+          icon="light_mode"
+          variant="text"
+          title="Light mode"
+          @click="theme.global.name.value = 'dark'"
+        />
+      </template>
+    </v-app-bar>
+
+    <v-navigation-drawer v-model="menu" permanent rail>
+      <v-list density="compact" nav>
+        <v-list-item
+          prepend-icon="manage_search"
+          value="browser"
+          title="Browser"
+          @click.stop="
+            browser = !browser;
+            details = false;
+          "
+        ></v-list-item>
+        <v-list-item
+          prepend-icon="info"
+          value="details"
+          title="Details"
+          @click.stop="
+            details = !details;
+            browser = false;
+          "
+        ></v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-navigation-drawer v-model="browser" width="250">
+      <star-browser />
+    </v-navigation-drawer>
+
+    <v-navigation-drawer v-model="details" width="250">
+      <star-details />
+    </v-navigation-drawer>
+
+    <v-main><star-canvas /></v-main>
+
+    <v-footer app :border="true" :height="22" order="-1">
+      <debug />
+    </v-footer>
+
+    <v-snackbar v-model="hasError">
+      {{ error }}
+
+      <template #actions>
+        <v-btn color="red" variant="text" @click="error = null"> Close </v-btn>
+      </template>
+    </v-snackbar>
+  </v-app>
 </template>
 
 <style>
-.n-layout-header {
-  height: 64px;
-  background: rgba(128, 128, 128, 0.2);
-  display: flex;
-  align-items: center;
-  padding-left: 1rem;
-}
-
-.n-layout-sider {
-  background: rgba(128, 128, 128, 0.3);
-}
-
-.n-layout-content {
-  background: rgba(128, 128, 128, 0.4);
-}
-
-.n-layout-footer {
-  height: 48px;
-  background: rgba(128, 128, 128, 0.2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+html {
+  overflow: hidden !important;
 }
 </style>
