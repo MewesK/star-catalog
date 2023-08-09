@@ -4,10 +4,9 @@ import { isDev } from '@renderer/helper';
 
 const DISTANCE = 25.0;
 
-export const loading = ref(true);
 export const stars = ref<Star[]>([]);
-export const currentStarIndex = ref(0);
 
+export const currentStarIndex = ref(0);
 export const currentStar = computed((): Star | null => stars.value[currentStarIndex.value]);
 export const selectedStars = computed((): Star[] => {
   if (isDev) {

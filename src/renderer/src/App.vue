@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { useTheme } from 'vuetify';
-import { loading, stars } from '@renderer/stars';
+import { stars } from '@renderer/stars';
 import { isDev } from '@renderer/helper';
 
 import Debug from '@renderer/components/Debug.vue';
@@ -16,22 +16,17 @@ const browser = ref(false);
 const details = ref(false);
 
 const error = ref<Error | null>(null);
+const loading = ref(true);
 const hasError = computed(() => error.value !== null);
-const progress = ref(0);
 
 onMounted(() => {
-  window.api
-    .load()
-    .then((_stars) => {
-      stars.value = _stars;
-      progress.value = 100;
-    })
-    .catch((e: Error) => {
-      error.value = e;
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+  setTimeout(() => {
+    window.api
+      .load()
+      .then((data) => (stars.value = data))
+      .catch((e: Error) => (error.value = e))
+      .finally(() => (loading.value = false));
+  }, 1000);
 });
 </script>
 
