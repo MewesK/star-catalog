@@ -26,7 +26,7 @@ onMounted(() => {
       .then((data) => (stars.value = data))
       .catch((e: Error) => (error.value = e))
       .finally(() => (loading.value = false));
-  }, 1000);
+  }, 100);
 });
 </script>
 
@@ -57,7 +57,7 @@ onMounted(() => {
         ></v-app-bar-nav-icon>
       </template>
 
-      <v-app-bar-title>Space Catalog</v-app-bar-title>
+      <v-app-bar-title>Star Catalog</v-app-bar-title>
 
       <template #append>
         <v-icon v-if="isDev" icon="code" title="Development mode" />
@@ -103,14 +103,14 @@ onMounted(() => {
     </v-navigation-drawer>
 
     <v-navigation-drawer v-model="browser" width="250">
-      <star-browser />
+      <star-browser v-if="!loading" />
     </v-navigation-drawer>
 
     <v-navigation-drawer v-model="details" width="250">
-      <star-details />
+      <star-details v-if="!loading" />
     </v-navigation-drawer>
 
-    <v-main><star-canvas /></v-main>
+    <v-main><star-canvas v-if="!loading" /></v-main>
 
     <v-footer app :border="true" :height="22" order="-1">
       <debug />
