@@ -9,6 +9,15 @@ export let renderer: THREE.WebGLRenderer;
 export let scene: THREE.Scene;
 export let stats: Stats;
 
+const geometryPool = [
+  { geometry: new THREE.IcosahedronGeometry(100, 16), distance: 50 },
+  { geometry: new THREE.IcosahedronGeometry(100, 8), distance: 300 },
+  { geometry: new THREE.IcosahedronGeometry(100, 4), distance: 1000 },
+  { geometry: new THREE.IcosahedronGeometry(100, 2), distance: 2000 },
+  { geometry: new THREE.IcosahedronGeometry(100, 1), distance: 5000 }
+];
+const materialPool = {} as Record<number, THREE.Material>;
+
 /**
  * Initializes the canvas.
  */
@@ -52,22 +61,17 @@ export function initializeScene(onlyNearbyStars: boolean): void {
       return;
     }
 
-    const lodGeometries = [
-      { geometry: new THREE.IcosahedronGeometry(100, 16), distance: 50 },
-      { geometry: new THREE.IcosahedronGeometry(100, 8), distance: 300 },
-      { geometry: new THREE.IcosahedronGeometry(100, 4), distance: 1000 },
-      { geometry: new THREE.IcosahedronGeometry(100, 2), distance: 2000 },
-      { geometry: new THREE.IcosahedronGeometry(100, 1), distance: 8000 }
-    ];
+    if (!materialPool[star.ci]) {
+      materialPool[star.ci] = new THREE.MeshBasicMaterial({ color: bvToColor(star.ci) });
+    }
 
-    const material = new THREE.MeshBasicMaterial({ color: bvToColor(star.ci) });
     const starLod = new THREE.LOD();
     for (let i = 0; i < 3; i++) {
-      const mesh = new THREE.Mesh(lodGeometries[i].geometry, material);
-      mesh.scale.set(0.01, 0.01, 0.01);
+      const mesh = new THREE.Mesh(geometryPool[i].geometry, materialPool[star.ci]);
+      mesh.scale.set(0.02, 0.02, 0.02);
       mesh.updateMatrix();
       mesh.matrixAutoUpdate = false;
-      starLod.addLevel(mesh, lodGeometries[i].distance);
+      starLod.addLevel(mesh, geometryPool[i].distance);
     }
     starLod.position.x = star.x * 200;
     starLod.position.y = star.y * 200;
@@ -77,6 +81,8 @@ export function initializeScene(onlyNearbyStars: boolean): void {
 
     scene.add(starLod);
   });
+
+  console.log(Object.keys(materialPool).length);
 }
 
 /**
