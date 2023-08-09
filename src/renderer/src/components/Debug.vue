@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed } from 'vue';
 import { versions } from '@renderer/helper';
 import { selectedStars, stars } from '@renderer/stars';
 
-const items = ref([
+const items = computed(() => [
   `Electron v${versions.electron}`,
   `Chromium v${versions.chrome}`,
   `Node v${versions.node}`,

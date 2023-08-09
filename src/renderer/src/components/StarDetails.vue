@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useElementSize, useParentElement } from '@vueuse/core';
 import { format } from '@renderer/helper';
 import { currentStar } from '@renderer/stars';
 
+const parentEl = useParentElement();
+const { height } = useElementSize(parentEl);
 const name = computed<string>(() =>
   currentStar.value
     ? currentStar.value.proper ||
@@ -14,19 +17,19 @@ const name = computed<string>(() =>
 </script>
 
 <template>
-  <v-table v-if="currentStar" density="compact" hover>
-    <thead>
+  <v-table v-if="currentStar" density="compact" hover fixed-header :height="height">
+    <thead class="elevation-6">
       <tr>
-        <th>Name</th>
-        <th>
-          {{ name }}
+        <th colspan="2" class="text-center">
+          <h4>
+            {{ name }}<br />
+            ({{ format(currentStar.x) }}, {{ format(currentStar.y) }}, {{ format(currentStar.z) }})
+          </h4>
         </th>
       </tr>
-      <tr>
-        <th>Coord.</th>
-        <th>
-          ({{ format(currentStar.x) }}, {{ format(currentStar.y) }}, {{ format(currentStar.z) }})
-        </th>
+      <tr class="text-caption">
+        <th>Property</th>
+        <th>Value</th>
       </tr>
     </thead>
     <tbody class="text-caption">
