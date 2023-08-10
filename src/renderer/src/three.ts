@@ -3,6 +3,9 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 import { MapControls } from 'three/examples/jsm/controls/MapControls';
 import { currentStar, selectedStars, stars } from '@renderer/stars';
 
+import sunTextureImage from './assets/2k_sun.jpg';
+import sunTextureBwImage from './assets/2k_sun_bw.jpg';
+
 export let camera: THREE.PerspectiveCamera;
 export let controls: MapControls;
 export let renderer: THREE.WebGLRenderer;
@@ -16,7 +19,7 @@ const geometryPool = [
   { geometry: new THREE.IcosahedronGeometry(100, 2), distance: 2000 },
   { geometry: new THREE.IcosahedronGeometry(100, 1), distance: 5000 }
 ];
-const materialPool = {} as Record<number, THREE.Material>;
+const materialPool = {} as Record<number, { high: THREE.Material; low: THREE.Material }>;
 
 /**
  * Initializes the canvas.
@@ -39,6 +42,7 @@ export function initialize(canvasElement: HTMLCanvasElement, width: number, heig
 
   stats = new Stats();
   scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0x000000, 1, 15000);
 
   // Animation loop
   function animate(): void {
@@ -56,18 +60,37 @@ export function initialize(canvasElement: HTMLCanvasElement, width: number, heig
 export function initializeScene(onlyNearbyStars: boolean): void {
   scene.clear();
 
+  const texture1 = new THREE.TextureLoader().load(sunTextureImage);
+  texture1.colorSpace = THREE.SRGBColorSpace;
+  texture1.wrapS = texture1.wrapT = THREE.RepeatWrapping;
+
+  const texture2 = new THREE.TextureLoader().load(sunTextureBwImage);
+  texture2.colorSpace = THREE.SRGBColorSpace;
+  texture2.wrapS = texture2.wrapT = THREE.RepeatWrapping;
+
   (onlyNearbyStars ? [currentStar.value, ...selectedStars.value] : stars.value).forEach((star) => {
     if (!star) {
       return;
     }
 
     if (!materialPool[star.ci]) {
-      materialPool[star.ci] = new THREE.MeshBasicMaterial({ color: bvToColor(star.ci) });
+      materialPool[star.ci] = {
+        high: new THREE.MeshLambertMaterial({
+          emissive: bvToColor(star.ci),
+          emissiveMap: texture1
+        }),
+        low: new THREE.MeshLambertMaterial({
+          emissive: bvToColor(star.ci)
+        })
+      };
     }
 
     const starLod = new THREE.LOD();
-    for (let i = 0; i < 3; i++) {
-      const mesh = new THREE.Mesh(geometryPool[i].geometry, materialPool[star.ci]);
+    for (let i = 0; i < geometryPool.length; i++) {
+      const mesh = new THREE.Mesh(
+        geometryPool[i].geometry,
+        i <= 1 ? materialPool[star.ci].high : materialPool[star.ci].low
+      );
       mesh.scale.set(0.02, 0.02, 0.02);
       mesh.updateMatrix();
       mesh.matrixAutoUpdate = false;
