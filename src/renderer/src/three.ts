@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { MapControls } from 'three/examples/jsm/controls/MapControls';
-import { currentStar, selectedStars, stars } from '@renderer/stars';
+import { selectedStars } from '@renderer/stars';
 import { assignSRGB, bvToColor } from './three/helper';
 import { Star } from 'src/types';
 
@@ -62,16 +62,13 @@ export function initialize(canvasElement: HTMLCanvasElement): void {
 /**
  * Initializes the galaxy scene with points.
  */
-export function initializeScene(onlyNearbyStars: boolean): void {
+export function initializeScene(): void {
   scene.clear();
 
   const textureLoader = new THREE.TextureLoader();
   const starTexture = textureLoader.load(starImage, assignSRGB);
 
-  const _selectedStars = onlyNearbyStars
-    ? [currentStar.value, ...selectedStars.value]
-    : stars.value;
-  const _selectedStarsLength = _selectedStars.length;
+  const _selectedStarsLength = selectedStars.value.length;
 
   const positions = new Float32Array(_selectedStarsLength * 3);
   const colors = new Float32Array(_selectedStarsLength * 3);
@@ -80,7 +77,7 @@ export function initializeScene(onlyNearbyStars: boolean): void {
   let star: Star;
   const vertex = new THREE.Vector3();
   for (let i = 0; i < _selectedStarsLength; i++) {
-    star = _selectedStars[i];
+    star = selectedStars.value[i];
 
     vertex.x = star.x * SCALE_MULTIPLIER;
     vertex.y = star.y * SCALE_MULTIPLIER;
@@ -137,7 +134,7 @@ void main() {
 /**
  * Initializes the galaxy scene with meshes.
  */
-export function initializeSceneOld(onlyNearbyStars: boolean): void {
+export function initializeSceneOld(): void {
   scene.clear();
 
   const geometryPool = [
@@ -155,7 +152,7 @@ export function initializeSceneOld(onlyNearbyStars: boolean): void {
   const texture2 = textureLoader.load(sunTextureBwImage, assignSRGB);
   texture2.wrapS = texture2.wrapT = THREE.RepeatWrapping;
 
-  (onlyNearbyStars ? [currentStar.value, ...selectedStars.value] : stars.value).forEach((star) => {
+  selectedStars.value.forEach((star) => {
     if (!star) {
       return;
     }
@@ -204,7 +201,9 @@ export function resize(width: number, height: number): void {
   renderer.setSize(width, height);
 }
 
-export function start(): boolean {
+export function start(
+  intersectCallback: (starIndex: number, intersection: THREE.Intersection<THREE.Object3D>) => void
+): boolean {
   if (_running) {
     return false;
   }
@@ -247,13 +246,7 @@ export function start(): boolean {
 
           _intersectedIndex = intersection[0].index ?? null;
           if (_intersectedIndex !== null) {
-            console.log(
-              'Intersecting!',
-              _intersectedIndex,
-              mousePointer,
-              intersection[0].distance,
-              Math.log(intersection[0].distance + 1) / 5
-            );
+            intersectCallback(_intersectedIndex, intersection[0]);
 
             // Backup size
             _backupSize = attributes.size.array[_intersectedIndex];
@@ -264,7 +257,8 @@ export function start(): boolean {
 
             // Set size
             attributes.size.array[_intersectedIndex] =
-              attributes.size.array[_intersectedIndex] + Math.log2(intersection[0].distance * intersection[0].distance + 1) / 5;
+              attributes.size.array[_intersectedIndex] +
+              Math.log2(intersection[0].distance * intersection[0].distance + 1) / 5;
             attributes.size.needsUpdate = true;
 
             // Set color

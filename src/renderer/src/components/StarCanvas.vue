@@ -2,7 +2,6 @@
 import { ref, onMounted, watchEffect } from 'vue';
 import { useDebounceFn, useResizeObserver } from '@vueuse/core';
 import { resize, initialize, initializeScene, start, stats, updatePointer } from '@renderer/three';
-import { isDev } from '@renderer/helper';
 
 const canvasElement = ref<HTMLCanvasElement | null>(null);
 const canvasContainerElement = ref<HTMLElement | null>(null);
@@ -14,7 +13,7 @@ useResizeObserver(
     resize(entries[0].contentRect.width, entries[0].contentRect.height);
 
     // Start animation loop if necessary
-    if (start()) {
+    if (start(onIntersect)) {
       console.log('Started animation loop.');
     }
   }, 100)
@@ -35,9 +34,13 @@ onMounted(async () => {
   // Wait for stars to load
   watchEffect(() => {
     console.log('Initializing scene...');
-    initializeScene(isDev);
+    initializeScene();
   });
 });
+
+function onIntersect(starIndex: number, intersection: THREE.Intersection<THREE.Object3D>): void {
+  console.log('Intersecting...', starIndex, intersection);
+}
 
 function onPointerMove(event: PointerEvent): void {
   if (!canvasElement.value) {

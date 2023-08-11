@@ -8,8 +8,8 @@ const items = computed(() => [
   `Electron v${versions.electron}`,
   `Chromium v${versions.chrome}`,
   `Node v${versions.node}`,
-  `${selectedStars.value.length}/${stars.value.length} stars`,
-  WebGL.isWebGL2Available() ? 'WebGL v2' : WebGL.isWebGLAvailable() ? 'WebGL v1' : 'no WebGL'
+  WebGL.isWebGL2Available() ? 'WebGL v2' : WebGL.isWebGLAvailable() ? 'WebGL v1' : 'no WebGL',
+  `${selectedStars.value.length}/${stars.value.length} stars`
 ]);
 </script>
 
