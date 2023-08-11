@@ -7,8 +7,7 @@ const items = computed(() => [
   `Electron v${versions.electron}`,
   `Chromium v${versions.chrome}`,
   `Node v${versions.node}`,
-  `${stars.value.length} stars loaded`,
-  `${selectedStars.value.length} stars selected`
+  `${selectedStars.value.length}/${stars.value.length} stars`
 ]);
 </script>
 

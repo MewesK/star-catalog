@@ -14,15 +14,6 @@ export let renderer: THREE.WebGLRenderer;
 export let scene: THREE.Scene;
 export let stats: Stats;
 
-const geometryPool = [
-  { geometry: new THREE.IcosahedronGeometry(100, 16), distance: 50 },
-  { geometry: new THREE.IcosahedronGeometry(100, 8), distance: 300 },
-  { geometry: new THREE.IcosahedronGeometry(100, 4), distance: 1000 },
-  { geometry: new THREE.IcosahedronGeometry(100, 2), distance: 2000 },
-  { geometry: new THREE.IcosahedronGeometry(100, 1), distance: 5000 }
-];
-const materialPool = {} as Record<number, { high: THREE.Material; low: THREE.Material }>;
-
 /**
  * Initializes the canvas.
  */
@@ -55,7 +46,7 @@ export function initialize(canvasElement: HTMLCanvasElement, width: number, heig
 }
 
 /**
- * Initializes the galaxy scene.
+ * Initializes the galaxy scene with points.
  */
 export function initializeScene(onlyNearbyStars: boolean): void {
   scene.clear();
@@ -63,14 +54,10 @@ export function initializeScene(onlyNearbyStars: boolean): void {
   const textureLoader = new THREE.TextureLoader();
   const sprite = textureLoader.load(starImage, assignSRGB);
 
-  const _selectedStars = onlyNearbyStars
-    ? [currentStar.value, ...selectedStars.value]
-    : stars.value;
-
   const materials = {} as Record<number, THREE.PointsMaterial>;
   const vertices = {} as Record<number, number[]>;
 
-  _selectedStars.forEach((star) => {
+  (onlyNearbyStars ? [currentStar.value, ...selectedStars.value] : stars.value).forEach((star) => {
     if (star) {
       if (!materials[star.ci]) {
         materials[star.ci] = new THREE.PointsMaterial({
@@ -83,7 +70,7 @@ export function initializeScene(onlyNearbyStars: boolean): void {
         vertices[star.ci] = [];
       }
 
-      // We scaled the coordinates by 10 to put them in units of 1/10th parsecs.
+      // Scale coordinates by 100 to put them in units of 1/100th parsecs
       vertices[star.ci].push(star.x * 100, star.y * 100, star.z * 100);
     }
   });
@@ -96,8 +83,20 @@ export function initializeScene(onlyNearbyStars: boolean): void {
   });
 }
 
+/**
+ * Initializes the galaxy scene with meshes.
+ */
 export function initializeSceneOld(onlyNearbyStars: boolean): void {
   scene.clear();
+
+  const geometryPool = [
+    { geometry: new THREE.IcosahedronGeometry(100, 16), distance: 50 },
+    { geometry: new THREE.IcosahedronGeometry(100, 8), distance: 300 },
+    { geometry: new THREE.IcosahedronGeometry(100, 4), distance: 1000 },
+    { geometry: new THREE.IcosahedronGeometry(100, 2), distance: 2000 },
+    { geometry: new THREE.IcosahedronGeometry(100, 1), distance: 5000 }
+  ];
+  const materialPool = {} as Record<number, { high: THREE.Material; low: THREE.Material }>;
 
   const textureLoader = new THREE.TextureLoader();
   const texture1 = textureLoader.load(sunTextureImage, assignSRGB);
