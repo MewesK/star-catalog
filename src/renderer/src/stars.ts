@@ -1,13 +1,13 @@
 import { computed, ref } from 'vue';
-import { Star } from '@renderer/../../types';
 import { isDev } from '@renderer/helper';
+import { Star } from 'src/types';
 
 const DISTANCE = 100000.0;
 
 export const stars = ref<Star[]>([]);
 
 export const currentStarIndex = ref(0);
-export const currentStar = computed((): Star | null => stars.value[currentStarIndex.value]);
+export const currentStar = computed((): Star => stars.value[currentStarIndex.value]);
 export const selectedStars = computed((): Star[] => {
   if (isDev) {
     const start = performance.now();

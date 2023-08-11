@@ -7,6 +7,7 @@ import sunTextureImage from './assets/2k_sun.jpg';
 import sunTextureBwImage from './assets/2k_sun_bw.jpg';
 import starImage from './assets/star.png';
 import { assignSRGB, bvToColor } from './three/helper';
+import { Star } from 'src/types';
 
 export let camera: THREE.PerspectiveCamera;
 export let controls: MapControls;
@@ -24,11 +25,12 @@ export function initialize(canvasElement: HTMLCanvasElement, width: number, heig
   renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvasElement });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(width, height);
+  renderer.autoClear = false;
 
   controls = new MapControls(camera, canvasElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
-  controls.minDistance = 10;
+  controls.minDistance = 1;
   controls.maxDistance = Infinity;
 
   stats = new Stats();
@@ -54,33 +56,69 @@ export function initializeScene(onlyNearbyStars: boolean): void {
   const textureLoader = new THREE.TextureLoader();
   const sprite = textureLoader.load(starImage, assignSRGB);
 
-  const materials = {} as Record<number, THREE.PointsMaterial>;
-  const vertices = {} as Record<number, number[]>;
+  const _selectedStars = onlyNearbyStars
+    ? [currentStar.value, ...selectedStars.value]
+    : stars.value;
+  const _selectedStarsLength = _selectedStars.length;
 
-  (onlyNearbyStars ? [currentStar.value, ...selectedStars.value] : stars.value).forEach((star) => {
-    if (star) {
-      if (!materials[star.ci]) {
-        materials[star.ci] = new THREE.PointsMaterial({
-          color: bvToColor(star.ci),
-          size: 0.5 as number,
-          map: sprite,
-          depthTest: false,
-          transparent: true
-        });
-        vertices[star.ci] = [];
-      }
+  const positions = new Float32Array(_selectedStarsLength * 3);
+  const colors = new Float32Array(_selectedStarsLength * 3);
+  const sizes = new Float32Array(_selectedStarsLength);
 
-      // Scale coordinates by 100 to put them in units of 1/100th parsecs
-      vertices[star.ci].push(star.x * 100, star.y * 100, star.z * 100);
-    }
+  let star: Star;
+  const vertex = new THREE.Vector3();
+  for (let i = 0; i < _selectedStarsLength; i++) {
+    star = _selectedStars[i];
+
+    // 1/100 parsec
+    vertex.x = star.x * 100;
+    vertex.y = star.y * 100;
+    vertex.z = star.z * 100;
+    vertex.toArray(positions, i * 3);
+
+    bvToColor(star.ci).toArray(colors, i * 3);
+
+    sizes[i] = 1;
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
+  geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+  const material = new THREE.ShaderMaterial({
+    uniforms: {
+      color: { value: new THREE.Color(0xffffff) },
+      pointTexture: { value: sprite }
+    },
+    vertexShader: `
+attribute float size;
+attribute vec3 customColor;
+
+varying vec3 vColor;
+
+void main() {
+  vColor = customColor;
+  vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+  gl_PointSize = size * ( 300.0 / -mvPosition.z );
+  gl_Position = projectionMatrix * mvPosition;
+}`,
+    fragmentShader: `
+uniform vec3 color;
+uniform sampler2D pointTexture;
+
+varying vec3 vColor;
+
+void main() {
+	gl_FragColor = vec4( color * vColor, 1.0 );
+	gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+}`,
+    //blending: THREE.AdditiveBlending,
+    depthTest: false,
+    transparent: true
   });
 
-  Object.keys(materials).forEach((ci) => {
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices[ci], 3));
-
-    scene.add(new THREE.Points(geometry, materials[ci]));
-  });
+  scene.add(new THREE.Points(geometry, material));
 }
 
 /**

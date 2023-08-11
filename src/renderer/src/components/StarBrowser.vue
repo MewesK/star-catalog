@@ -13,6 +13,7 @@ const { height } = useElementSize(parentEl);
       <v-list-item
         :title="item.proper || item.bf || item.gl || `#${item.id}`"
         :subtitle="`(${format(item.x)}, ${format(item.y)}, ${format(item.z)})`"
+        :base-color="item.proper || item.bf || item.gl ? '' : 'grey-darken-1'"
       >
         <template #append>
           <v-btn icon="navigate_next" size="xx-small" variant="tonal" />
