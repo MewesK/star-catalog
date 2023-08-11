@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
 import { versions } from '@renderer/helper';
 import { selectedStars, stars } from '@renderer/stars';
 
@@ -7,7 +8,8 @@ const items = computed(() => [
   `Electron v${versions.electron}`,
   `Chromium v${versions.chrome}`,
   `Node v${versions.node}`,
-  `${selectedStars.value.length}/${stars.value.length} stars`
+  `${selectedStars.value.length}/${stars.value.length} stars`,
+  WebGL.isWebGL2Available() ? 'WebGL v2' : WebGL.isWebGLAvailable() ? 'WebGL v1' : 'no WebGL'
 ]);
 </script>
 

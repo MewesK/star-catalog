@@ -31,7 +31,7 @@ export function initialize(canvasElement: HTMLCanvasElement, width: number, heig
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
   controls.minDistance = 1;
-  controls.maxDistance = Infinity;
+  controls.maxDistance = 100000;
 
   stats = new Stats();
   scene = new THREE.Scene();

@@ -79,7 +79,7 @@ onMounted(() => {
       </template>
     </v-app-bar>
 
-    <v-navigation-drawer v-model="menu" permanent rail>
+    <v-navigation-drawer v-model="menu" permanent rail :disable-resize-watcher="true">
       <v-list density="compact" nav>
         <v-list-item
           prepend-icon="manage_search"
@@ -102,11 +102,11 @@ onMounted(() => {
       </v-list>
     </v-navigation-drawer>
 
-    <v-navigation-drawer v-model="browser" width="250">
+    <v-navigation-drawer v-model="browser" width="250" :disable-resize-watcher="true">
       <star-browser v-if="!loading" />
     </v-navigation-drawer>
 
-    <v-navigation-drawer v-model="details" width="250">
+    <v-navigation-drawer v-model="details" width="250" :disable-resize-watcher="true">
       <star-details v-if="!loading" />
     </v-navigation-drawer>
 
