@@ -15,7 +15,9 @@ const CAMERA_FAR = 50000;
 const CAMERA_POSITION_Z = 0;
 const FOG = new THREE.Fog(0x000000, 1, CAMERA_FAR / 10);
 const PARTICLE_SIZE = 1;
-const SCALE_MULTIPLIER = 10; // 1 unit = 1/100 parsec (pc)
+const SCALE_MULTIPLIER = 10; // 1 unit = 1/SCALE_MULTIPLIER parsec (pc)
+const INTERSECT_COLOR = new THREE.Color(0x00ff00);
+const INTERSECT_SIZE_MULTIPLICATOR = 2;
 
 export let camera: THREE.PerspectiveCamera;
 export let controls: MapControls;
@@ -28,9 +30,10 @@ export let mousePointer: THREE.Vector2;
 export let particles: THREE.Points;
 export const canvasSize = new THREE.Vector2(0, 0);
 
-let _intersection;
-let _intersectedIndex;
 let _running = false;
+let _intersectedIndex = null as number | null;
+let _backupColor = null as THREE.Color | null;
+let _backupSize = null as number | null;
 
 /**
  * Initializes the canvas.
@@ -221,23 +224,50 @@ export function start(): boolean {
 
       const geometry = particles.geometry;
       const attributes = geometry.attributes;
+      const intersection = raycaster.intersectObject(particles);
 
-      _intersection = raycaster.intersectObject(particles);
-
-      if (_intersection.length > 0) {
-        if (_intersectedIndex != _intersection[0].index) {
-          attributes.size.array[_intersectedIndex] = PARTICLE_SIZE;
-
-          _intersectedIndex = _intersection[0].index;
-          console.log('Intersecting!', _intersectedIndex, mousePointer);
-
-          attributes.size.array[_intersectedIndex] = PARTICLE_SIZE * 1.25;
+      const resetIntersectedPoint = (): void => {
+        if (_intersectedIndex !== null && _backupSize !== null && _backupColor !== null) {
+          // Reset size
+          attributes.size.array[_intersectedIndex] = _backupSize;
           attributes.size.needsUpdate = true;
+
+          // Reset color
+          _backupColor.toArray(attributes.customColor.array, _intersectedIndex * 3);
+          attributes.customColor.needsUpdate = true;
+
+          _backupSize = null;
+          _backupColor = null;
+          _intersectedIndex = null;
+        }
+      };
+
+      if (intersection.length > 0) {
+        if (_intersectedIndex != intersection[0].index) {
+          resetIntersectedPoint();
+
+          _intersectedIndex = intersection[0].index ?? null;
+          if (_intersectedIndex !== null) {
+            console.log('Intersecting!', _intersectedIndex, mousePointer);
+
+            // Backup size
+            _backupSize = attributes.size.array[_intersectedIndex];
+
+            // Backup color
+            _backupColor = new THREE.Color();
+            _backupColor.fromArray(attributes.customColor.array, _intersectedIndex * 3);
+
+            // Set size
+            attributes.size.array[_intersectedIndex] *= INTERSECT_SIZE_MULTIPLICATOR;
+            attributes.size.needsUpdate = true;
+
+            // Set color
+            INTERSECT_COLOR.toArray(attributes.customColor.array, _intersectedIndex * 3);
+            attributes.customColor.needsUpdate = true;
+          }
         }
       } else if (_intersectedIndex !== null) {
-        attributes.size.array[_intersectedIndex] = PARTICLE_SIZE;
-        attributes.size.needsUpdate = true;
-        _intersectedIndex = null;
+        resetIntersectedPoint();
       }
     }
 
