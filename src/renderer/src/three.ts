@@ -17,7 +17,6 @@ const FOG = new THREE.Fog(0x000000, 1, CAMERA_FAR / 10);
 const PARTICLE_SIZE = 1;
 const SCALE_MULTIPLIER = 10; // 1 unit = 1/SCALE_MULTIPLIER parsec (pc)
 const INTERSECT_COLOR = new THREE.Color(0x00ff00);
-const INTERSECT_SIZE_MULTIPLICATOR = 2;
 
 export let camera: THREE.PerspectiveCamera;
 export let controls: MapControls;
@@ -248,7 +247,13 @@ export function start(): boolean {
 
           _intersectedIndex = intersection[0].index ?? null;
           if (_intersectedIndex !== null) {
-            console.log('Intersecting!', _intersectedIndex, mousePointer);
+            console.log(
+              'Intersecting!',
+              _intersectedIndex,
+              mousePointer,
+              intersection[0].distance,
+              Math.log(intersection[0].distance + 1) / 5
+            );
 
             // Backup size
             _backupSize = attributes.size.array[_intersectedIndex];
@@ -258,7 +263,8 @@ export function start(): boolean {
             _backupColor.fromArray(attributes.customColor.array, _intersectedIndex * 3);
 
             // Set size
-            attributes.size.array[_intersectedIndex] *= INTERSECT_SIZE_MULTIPLICATOR;
+            attributes.size.array[_intersectedIndex] =
+              attributes.size.array[_intersectedIndex] + Math.log2(intersection[0].distance * intersection[0].distance + 1) / 5;
             attributes.size.needsUpdate = true;
 
             // Set color
