@@ -2,49 +2,59 @@ import * as THREE from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { MapControls } from 'three/examples/jsm/controls/MapControls';
 import { currentStar, selectedStars, stars } from '@renderer/stars';
+import { assignSRGB, bvToColor } from './three/helper';
+import { Star } from 'src/types';
 
 import sunTextureImage from './assets/2k_sun.jpg';
 import sunTextureBwImage from './assets/2k_sun_bw.jpg';
 import starImage from './assets/star.png';
-import { assignSRGB, bvToColor } from './three/helper';
-import { Star } from 'src/types';
+
+const CAMERA_FOV = 70;
+const CAMERA_NEAR = 1;
+const CAMERA_FAR = 50000;
+const CAMERA_POSITION_Z = 0;
+const FOG = new THREE.Fog(0x000000, 1, CAMERA_FAR / 10);
+const PARTICLE_SIZE = 1;
+const SCALE_MULTIPLIER = 10; // 1 unit = 1/100 parsec (pc)
 
 export let camera: THREE.PerspectiveCamera;
 export let controls: MapControls;
 export let renderer: THREE.WebGLRenderer;
+export let raycaster: THREE.Raycaster;
 export let scene: THREE.Scene;
 export let stats: Stats;
+
+export let mousePointer: THREE.Vector2;
+export let particles: THREE.Points;
+export const canvasSize = new THREE.Vector2(0, 0);
+
+let _intersection;
+let _intersectedIndex;
+let _running = false;
 
 /**
  * Initializes the canvas.
  */
-export function initialize(canvasElement: HTMLCanvasElement, width: number, height: number): void {
-  camera = new THREE.PerspectiveCamera(70, width / height, 1, 50000);
-  camera.position.z = 0;
+export function initialize(canvasElement: HTMLCanvasElement): void {
+  camera = new THREE.PerspectiveCamera(CAMERA_FOV, 1, CAMERA_NEAR, CAMERA_FAR);
+  camera.position.z = CAMERA_POSITION_Z;
 
   renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvasElement });
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(width, height);
   renderer.autoClear = false;
+
+  raycaster = new THREE.Raycaster();
+  raycaster.params.Points = { threshold: 0.2 };
 
   controls = new MapControls(camera, canvasElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
-  controls.minDistance = 1;
-  controls.maxDistance = 100000;
+  controls.minDistance = 2;
+  controls.maxDistance = 2 * CAMERA_FAR;
 
   stats = new Stats();
   scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x000000, 1, 50000);
-
-  // Animation loop
-  function animate(): void {
-    controls.update();
-    renderer.render(scene, camera);
-    stats.update();
-    window.requestAnimationFrame(animate);
-  }
-  animate();
+  scene.fog = FOG;
 }
 
 /**
@@ -54,7 +64,7 @@ export function initializeScene(onlyNearbyStars: boolean): void {
   scene.clear();
 
   const textureLoader = new THREE.TextureLoader();
-  const sprite = textureLoader.load(starImage, assignSRGB);
+  const starTexture = textureLoader.load(starImage, assignSRGB);
 
   const _selectedStars = onlyNearbyStars
     ? [currentStar.value, ...selectedStars.value]
@@ -70,15 +80,14 @@ export function initializeScene(onlyNearbyStars: boolean): void {
   for (let i = 0; i < _selectedStarsLength; i++) {
     star = _selectedStars[i];
 
-    // 1/100 parsec
-    vertex.x = star.x * 100;
-    vertex.y = star.y * 100;
-    vertex.z = star.z * 100;
+    vertex.x = star.x * SCALE_MULTIPLIER;
+    vertex.y = star.y * SCALE_MULTIPLIER;
+    vertex.z = star.z * SCALE_MULTIPLIER;
     vertex.toArray(positions, i * 3);
 
     bvToColor(star.ci).toArray(colors, i * 3);
 
-    sizes[i] = 1;
+    sizes[i] = PARTICLE_SIZE;
   }
 
   const geometry = new THREE.BufferGeometry();
@@ -89,7 +98,8 @@ export function initializeScene(onlyNearbyStars: boolean): void {
   const material = new THREE.ShaderMaterial({
     uniforms: {
       color: { value: new THREE.Color(0xffffff) },
-      pointTexture: { value: sprite }
+      pointTexture: { value: starTexture },
+      alphaTest: { value: 0.9 }
     },
     vertexShader: `
 attribute float size;
@@ -118,7 +128,8 @@ void main() {
     transparent: true
   });
 
-  scene.add(new THREE.Points(geometry, material));
+  particles = new THREE.Points(geometry, material);
+  scene.add(particles);
 }
 
 /**
@@ -184,7 +195,64 @@ export function initializeSceneOld(onlyNearbyStars: boolean): void {
  * Resizes the canavs.
  */
 export function resize(width: number, height: number): void {
+  canvasSize.width = width;
+  canvasSize.height = height;
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
   renderer.setSize(width, height);
+}
+
+export function start(): boolean {
+  if (_running) {
+    return false;
+  }
+
+  _running = true;
+
+  // Animation loop
+  function animate(): void {
+    window.requestAnimationFrame(animate);
+
+    controls.update();
+
+    // Raycasting
+    if (mousePointer && particles) {
+      raycaster.setFromCamera(mousePointer, camera);
+
+      const geometry = particles.geometry;
+      const attributes = geometry.attributes;
+
+      _intersection = raycaster.intersectObject(particles);
+
+      if (_intersection.length > 0) {
+        if (_intersectedIndex != _intersection[0].index) {
+          attributes.size.array[_intersectedIndex] = PARTICLE_SIZE;
+
+          _intersectedIndex = _intersection[0].index;
+          console.log('Intersecting!', _intersectedIndex, mousePointer);
+
+          attributes.size.array[_intersectedIndex] = PARTICLE_SIZE * 1.25;
+          attributes.size.needsUpdate = true;
+        }
+      } else if (_intersectedIndex !== null) {
+        attributes.size.array[_intersectedIndex] = PARTICLE_SIZE;
+        attributes.size.needsUpdate = true;
+        _intersectedIndex = null;
+      }
+    }
+
+    renderer.render(scene, camera);
+    stats.update();
+  }
+  animate();
+
+  return true;
+}
+
+export function updatePointer(x: number, y: number): void {
+  if (!mousePointer) {
+    mousePointer = new THREE.Vector2(0, 0);
+  }
+  mousePointer.x = (x / canvasSize.width) * 2 - 1;
+  mousePointer.y = -(y / canvasSize.height) * 2 + 1;
 }
