@@ -63,9 +63,6 @@ export default class MeshScene extends BaseScene {
   }
 
   animate(): void {
-    if (this.running) {
-      requestAnimationFrame(() => this.animate());
-    }
-    this.canvas.render(this.scene);
+    // Do nothing
   }
 }

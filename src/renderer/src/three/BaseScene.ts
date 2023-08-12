@@ -22,11 +22,19 @@ export default abstract class BaseScene {
     }
 
     this.running = true;
-    this.animate();
+    this.innerAnimate();
   }
 
   stop(): void {
     this.running = false;
+  }
+
+  innerAnimate(): void {
+    if (this.running) {
+      requestAnimationFrame(() => this.innerAnimate());
+    }
+    this.animate();
+    this.canvas.render(this.scene);
   }
 
   abstract animate(): void;

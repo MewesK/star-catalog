@@ -88,10 +88,6 @@ void main() {
   }
 
   animate(): void {
-    if (this.running) {
-      requestAnimationFrame(() => this.animate());
-    }
-
     // Raycasting
     if (this.points) {
       const geometry = this.points.geometry;
@@ -137,7 +133,5 @@ void main() {
         }
       );
     }
-
-    this.canvas.render(this.scene);
   }
 }
