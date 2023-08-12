@@ -4,7 +4,7 @@ import { Star } from '../types';
 
 // Custom APIs for renderer
 const api = {
-  load: (): Promise<Star[]> => ipcRenderer.invoke('load'),
+  load: (): Promise<void> => ipcRenderer.invoke('load'),
   onUpdate: (callback: (event: IpcRendererEvent, stars: Star[]) => void): void => {
     ipcRenderer.on('update', callback);
   }
