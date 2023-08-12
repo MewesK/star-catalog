@@ -12,7 +12,7 @@ export default class PointScene extends BaseScene {
   static SCALE_MULTIPLIER = 10; // 1 unit = 1/SCALE_MULTIPLIER parsec (pc)
   static INTERSECT_COLOR = new THREE.Color(0x00ff00);
 
-  raycaster = new Raycaster();
+  readonly raycaster = new Raycaster();
 
   private points = null as THREE.Points | null;
   private backupColor = null as THREE.Color | null;

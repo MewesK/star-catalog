@@ -29,7 +29,7 @@ export default abstract class BaseScene {
     this.running = false;
   }
 
-  innerAnimate(): void {
+  protected innerAnimate(): void {
     if (this.running) {
       requestAnimationFrame(() => this.innerAnimate());
     }

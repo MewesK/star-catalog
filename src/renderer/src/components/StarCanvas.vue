@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useDebounceFn, useResizeObserver, watchArray } from '@vueuse/core';
 import Canvas from '@renderer/three/Canvas';
 import PointScene from '@renderer/three/PointScene';
-import { stars } from '@renderer/stars';
+import { selectedStars, stars } from '@renderer/stars';
 
 const canvasElement = ref<HTMLCanvasElement | null>(null);
 const canvasContainerElement = ref<HTMLElement | null>(null);
@@ -52,6 +52,7 @@ onMounted(() => {
 
 function onPointerEnter(starIndex: number, intersection: THREE.Intersection<THREE.Object3D>): void {
   console.log('onPointerEnter...', starIndex, intersection);
+  console.log(JSON.stringify(selectedStars.value[starIndex]));
 }
 
 function onPointerLeave(starIndex: number): void {
