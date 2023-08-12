@@ -2,18 +2,11 @@
 import { computed } from 'vue';
 import { useElementSize, useParentElement } from '@vueuse/core';
 import { format } from '@renderer/helper';
-import { currentStar } from '@renderer/stars';
+import { currentStar, getStarName } from '@renderer/stars';
 
 const parentEl = useParentElement();
 const { height } = useElementSize(parentEl);
-const name = computed<string>(() =>
-  currentStar.value
-    ? currentStar.value.proper ||
-      currentStar.value.bf ||
-      currentStar.value.gl ||
-      `#${currentStar.value.id}`
-    : ''
-);
+const name = computed<string>(() => getStarName(currentStar.value));
 </script>
 
 <template>

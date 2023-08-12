@@ -25,3 +25,7 @@ export const selectedStars = computed((): Star[] => {
 
   return nearbyStars;
 });
+
+export function getStarName(star: Star | null): string {
+  return star ? star.proper || star.bf || star.gl || `#${star.id}` : '';
+}
