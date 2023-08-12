@@ -2,7 +2,6 @@
 import { computed, onMounted, ref } from 'vue';
 import { useTheme } from 'vuetify';
 import { stars } from '@renderer/stars';
-import { isDev } from '@renderer/helper';
 
 import Debug from '@renderer/components/Debug.vue';
 import StarBrowser from '@renderer/components/StarBrowser.vue';
@@ -18,6 +17,26 @@ const details = ref(false);
 const error = ref<Error | null>(null);
 const loading = ref(true);
 const hasError = computed(() => error.value !== null);
+
+const themeIcon = computed(() => (theme.global.current.value.dark ? 'dark_mode' : 'light_mode'));
+const themeLabel = computed(() => (theme.global.current.value.dark ? 'Dark mode' : 'Light mode'));
+
+function onMainMenuToggle(): void {
+  menu.value = !menu.value;
+  browser.value = false;
+  details.value = false;
+}
+function onBrowserMenuToggle(): void {
+  browser.value = !browser.value;
+  details.value = false;
+}
+function onDetailsMenuToggle(): void {
+  details.value = !details.value;
+  browser.value = false;
+}
+function onThemeToggle(): void {
+  theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark';
+}
 
 onMounted(() => {
   setTimeout(() => {
@@ -47,58 +66,27 @@ onMounted(() => {
       </template>
 
       <template #prepend>
-        <v-app-bar-nav-icon
-          variant="text"
-          @click.stop="
-            menu = !menu;
-            browser = false;
-            details = false;
-          "
-        ></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon variant="text" @click.stop="onMainMenuToggle"></v-app-bar-nav-icon>
       </template>
 
       <v-app-bar-title>Star Catalog</v-app-bar-title>
 
       <template #append>
-        <v-icon v-if="isDev" icon="code" title="Development mode" />
-        <v-icon v-else icon="code_off" title="Production mode" />
-        <v-btn
-          v-if="theme.global.current.value.dark"
-          icon="dark_mode"
-          variant="text"
-          title="Dark mode"
-          @click="theme.global.name.value = 'light'"
-        />
-        <v-btn
-          v-else
-          icon="light_mode"
-          variant="text"
-          title="Light mode"
-          @click="theme.global.name.value = 'dark'"
-        />
+        <v-btn icon @click="onThemeToggle">
+          <v-icon :icon="themeIcon" />
+          <v-tooltip activator="parent" location="bottom">{{ themeLabel }}</v-tooltip>
+        </v-btn>
       </template>
     </v-app-bar>
 
     <v-navigation-drawer v-model="menu" permanent rail :disable-resize-watcher="true">
       <v-list density="compact" nav>
-        <v-list-item
-          prepend-icon="manage_search"
-          value="browser"
-          title="Browser"
-          @click.stop="
-            browser = !browser;
-            details = false;
-          "
-        ></v-list-item>
-        <v-list-item
-          prepend-icon="info"
-          value="details"
-          title="Details"
-          @click.stop="
-            details = !details;
-            browser = false;
-          "
-        ></v-list-item>
+        <v-list-item prepend-icon="manage_search" @click.stop="onBrowserMenuToggle">
+          <v-tooltip activator="parent">Browser</v-tooltip>
+        </v-list-item>
+        <v-list-item prepend-icon="info" @click.stop="onDetailsMenuToggle">
+          <v-tooltip activator="parent" location="bottom">Details</v-tooltip>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
