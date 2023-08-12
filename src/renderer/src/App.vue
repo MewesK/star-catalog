@@ -103,14 +103,14 @@ onMounted(() => {
     </v-navigation-drawer>
 
     <v-navigation-drawer v-model="browser" width="250" :disable-resize-watcher="true">
-      <star-browser v-if="!loading" />
+      <star-browser />
     </v-navigation-drawer>
 
     <v-navigation-drawer v-model="details" width="250" :disable-resize-watcher="true">
-      <star-details v-if="!loading" />
+      <star-details />
     </v-navigation-drawer>
 
-    <v-main><star-canvas v-if="!loading" /></v-main>
+    <v-main><star-canvas /></v-main>
 
     <v-footer app :border="true" :height="22" order="-1">
       <debug />

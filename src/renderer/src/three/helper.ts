@@ -47,10 +47,6 @@ export function bvToColor(bv: number): THREE.Color {
   return new THREE.Color(r, g, b);
 }
 
-export const assignSRGB = (texture): void => {
-  texture.colorSpace = THREE.SRGBColorSpace;
-};
-
 /**
  * Converts parsec (pc) to light years (ly).
  * @see https://en.wikipedia.org/wiki/Parsec
