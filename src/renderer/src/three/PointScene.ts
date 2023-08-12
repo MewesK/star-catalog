@@ -96,7 +96,7 @@ void main() {
       this.raycaster.check(
         this.canvas.camera,
         this.points,
-        (index, intersection) => {
+        (index, intersection, mousePointer) => {
           // Set size
           this.backupSize = attributes.size.array[index];
           attributes.size.array[index] += Math.log2(Math.pow(intersection.distance, 2) + 1) / 10;
@@ -109,7 +109,7 @@ void main() {
           attributes.customColor.needsUpdate = true;
 
           if (this.pointerEnterCallback) {
-            this.pointerEnterCallback(index, intersection);
+            this.pointerEnterCallback(index, intersection, mousePointer);
           }
         },
         (index) => {

@@ -62,3 +62,17 @@ export function pcToLy(pc: number): number {
 export function lyToPc(ly: number): number {
   return ly / 3.26156;
 }
+
+export function screenToWorld(x: number, y: number, bounds: DOMRect): { x: number; y: number } {
+  return {
+    x: ((x - bounds.x) / bounds.width) * 2 - 1,
+    y: -((y - bounds.y) / bounds.height) * 2 + 1
+  };
+}
+
+export function worldToScreen(x: number, y: number, bounds: DOMRect): { x: number; y: number } {
+  return {
+    x: ((x + 1) * bounds.width) / 2 + bounds.x,
+    y: (-(y - 1) * bounds.height) / 2 + bounds.y
+  };
+}

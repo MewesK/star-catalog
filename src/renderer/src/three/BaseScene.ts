@@ -3,7 +3,11 @@ import Canvas from './Canvas';
 
 export default abstract class BaseScene {
   pointerEnterCallback = null as
-    | ((index: number, intersection: THREE.Intersection<THREE.Object3D>) => void)
+    | ((
+        index: number,
+        intersection: THREE.Intersection<THREE.Object3D>,
+        mousePointer: THREE.Vector2
+      ) => void)
     | null;
   pointerLeaveCallback = null as ((index: number) => void) | null;
 

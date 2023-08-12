@@ -15,7 +15,8 @@ export default class Raycaster {
     points: THREE.Points,
     pointerEnterCallback: (
       starIndex: number,
-      intersection: THREE.Intersection<THREE.Object3D>
+      intersection: THREE.Intersection<THREE.Object3D>,
+      mousePointer: THREE.Vector2
     ) => void,
     pointerLeaveCallback: (starIndex: number) => void
   ): void {
@@ -24,15 +25,15 @@ export default class Raycaster {
     }
 
     this.raycaster.setFromCamera(this.mousePointer, camera);
-    const intersection = this.raycaster.intersectObject(points);
-    if (intersection.length > 0) {
-      if (this.intersectedIndex != intersection[0].index) {
+    const intersections = this.raycaster.intersectObject(points);
+    if (intersections.length > 0) {
+      if (this.intersectedIndex != intersections[0].index) {
         if (this.intersectedIndex !== null) {
           pointerLeaveCallback(this.intersectedIndex);
         }
-        this.intersectedIndex = intersection[0].index ?? null;
+        this.intersectedIndex = intersections[0].index ?? null;
         if (this.intersectedIndex !== null) {
-          pointerEnterCallback(this.intersectedIndex, intersection[0]);
+          pointerEnterCallback(this.intersectedIndex, intersections[0], this.mousePointer);
         }
       }
     } else if (this.intersectedIndex !== null) {
