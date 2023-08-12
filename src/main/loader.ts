@@ -1,12 +1,12 @@
 import fs from 'fs';
 import { parse } from 'csv-parse';
+import { BrowserWindow } from 'electron';
 import { Star } from '../types';
 
 import hygData35Csv from '../../resources/hygdata_v35.csv?asset';
 
-export default function (): Promise<Star[]> {
-  const records = [] as Star[];
-  return new Promise<Star[]>((resolve, reject) => {
+export default function (window: BrowserWindow): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
     const parser = parse({
       columns: true,
       delimiter: ',',
@@ -14,13 +14,20 @@ export default function (): Promise<Star[]> {
       trim: true
     })
       .on('readable', () => {
-        let record: Star;
-        while ((record = parser.read()) !== null) {
-          records.push(record);
+        const buffer = [] as Star[];
+        let star: Star;
+        while ((star = parser.read()) !== null) {
+          buffer.push(star);
+        }
+        if (buffer.length > 0) {
+          window.webContents.send('update', buffer);
         }
       })
       .on('error', (e) => reject(e))
-      .on('end', () => resolve(records));
+      .on('end', () => {
+        window.webContents.send('update', []);
+        resolve();
+      });
 
     fs.createReadStream(hygData35Csv)
       .on('data', (data) => parser.write(data.toString()))

@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useTheme } from 'vuetify';
-import { stars } from '@renderer/stars';
 
 import Debug from '@renderer/components/Debug.vue';
 import StarBrowser from '@renderer/components/StarBrowser.vue';
 import StarCanvas from '@renderer/components/StarCanvas.vue';
 import StarDetails from '@renderer/components/StarDetails.vue';
+
+import { error, loading } from './loader';
 
 const theme = useTheme();
 
@@ -14,12 +15,9 @@ const menu = ref(true);
 const browser = ref(false);
 const details = ref(false);
 
-const error = ref<Error | null>(null);
-const loading = ref(true);
-const hasError = computed(() => error.value !== null);
-
 const themeIcon = computed(() => (theme.global.current.value.dark ? 'dark_mode' : 'light_mode'));
 const themeLabel = computed(() => (theme.global.current.value.dark ? 'Dark mode' : 'Light mode'));
+const hasError = computed(() => error.value !== null);
 
 function onMainMenuToggle(): void {
   menu.value = !menu.value;
@@ -37,16 +35,6 @@ function onDetailsMenuToggle(): void {
 function onThemeToggle(): void {
   theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark';
 }
-
-onMounted(() => {
-  setTimeout(() => {
-    window.api
-      .load()
-      .then((data) => (stars.value = data))
-      .catch((e: Error) => (error.value = e))
-      .finally(() => (loading.value = false));
-  }, 100);
-});
 </script>
 
 <template>

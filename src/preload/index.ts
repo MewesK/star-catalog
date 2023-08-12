@@ -1,10 +1,13 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron';
 import { electronAPI } from '@electron-toolkit/preload';
 import { Star } from '../types';
 
 // Custom APIs for renderer
 const api = {
-  load: (): Promise<Star[]> => ipcRenderer.invoke('load')
+  load: (): Promise<Star[]> => ipcRenderer.invoke('load'),
+  onUpdate: (callback: (event: IpcRendererEvent, stars: Star[]) => void): void => {
+    ipcRenderer.on('update', callback);
+  }
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

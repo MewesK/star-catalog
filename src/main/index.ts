@@ -4,7 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils';
 import load from './loader';
 import icon from '../../resources/icon.png?asset';
 
-function createWindow(): void {
+function createWindow(): BrowserWindow {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1024,
@@ -36,6 +36,8 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
   }
+
+  return mainWindow;
 }
 
 // This method will be called when Electron has finished
@@ -52,7 +54,7 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window);
   });
 
-  createWindow();
+  const mainWindow = createWindow();
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
@@ -60,7 +62,9 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 
-  ipcMain.handle('load', load);
+  ipcMain.handle('load', () => {
+    load(mainWindow);
+  });
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
