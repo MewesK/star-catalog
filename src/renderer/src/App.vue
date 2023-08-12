@@ -56,7 +56,7 @@ onMounted(() => {
         :active="loading"
         :indeterminate="loading"
         color="white"
-        height="4"
+        :height="4"
         absolute
         bottom
       />
@@ -79,7 +79,7 @@ onMounted(() => {
       </template>
     </v-app-bar>
 
-    <v-navigation-drawer v-model="menu" permanent rail :disable-resize-watcher="true">
+    <v-navigation-drawer v-model="menu" disable-resize-watcher permanent rail>
       <v-list density="compact" nav>
         <v-list-item prepend-icon="manage_search" @click.stop="onBrowserMenuToggle">
           <v-tooltip activator="parent">Browser</v-tooltip>
@@ -90,17 +90,17 @@ onMounted(() => {
       </v-list>
     </v-navigation-drawer>
 
-    <v-navigation-drawer v-model="browser" width="250" :disable-resize-watcher="true">
+    <v-navigation-drawer v-model="browser" :width="250" disable-resize-watcher>
       <star-browser />
     </v-navigation-drawer>
 
-    <v-navigation-drawer v-model="details" width="250" :disable-resize-watcher="true">
+    <v-navigation-drawer v-model="details" :width="250" disable-resize-watcher>
       <star-details />
     </v-navigation-drawer>
 
     <v-main><star-canvas /></v-main>
 
-    <v-footer app :border="true" :height="22" order="-1">
+    <v-footer app :border="true" :height="22" :order="-1">
       <debug />
     </v-footer>
 
