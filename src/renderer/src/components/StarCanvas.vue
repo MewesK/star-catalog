@@ -40,7 +40,7 @@ onMounted(() => {
         `Resizing canvas to ${entries[0].contentRect.width}x${entries[0].contentRect.height}...`
       );
       canvas.resize(entries[0].contentRect.width, entries[0].contentRect.height);
-    }, 100)
+    }, 10)
   );
 
   watchArray(starsInRange, initialize);

@@ -23,7 +23,7 @@ export const BLOOM_LUMINANCE_SMOOTHING_DEFAULT = 0.3;
 export const BLOOM_LUMINANCE_THRESHOLD_DEFAULT = 0.3;
 
 export const FOG_COLOR_DEFAULT = 0x000000;
-export const FOG_NEAR_DEFAULT = 1;
-export const FOG_FAR_DEFAULT = 20000;
+export const FOG_NEAR_DEFAULT = 100;
+export const FOG_FAR_DEFAULT = 1000;
 
 export const MOUSEOVER_COLOR_DEFAULT = 0xffa0a0;

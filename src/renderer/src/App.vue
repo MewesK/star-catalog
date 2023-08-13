@@ -76,30 +76,34 @@ function onThemeToggle(): void {
 
     <v-navigation-drawer v-model="menu" disable-resize-watcher permanent rail>
       <v-list density="compact" nav>
-        <v-list-item prepend-icon="manage_search" @click.stop="onBrowserMenuToggle">
+        <v-list-item
+          :active="browser"
+          prepend-icon="manage_search"
+          @click.stop="onBrowserMenuToggle"
+        >
           <v-tooltip activator="parent">Browser</v-tooltip>
         </v-list-item>
-        <v-list-item prepend-icon="info" @click.stop="onDetailsMenuToggle">
+        <v-list-item :active="details" prepend-icon="info" @click.stop="onDetailsMenuToggle">
           <v-tooltip activator="parent" location="bottom">Details</v-tooltip>
         </v-list-item>
       </v-list>
       <v-divider></v-divider>
       <v-list density="compact" nav>
-        <v-list-item prepend-icon="settings" @click.stop="onConfigMenuToggle">
+        <v-list-item :active="config" prepend-icon="settings" @click.stop="onConfigMenuToggle">
           <v-tooltip activator="parent" location="bottom">Config</v-tooltip>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
-    <v-navigation-drawer v-model="browser" :width="300" disable-resize-watcher>
+    <v-navigation-drawer v-model="browser" :width="300" disable-resize-watcher permanent>
       <star-browser />
     </v-navigation-drawer>
 
-    <v-navigation-drawer v-model="details" :width="300" disable-resize-watcher>
+    <v-navigation-drawer v-model="details" :width="300" disable-resize-watcher permanent>
       <star-details />
     </v-navigation-drawer>
 
-    <v-navigation-drawer v-model="config" :width="300" disable-resize-watcher>
+    <v-navigation-drawer v-model="config" :width="300" disable-resize-watcher permanent>
       <config />
     </v-navigation-drawer>
 

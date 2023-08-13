@@ -20,7 +20,7 @@ export const config = ref(false);
 
 // Getter
 
-export const selectedStar = computed((): Star => stars.value[selectedStarIndex.value]);
+export const selectedStar = computed((): Star => starsInRange.value[selectedStarIndex.value]);
 export const starsInRange = computed((): Star[] => {
   const start = performance.now();
 
