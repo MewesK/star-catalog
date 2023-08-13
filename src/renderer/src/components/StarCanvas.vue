@@ -89,7 +89,7 @@ function onPointerMove(event: PointerEvent): void {
 }
 
 function onClick(): void {
-  if (!hoverIndex.value) {
+  if (hoverIndex.value === null) {
     return;
   }
   selectStar(hoverIndex.value);

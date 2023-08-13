@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useTheme } from 'vuetify';
 
 import Debug from '@renderer/components/Debug.vue';
@@ -9,13 +9,9 @@ import StarDetails from '@renderer/components/StarDetails.vue';
 
 import { error, loading } from './loader';
 import { getStarName } from './helper';
-import { currentStar } from './state';
+import { browser, currentStar, details, menu } from './state';
 
 const theme = useTheme();
-
-const menu = ref(true);
-const browser = ref(false);
-const details = ref(false);
 
 const themeIcon = computed(() => (theme.global.current.value.dark ? 'dark_mode' : 'light_mode'));
 const themeLabel = computed(() => (theme.global.current.value.dark ? 'Dark mode' : 'Light mode'));
@@ -41,7 +37,7 @@ function onThemeToggle(): void {
 
 <template>
   <v-app>
-    <v-app-bar color="primary" density="compact" image="./assets/carina_nebula.png">
+    <v-app-bar color="primary" density="compact" image="./assets/header.jpg">
       <v-progress-linear
         :active="loading"
         :indeterminate="loading"
@@ -52,7 +48,7 @@ function onThemeToggle(): void {
       />
 
       <template #image>
-        <v-img eager gradient="to top right, rgba(19,84,122,.8), rgba(128,208,199,.8)"></v-img>
+        <v-img eager gradient="to bottom, rgba(28,28,28,.1), rgba(10,10,30,1)"></v-img>
       </template>
 
       <template #prepend>

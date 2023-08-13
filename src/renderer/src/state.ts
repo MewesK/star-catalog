@@ -5,15 +5,20 @@ import PointScene from './three/PointScene';
 
 // Constants
 
-const DISTANCE = ref(100000.0); // Parsec
+const MAX_DISTANCE = 100000; // Distance that will load all stars (Parsec)
+const DISTANCE = ref(1000); // Filter radius for rendered stars (Parsec)
 
 // State
+
+export const stars = ref<Star[]>([]);
+export const currentStarIndex = ref(0);
 
 export const canvas = new Canvas();
 export const scene = new PointScene(canvas);
 
-export const stars = ref<Star[]>([]);
-export const currentStarIndex = ref(0);
+export const menu = ref(true);
+export const browser = ref(false);
+export const details = ref(false);
 
 // Getter
 
@@ -22,15 +27,13 @@ export const selectedStars = computed((): Star[] => {
   const start = performance.now();
 
   let nearbyStars = [] as Star[];
-  if (currentStar.value) {
+  if (DISTANCE.value >= MAX_DISTANCE) {
+    nearbyStars = stars.value;
+  } else {
     nearbyStars = stars.value.filter(
-      (star) =>
-        Math.abs(star.x - currentStar.value.x) <= DISTANCE.value &&
-        Math.abs(star.y - currentStar.value.y) <= DISTANCE.value &&
-        Math.abs(star.z - currentStar.value.z) <= DISTANCE.value
+      (star) => star.x <= DISTANCE.value && star.y <= DISTANCE.value && star.z <= DISTANCE.value
     );
   }
-
   const end = performance.now();
   console.log(`Searching for nearby stars: ${end - start} ms`);
 
@@ -40,6 +43,8 @@ export const selectedStars = computed((): Star[] => {
 // Setter
 
 export function selectStar(starIndex: number): void {
+  console.log(`Selecting star #${starIndex}...`);
   currentStarIndex.value = starIndex;
   scene.lookAt(currentStar.value);
+  details.value = true;
 }
