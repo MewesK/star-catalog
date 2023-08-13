@@ -30,7 +30,15 @@ export default class PointScene extends BaseScene {
   }
 
   initialize(): void {
+    if (!this.canvas.renderer || !this.canvas.renderPass) {
+      throw new Error('Canvas not initialized.');
+    }
+
     this.scene.clear();
+
+    if (this.canvas.renderPass.mainScene !== this.scene) {
+      this.canvas.renderPass.mainScene = this.scene;
+    }
 
     this.scene.fog = new THREE.Fog(0x000000, 1, Canvas.CAMERA_FAR / 10);
 
@@ -59,7 +67,8 @@ export default class PointScene extends BaseScene {
       uniforms: {
         color: { value: new THREE.Color(0xffffff) },
         pointTexture: { value: starTexture },
-        alphaTest: { value: 0.9 }
+        alphaTest: { value: 0.9 },
+        sizeAttenuation: { value: true }
       },
       vertexShader: `
 attribute float size;
@@ -82,7 +91,7 @@ void main() {
 	gl_FragColor = vec4( color * vColor, 1.0 );
 	gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
 }`,
-      //blending: THREE.AdditiveBlending,
+      blending: THREE.AdditiveBlending,
       depthTest: false,
       transparent: true
     });

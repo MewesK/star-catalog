@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
+import { BloomEffect, EffectComposer, EffectPass, RenderPass } from 'postprocessing';
 import Controls from './Controls';
 
 export default class Canvas {
@@ -14,6 +15,8 @@ export default class Canvas {
 
   controls = null as Controls | null;
   renderer = null as THREE.WebGLRenderer | null;
+  composer = null as EffectComposer | null;
+  renderPass = null as RenderPass | null;
 
   constructor() {
     this.camera = new THREE.PerspectiveCamera(
@@ -27,10 +30,27 @@ export default class Canvas {
   }
 
   initialize(canvasElement: HTMLCanvasElement): void {
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvasElement });
+    this.renderer = new THREE.WebGLRenderer({
+      canvas: canvasElement,
+      powerPreference: 'high-performance',
+      antialias: false,
+      stencil: false,
+      depth: false
+    });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.autoClear = false;
+
     this.controls = new Controls(this);
+
+    this.renderPass = new RenderPass(new THREE.Scene(), this.camera);
+    this.composer = new EffectComposer(this.renderer);
+    this.composer.addPass(this.renderPass);
+    this.composer.addPass(
+      new EffectPass(
+        this.camera,
+        new BloomEffect({ intensity: 1.0, radius: 1, luminanceSmoothing: 0.2 })
+      )
+    );
   }
 
   resize(width: number, height: number): void {
@@ -40,18 +60,15 @@ export default class Canvas {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
 
-    if (this.renderer) {
-      this.renderer.setSize(width, height);
-    }
+    this.renderer?.setSize(width, height);
+    this.composer?.setSize(width, height);
   }
 
-  render(scene: THREE.Scene): void {
+  render(): void {
     const delta = this.clock.getDelta();
 
-    if (this.renderer && this.controls) {
-      this.renderer.render(scene, this.camera);
-      this.controls.update(delta);
-    }
+    this.composer?.render(delta);
+    this.controls?.update(delta);
 
     this.stats.update();
   }

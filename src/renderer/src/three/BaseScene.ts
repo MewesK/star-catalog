@@ -29,7 +29,7 @@ export default abstract class BaseScene {
       requestAnimationFrame(() => this.innerAnimate());
     }
     this.animate();
-    this.canvas.render(this.scene);
+    this.canvas.render();
   }
 
   abstract animate(): void;
