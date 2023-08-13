@@ -46,5 +46,6 @@ export function selectStar(starIndex: number): void {
   console.log(`Selecting star #${starIndex}...`);
   currentStarIndex.value = starIndex;
   scene.lookAt(currentStar.value);
+  browser.value = false;
   details.value = true;
 }
