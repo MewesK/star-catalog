@@ -1,6 +1,6 @@
 import { IpcRendererEvent } from 'electron';
 import { ref } from 'vue';
-import { stars } from './stars';
+import { stars } from './state';
 import { Star } from 'src/types';
 
 export const error = ref<Error | null>(null);

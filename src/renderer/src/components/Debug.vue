@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
+
 import { versions } from '@renderer/helper';
-import { selectedStars, stars } from '@renderer/stars';
+import { selectedStars, stars } from '@renderer/state';
 
 const items = computed(() => [
   `Electron v${versions.electron}`,

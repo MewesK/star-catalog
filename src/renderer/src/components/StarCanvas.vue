@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useDebounceFn, useResizeObserver, watchArray } from '@vueuse/core';
-import Canvas from '@renderer/three/Canvas';
-import PointScene from '@renderer/three/PointScene';
-import { getStarName, selectedStars, stars } from '@renderer/stars';
+
 import { screenToDevice } from '@renderer/three/helper';
-import { isDev } from '@renderer/helper';
+import { getStarName, isDev } from '@renderer/helper';
+import { canvas, scene, selectStar, selectedStars, stars } from '@renderer/state';
 
 const canvasElement = ref<HTMLCanvasElement | null>(null);
 const canvasContainerElement = ref<HTMLElement | null>(null);
 
-let canvas = null as Canvas | null;
-let scene = null as PointScene | null;
-
+const hoverIndex = ref<number | null>(null);
 const showTooltip = ref(false);
 const tooltipText = ref<string | null>(null);
 
@@ -28,7 +25,7 @@ onMounted(() => {
 
   console.log('Initializing canvas...');
 
-  canvas = new Canvas(canvasElement.value);
+  canvas.initialize(canvasElement.value);
   canvas.stats.dom.classList.add('stats');
   canvasContainerElement.value.appendChild(canvas.stats.dom);
 
@@ -56,7 +53,6 @@ function initialize(): void {
 
   console.log('Initializing scene...');
 
-  scene = new PointScene(canvas);
   scene.pointerEnterCallback = onPointerEnter;
   scene.pointerLeaveCallback = onPointerLeave;
 
@@ -69,11 +65,13 @@ function onPointerEnter(starIndex: number): void {
     return;
   }
 
+  hoverIndex.value = starIndex;
   showTooltip.value = true;
   tooltipText.value = getStarName(selectedStars.value[starIndex]);
 }
 
 function onPointerLeave(): void {
+  hoverIndex.value = null;
   showTooltip.value = false;
   tooltipText.value = null;
 }
@@ -89,15 +87,22 @@ function onPointerMove(event: PointerEvent): void {
   );
   scene.raycaster.updatePointer(worldCoordinates.x, worldCoordinates.y);
 }
+
+function onClick(): void {
+  if (!hoverIndex.value) {
+    return;
+  }
+  selectStar(hoverIndex.value);
+}
 </script>
 
 <template>
   <div ref="canvasContainerElement" class="canvas-container">
     <canvas
       ref="canvasElement"
-      class="canvas"
       :style="{ cursor: showTooltip ? 'pointer' : 'auto' }"
       @pointermove.prevent="onPointerMove"
+      @click.prevent="onClick"
     ></canvas>
     <v-snackbar
       v-model="showTooltip"

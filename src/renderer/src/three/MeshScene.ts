@@ -1,9 +1,11 @@
 import * as THREE from 'three';
+
 import BaseScene from './BaseScene';
 import Canvas from './Canvas';
+
 import { bvToColor } from './helper';
 import { sunBwTexture } from './textures';
-import { selectedStars } from '@renderer/stars';
+import { selectedStars } from '@renderer/state';
 
 export default class MeshScene extends BaseScene {
   static SCALE_MULTIPLIER = 10; // 1 unit = 1/SCALE_MULTIPLIER parsec (pc)
@@ -13,6 +15,8 @@ export default class MeshScene extends BaseScene {
   }
 
   initialize(): void {
+    this.scene.clear();
+
     this.scene.fog = new THREE.Fog(0x000000, 1, Canvas.CAMERA_FAR / 10);
 
     const geometryPool = [

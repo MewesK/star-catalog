@@ -1,18 +1,21 @@
-import { MapControls } from 'three/examples/jsm/controls/MapControls';
+import { FlyControls } from 'three/examples/jsm/controls/FlyControls';
 import Canvas from './Canvas';
 
 export default class Controls {
-  private readonly controls: MapControls;
+  private readonly controls: FlyControls;
 
-  constructor(screen: Canvas, minDistance: number, maxDistance: number) {
-    this.controls = new MapControls(screen.camera, screen.renderer.domElement);
-    this.controls.enableDamping = true;
-    this.controls.dampingFactor = 0.05;
-    this.controls.minDistance = minDistance;
-    this.controls.maxDistance = maxDistance;
+  constructor(canvas: Canvas) {
+    if (!canvas.renderer) {
+      throw new Error('Canavs not intialized!');
+    }
+
+    this.controls = new FlyControls(canvas.camera, canvas.renderer.domElement);
+    this.controls.movementSpeed = 100;
+    this.controls.rollSpeed = 0.5;
+    this.controls.dragToLook = true;
   }
 
-  update(): boolean {
-    return this.controls.update();
+  update(delta: number): void {
+    return this.controls.update(delta);
   }
 }

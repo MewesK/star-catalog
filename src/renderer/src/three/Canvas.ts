@@ -7,27 +7,30 @@ export default class Canvas {
   static readonly CAMERA_NEAR = 1;
   static readonly CAMERA_FAR = 50000;
 
+  readonly clock = new THREE.Clock();
   readonly canvasSize = new THREE.Vector2(0, 0);
   readonly camera: THREE.PerspectiveCamera;
-  readonly renderer: THREE.WebGLRenderer;
   readonly stats: Stats;
-  readonly controls: Controls;
 
-  constructor(canvasElement: HTMLCanvasElement) {
+  controls = null as Controls | null;
+  renderer = null as THREE.WebGLRenderer | null;
+
+  constructor() {
     this.camera = new THREE.PerspectiveCamera(
       Canvas.CAMERA_FOV,
       1,
       Canvas.CAMERA_NEAR,
       Canvas.CAMERA_FAR
     );
+    this.camera.position.z = 3;
+    this.stats = new Stats();
+  }
 
+  initialize(canvasElement: HTMLCanvasElement): void {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvasElement });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.autoClear = false;
-
-    this.stats = new Stats();
-
-    this.controls = new Controls(this, 2, 2 * Canvas.CAMERA_FAR);
+    this.controls = new Controls(this);
   }
 
   resize(width: number, height: number): void {
@@ -37,12 +40,19 @@ export default class Canvas {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
 
-    this.renderer.setSize(width, height);
+    if (this.renderer) {
+      this.renderer.setSize(width, height);
+    }
   }
 
   render(scene: THREE.Scene): void {
-    this.renderer.render(scene, this.camera);
-    this.controls.update();
+    const delta = this.clock.getDelta();
+
+    if (this.renderer && this.controls) {
+      this.renderer.render(scene, this.camera);
+      this.controls.update(delta);
+    }
+
     this.stats.update();
   }
 }

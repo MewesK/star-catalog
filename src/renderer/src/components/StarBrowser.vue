@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useElementSize, useParentElement } from '@vueuse/core';
-import { format } from '@renderer/helper';
-import { getStarName, selectedStars } from '@renderer/stars';
+
+import { format, getStarName } from '@renderer/helper';
+import { selectStar, selectedStars } from '@renderer/state';
 
 const parentEl = useParentElement();
 const { height } = useElementSize(parentEl);
@@ -16,7 +17,12 @@ const { height } = useElementSize(parentEl);
         :base-color="item.proper || item.bf || item.gl ? '' : 'grey-darken-1'"
       >
         <template #append>
-          <v-btn icon="navigate_next" size="xx-small" variant="tonal" />
+          <v-btn
+            icon="navigate_next"
+            size="xx-small"
+            variant="tonal"
+            @click="selectStar(item.id)"
+          />
         </template>
       </v-list-item>
     </template>

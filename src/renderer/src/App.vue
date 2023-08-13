@@ -8,6 +8,8 @@ import StarCanvas from '@renderer/components/StarCanvas.vue';
 import StarDetails from '@renderer/components/StarDetails.vue';
 
 import { error, loading } from './loader';
+import { getStarName } from './helper';
+import { currentStar } from './state';
 
 const theme = useTheme();
 
@@ -57,7 +59,7 @@ function onThemeToggle(): void {
         <v-app-bar-nav-icon variant="text" @click.stop="onMainMenuToggle"></v-app-bar-nav-icon>
       </template>
 
-      <v-app-bar-title>Star Catalog</v-app-bar-title>
+      <v-app-bar-title>{{ getStarName(currentStar) }}</v-app-bar-title>
 
       <template #append>
         <v-btn icon @click="onThemeToggle">
@@ -78,11 +80,11 @@ function onThemeToggle(): void {
       </v-list>
     </v-navigation-drawer>
 
-    <v-navigation-drawer v-model="browser" :width="250" disable-resize-watcher>
+    <v-navigation-drawer v-model="browser" :width="300" disable-resize-watcher>
       <star-browser />
     </v-navigation-drawer>
 
-    <v-navigation-drawer v-model="details" :width="250" disable-resize-watcher>
+    <v-navigation-drawer v-model="details" :width="300" disable-resize-watcher>
       <star-details />
     </v-navigation-drawer>
 

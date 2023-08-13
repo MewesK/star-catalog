@@ -1,11 +1,13 @@
 import * as THREE from 'three';
+
 import BaseScene from './BaseScene';
 import Canvas from './Canvas';
 import Raycaster from './Raycaster';
+
 import { bvToColor, hygToWorld } from './helper';
 import { Star } from 'src/types';
 import { starTexture } from './textures';
-import { selectedStars } from '@renderer/stars';
+import { selectedStars } from '@renderer/state';
 
 export default class PointScene extends BaseScene {
   pointerEnterCallback = null as
@@ -28,6 +30,8 @@ export default class PointScene extends BaseScene {
   }
 
   initialize(): void {
+    this.scene.clear();
+
     this.scene.fog = new THREE.Fog(0x000000, 1, Canvas.CAMERA_FAR / 10);
 
     const selectedStarsLength = selectedStars.value.length;
@@ -133,5 +137,12 @@ void main() {
         }
       );
     }
+  }
+
+  lookAt(star: Star): void {
+    const cameraOffset = new THREE.Vector3(0.0, 0.0, 3.0);
+    const objectPosition = hygToWorld(star.x, star.y, star.z);
+    this.canvas.camera.position.copy(objectPosition).add(cameraOffset);
+    this.canvas.camera.rotation.set(0, 0, 0);
   }
 }
