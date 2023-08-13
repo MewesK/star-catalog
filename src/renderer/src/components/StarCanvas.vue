@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import * as THREE from 'three';
 import { ref, onMounted } from 'vue';
 import { useDebounceFn, useResizeObserver, watchArray } from '@vueuse/core';
 import Canvas from '@renderer/three/Canvas';
 import PointScene from '@renderer/three/PointScene';
 import { getStarName, selectedStars, stars } from '@renderer/stars';
-import { screenToWorld, worldToScreen } from '@renderer/three/helper';
+import { screenToDevice } from '@renderer/three/helper';
+import { isDev } from '@renderer/helper';
 
 const canvasElement = ref<HTMLCanvasElement | null>(null);
 const canvasContainerElement = ref<HTMLElement | null>(null);
@@ -15,11 +15,11 @@ let scene = null as PointScene | null;
 
 const showTooltip = ref(false);
 const tooltipText = ref<string | null>(null);
-const tooltipPositionTop = ref('0');
-const tooltipPositionLeft = ref('0');
 
 // DEBUG
-import.meta.hot?.on('vite:afterUpdate', initialize);
+if (isDev) {
+  import.meta.hot?.on('vite:afterUpdate', initialize);
+}
 
 onMounted(() => {
   if (!canvasElement.value || !canvasContainerElement.value) {
@@ -64,28 +64,17 @@ function initialize(): void {
   scene.start();
 }
 
-function onPointerEnter(starIndex: number, intersection: THREE.Intersection<THREE.Object3D>): void {
+function onPointerEnter(starIndex: number): void {
   if (!canvasElement.value || !canvas) {
     return;
   }
 
-  const projectedPoint = intersection.point.project(canvas.camera);
-  const screenCoordinates = worldToScreen(
-    projectedPoint.x,
-    projectedPoint.y,
-    canvasElement.value.getBoundingClientRect()
-  );
-
   showTooltip.value = true;
-  tooltipPositionTop.value = `${screenCoordinates.y + 10}px`;
-  tooltipPositionLeft.value = `${screenCoordinates.x + 10}px`;
   tooltipText.value = getStarName(selectedStars.value[starIndex]);
 }
 
 function onPointerLeave(): void {
   showTooltip.value = false;
-  tooltipPositionTop.value = '0';
-  tooltipPositionLeft.value = '0';
   tooltipText.value = null;
 }
 
@@ -93,7 +82,7 @@ function onPointerMove(event: PointerEvent): void {
   if (!canvasElement.value || !scene?.raycaster) {
     return;
   }
-  const worldCoordinates = screenToWorld(
+  const worldCoordinates = screenToDevice(
     event.clientX,
     event.clientY,
     canvasElement.value.getBoundingClientRect()
@@ -104,15 +93,22 @@ function onPointerMove(event: PointerEvent): void {
 
 <template>
   <div ref="canvasContainerElement" class="canvas-container">
-    <canvas ref="canvasElement" class="canvas" @pointermove.prevent="onPointerMove"></canvas>
-    <div
-      v-show="showTooltip"
-      :style="{ top: tooltipPositionTop, left: tooltipPositionLeft }"
-      role="tooltip"
-      class="canvas-tooltip"
+    <canvas
+      ref="canvasElement"
+      class="canvas"
+      :style="{ cursor: showTooltip ? 'pointer' : 'auto' }"
+      @pointermove.prevent="onPointerMove"
+    ></canvas>
+    <v-snackbar
+      v-model="showTooltip"
+      attach
+      location="top"
+      rounded="pill"
+      :timeout="-1"
+      style="margin-top: 80px"
     >
       {{ tooltipText }}
-    </div>
+    </v-snackbar>
   </div>
 </template>
 
@@ -138,5 +134,10 @@ canvas {
   left: inherit !important;
   bottom: 22px;
   right: 0;
+}
+
+:deep(.v-snackbar__content) {
+  text-align: center;
+  font-weight: bold;
 }
 </style>

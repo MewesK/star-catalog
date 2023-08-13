@@ -2,12 +2,17 @@ import * as THREE from 'three';
 import BaseScene from './BaseScene';
 import Canvas from './Canvas';
 import Raycaster from './Raycaster';
-import { bvToColor } from './helper';
+import { bvToColor, hygToWorld } from './helper';
 import { Star } from 'src/types';
 import { starTexture } from './textures';
 import { selectedStars } from '@renderer/stars';
 
 export default class PointScene extends BaseScene {
+  pointerEnterCallback = null as
+    | ((index: number, intersection: THREE.Intersection<THREE.Object3D>) => void)
+    | null;
+  pointerLeaveCallback = null as ((index: number) => void) | null;
+
   static PARTICLE_SIZE = 1;
   static SCALE_MULTIPLIER = 10; // 1 unit = 1/SCALE_MULTIPLIER parsec (pc)
   static INTERSECT_COLOR = new THREE.Color(0x00ff00);
@@ -32,15 +37,10 @@ export default class PointScene extends BaseScene {
     const sizes = new Float32Array(selectedStarsLength);
 
     let star: Star;
-    const vertex = new THREE.Vector3();
     for (let i = 0; i < selectedStarsLength; i++) {
       star = selectedStars.value[i];
 
-      vertex.x = star.x * PointScene.SCALE_MULTIPLIER;
-      vertex.y = star.y * PointScene.SCALE_MULTIPLIER;
-      vertex.z = star.z * PointScene.SCALE_MULTIPLIER;
-      vertex.toArray(positions, i * 3);
-
+      hygToWorld(star.x, star.y, star.z).toArray(positions, i * 3);
       bvToColor(star.ci).toArray(colors, i * 3);
 
       sizes[i] = PointScene.PARTICLE_SIZE;
@@ -96,7 +96,7 @@ void main() {
       this.raycaster.check(
         this.canvas.camera,
         this.points,
-        (index, intersection, mousePointer) => {
+        (index, intersection) => {
           // Set size
           this.backupSize = attributes.size.array[index];
           attributes.size.array[index] += Math.log2(Math.pow(intersection.distance, 2) + 1) / 10;
@@ -109,7 +109,7 @@ void main() {
           attributes.customColor.needsUpdate = true;
 
           if (this.pointerEnterCallback) {
-            this.pointerEnterCallback(index, intersection, mousePointer);
+            this.pointerEnterCallback(index, intersection);
           }
         },
         (index) => {

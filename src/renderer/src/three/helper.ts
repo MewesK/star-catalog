@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import PointScene from './PointScene';
 
 /**
  * Converts B-V index (-0.4 to +2.0) to a THREE.js color
@@ -63,16 +64,25 @@ export function lyToPc(ly: number): number {
   return ly / 3.26156;
 }
 
-export function screenToWorld(x: number, y: number, bounds: DOMRect): { x: number; y: number } {
-  return {
-    x: ((x - bounds.x) / bounds.width) * 2 - 1,
-    y: -((y - bounds.y) / bounds.height) * 2 + 1
-  };
+export function screenToDevice(x: number, y: number, bounds: DOMRect): THREE.Vector3 {
+  return new THREE.Vector3(
+    ((x - bounds.x) / bounds.width) * 2 - 1,
+    -((y - bounds.y) / bounds.height) * 2 + 1,
+    0
+  );
 }
 
-export function worldToScreen(x: number, y: number, bounds: DOMRect): { x: number; y: number } {
-  return {
-    x: ((x + 1) * bounds.width) / 2 + bounds.x,
-    y: (-(y - 1) * bounds.height) / 2 + bounds.y
-  };
+export function deviceToScreen(x: number, y: number, bounds: DOMRect): THREE.Vector2 {
+  return new THREE.Vector2(
+    ((x + 1) * bounds.width) / 2 + bounds.x,
+    (-(y - 1) * bounds.height) / 2 + bounds.y
+  );
+}
+
+export function hygToWorld(x: number, y: number, z: number): THREE.Vector3 {
+  return new THREE.Vector3(
+    x * PointScene.SCALE_MULTIPLIER,
+    y * PointScene.SCALE_MULTIPLIER,
+    z * PointScene.SCALE_MULTIPLIER
+  );
 }
