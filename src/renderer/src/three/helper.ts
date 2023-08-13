@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import PointScene from './PointScene';
+import { SCALE_MULTIPLIER } from '@renderer/defaults';
 
 /**
  * Converts B-V index (-0.4 to +2.0) to a THREE.js color
@@ -80,9 +80,5 @@ export function deviceToScreen(x: number, y: number, bounds: DOMRect): THREE.Vec
 }
 
 export function hygToWorld(x: number, y: number, z: number): THREE.Vector3 {
-  return new THREE.Vector3(
-    x * PointScene.SCALE_MULTIPLIER,
-    y * PointScene.SCALE_MULTIPLIER,
-    z * PointScene.SCALE_MULTIPLIER
-  );
+  return new THREE.Vector3(x * SCALE_MULTIPLIER, y * SCALE_MULTIPLIER, z * SCALE_MULTIPLIER);
 }

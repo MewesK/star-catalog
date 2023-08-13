@@ -4,7 +4,7 @@ import { useDebounceFn, useResizeObserver, watchArray } from '@vueuse/core';
 
 import { screenToDevice } from '@renderer/three/helper';
 import { getStarName, isDev } from '@renderer/helper';
-import { canvas, scene, selectStar, selectedStars, stars } from '@renderer/state';
+import { canvas, scene, selectStar, starsInRange } from '@renderer/state';
 
 const canvasElement = ref<HTMLCanvasElement | null>(null);
 const canvasContainerElement = ref<HTMLElement | null>(null);
@@ -43,7 +43,7 @@ onMounted(() => {
     }, 100)
   );
 
-  watchArray(stars, initialize);
+  watchArray(starsInRange, initialize);
 });
 
 function initialize(): void {
@@ -67,7 +67,7 @@ function onPointerEnter(starIndex: number): void {
 
   hoverIndex.value = starIndex;
   showTooltip.value = true;
-  tooltipText.value = getStarName(selectedStars.value[starIndex]);
+  tooltipText.value = getStarName(starsInRange.value[starIndex]);
 }
 
 function onPointerLeave(): void {

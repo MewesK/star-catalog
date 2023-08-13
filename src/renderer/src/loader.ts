@@ -1,5 +1,6 @@
 import { IpcRendererEvent } from 'electron';
 import { ref } from 'vue';
+
 import { stars } from './state';
 import { Star } from 'src/types';
 

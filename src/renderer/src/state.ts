@@ -1,17 +1,14 @@
 import { computed, ref } from 'vue';
-import { Star } from 'src/types';
+
 import Canvas from './three/Canvas';
 import PointScene from './three/PointScene';
-
-// Constants
-
-const MAX_DISTANCE = 100000; // Distance that will load all stars (Parsec)
-const DISTANCE = ref(1000); // Filter radius for rendered stars (Parsec)
+import { Star } from 'src/types';
+import { RENDER_DISTANCE, MAX_RENDER_DISTANCE } from './defaults';
 
 // State
 
 export const stars = ref<Star[]>([]);
-export const currentStarIndex = ref(0);
+export const selectedStarIndex = ref(0);
 
 export const canvas = new Canvas();
 export const scene = new PointScene(canvas);
@@ -19,19 +16,20 @@ export const scene = new PointScene(canvas);
 export const menu = ref(true);
 export const browser = ref(false);
 export const details = ref(false);
+export const config = ref(false);
 
 // Getter
 
-export const currentStar = computed((): Star => stars.value[currentStarIndex.value]);
-export const selectedStars = computed((): Star[] => {
+export const selectedStar = computed((): Star => stars.value[selectedStarIndex.value]);
+export const starsInRange = computed((): Star[] => {
   const start = performance.now();
 
   let nearbyStars = [] as Star[];
-  if (DISTANCE.value >= MAX_DISTANCE) {
+  if (RENDER_DISTANCE >= MAX_RENDER_DISTANCE) {
     nearbyStars = stars.value;
   } else {
     nearbyStars = stars.value.filter(
-      (star) => star.x <= DISTANCE.value && star.y <= DISTANCE.value && star.z <= DISTANCE.value
+      (star) => star.x <= RENDER_DISTANCE && star.y <= RENDER_DISTANCE && star.z <= RENDER_DISTANCE
     );
   }
   const end = performance.now();
@@ -44,8 +42,8 @@ export const selectedStars = computed((): Star[] => {
 
 export function selectStar(starIndex: number): void {
   console.log(`Selecting star #${starIndex}...`);
-  currentStarIndex.value = starIndex;
-  scene.lookAt(currentStar.value);
+  selectedStarIndex.value = starIndex;
+  scene.lookAt(selectedStar.value);
   browser.value = false;
   details.value = true;
 }

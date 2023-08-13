@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { useTheme } from 'vuetify';
 
+import Config from './components/Config.vue';
 import Debug from '@renderer/components/Debug.vue';
 import StarBrowser from '@renderer/components/StarBrowser.vue';
 import StarCanvas from '@renderer/components/StarCanvas.vue';
@@ -9,7 +10,7 @@ import StarDetails from '@renderer/components/StarDetails.vue';
 
 import { error, loading } from './loader';
 import { getStarName } from './helper';
-import { browser, currentStar, details, menu } from './state';
+import { browser, config, selectedStar, details, menu } from './state';
 
 const theme = useTheme();
 
@@ -20,15 +21,23 @@ const hasError = computed(() => error.value !== null);
 function onMainMenuToggle(): void {
   menu.value = !menu.value;
   browser.value = false;
+  config.value = false;
   details.value = false;
 }
 function onBrowserMenuToggle(): void {
   browser.value = !browser.value;
+  config.value = false;
   details.value = false;
 }
 function onDetailsMenuToggle(): void {
   details.value = !details.value;
   browser.value = false;
+  config.value = false;
+}
+function onConfigMenuToggle(): void {
+  config.value = !config.value;
+  browser.value = false;
+  details.value = false;
 }
 function onThemeToggle(): void {
   theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark';
@@ -55,7 +64,7 @@ function onThemeToggle(): void {
         <v-app-bar-nav-icon variant="text" @click.stop="onMainMenuToggle"></v-app-bar-nav-icon>
       </template>
 
-      <v-app-bar-title>{{ getStarName(currentStar) }}</v-app-bar-title>
+      <v-app-bar-title>{{ getStarName(selectedStar) }}</v-app-bar-title>
 
       <template #append>
         <v-btn icon @click="onThemeToggle">
@@ -74,6 +83,12 @@ function onThemeToggle(): void {
           <v-tooltip activator="parent" location="bottom">Details</v-tooltip>
         </v-list-item>
       </v-list>
+      <v-divider></v-divider>
+      <v-list density="compact" nav>
+        <v-list-item prepend-icon="settings" @click.stop="onConfigMenuToggle">
+          <v-tooltip activator="parent" location="bottom">Config</v-tooltip>
+        </v-list-item>
+      </v-list>
     </v-navigation-drawer>
 
     <v-navigation-drawer v-model="browser" :width="300" disable-resize-watcher>
@@ -82,6 +97,10 @@ function onThemeToggle(): void {
 
     <v-navigation-drawer v-model="details" :width="300" disable-resize-watcher>
       <star-details />
+    </v-navigation-drawer>
+
+    <v-navigation-drawer v-model="config" :width="300" disable-resize-watcher>
+      <config />
     </v-navigation-drawer>
 
     <v-main><star-canvas /></v-main>

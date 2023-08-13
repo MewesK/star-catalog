@@ -7,17 +7,20 @@ import Raycaster from './Raycaster';
 import { bvToColor, hygToWorld } from './helper';
 import { Star } from 'src/types';
 import { starTexture } from './textures';
-import { selectedStars } from '@renderer/state';
+import {
+  FOG_COLOR_DEFAULT,
+  FOG_FAR_DEFAULT,
+  FOG_NEAR_DEFAULT,
+  PARTICLE_SIZE
+} from '@renderer/defaults';
+import { starsInRange } from '@renderer/state';
+import { MOUSEOVER_COLOR } from '@renderer/config';
 
 export default class PointScene extends BaseScene {
   pointerEnterCallback = null as
     | ((index: number, intersection: THREE.Intersection<THREE.Object3D>) => void)
     | null;
   pointerLeaveCallback = null as ((index: number) => void) | null;
-
-  static PARTICLE_SIZE = 1;
-  static SCALE_MULTIPLIER = 10; // 1 unit = 1/SCALE_MULTIPLIER parsec (pc)
-  static INTERSECT_COLOR = new THREE.Color(0x00ff00);
 
   readonly raycaster = new Raycaster();
 
@@ -40,22 +43,22 @@ export default class PointScene extends BaseScene {
       this.canvas.renderPass.mainScene = this.scene;
     }
 
-    this.scene.fog = new THREE.Fog(0x000000, 1, Canvas.CAMERA_FAR / 10);
+    this.scene.fog = new THREE.Fog(FOG_COLOR_DEFAULT, FOG_NEAR_DEFAULT, FOG_FAR_DEFAULT);
 
-    const selectedStarsLength = selectedStars.value.length;
+    const starsInRangeLength = starsInRange.value.length;
 
-    const positions = new Float32Array(selectedStarsLength * 3);
-    const colors = new Float32Array(selectedStarsLength * 3);
-    const sizes = new Float32Array(selectedStarsLength);
+    const positions = new Float32Array(starsInRangeLength * 3);
+    const colors = new Float32Array(starsInRangeLength * 3);
+    const sizes = new Float32Array(starsInRangeLength);
 
     let star: Star;
-    for (let i = 0; i < selectedStarsLength; i++) {
-      star = selectedStars.value[i];
+    for (let i = 0; i < starsInRangeLength; i++) {
+      star = starsInRange.value[i];
 
       hygToWorld(star.x, star.y, star.z).toArray(positions, i * 3);
       bvToColor(star.ci).toArray(colors, i * 3);
 
-      sizes[i] = PointScene.PARTICLE_SIZE;
+      sizes[i] = PARTICLE_SIZE;
     }
 
     const geometry = new THREE.BufferGeometry();
@@ -118,7 +121,7 @@ void main() {
           // Set color
           this.backupColor = new THREE.Color();
           this.backupColor.fromArray(attributes.customColor.array, index * 3);
-          PointScene.INTERSECT_COLOR.toArray(attributes.customColor.array, index * 3);
+          new THREE.Color(MOUSEOVER_COLOR.value).toArray(attributes.customColor.array, index * 3);
           attributes.customColor.needsUpdate = true;
 
           if (this.pointerEnterCallback) {

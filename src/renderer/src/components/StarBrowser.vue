@@ -2,14 +2,14 @@
 import { useElementSize, useParentElement } from '@vueuse/core';
 
 import { format, getStarName } from '@renderer/helper';
-import { selectStar, selectedStars } from '@renderer/state';
+import { selectStar, starsInRange } from '@renderer/state';
 
 const parentEl = useParentElement();
 const { height } = useElementSize(parentEl);
 </script>
 
 <template>
-  <v-virtual-scroll :height="height" item-height="48" :items="selectedStars">
+  <v-virtual-scroll :height="height" item-height="48" :items="starsInRange">
     <template #default="{ item }">
       <v-list-item
         :title="getStarName(item)"

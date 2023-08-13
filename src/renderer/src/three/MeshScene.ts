@@ -5,7 +5,8 @@ import Canvas from './Canvas';
 
 import { bvToColor } from './helper';
 import { sunBwTexture } from './textures';
-import { selectedStars } from '@renderer/state';
+import { CAMERA_FAR } from '@renderer/config';
+import { starsInRange } from '@renderer/state';
 
 export default class MeshScene extends BaseScene {
   static SCALE_MULTIPLIER = 10; // 1 unit = 1/SCALE_MULTIPLIER parsec (pc)
@@ -17,7 +18,7 @@ export default class MeshScene extends BaseScene {
   initialize(): void {
     this.scene.clear();
 
-    this.scene.fog = new THREE.Fog(0x000000, 1, Canvas.CAMERA_FAR / 10);
+    this.scene.fog = new THREE.Fog(0x000000, 1, CAMERA_FAR.value / 10);
 
     const geometryPool = [
       { geometry: new THREE.IcosahedronGeometry(100, 16), distance: 50 },
@@ -28,7 +29,7 @@ export default class MeshScene extends BaseScene {
     ];
     const materialPool = {} as Record<number, { high: THREE.Material; low: THREE.Material }>;
 
-    selectedStars.value.forEach((star) => {
+    starsInRange.value.forEach((star) => {
       if (!star) {
         return;
       }

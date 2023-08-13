@@ -1,5 +1,5 @@
-import { Star } from 'src/types';
 import { reactive } from 'vue';
+import { Star } from 'src/types';
 
 export const env = reactive({ ...window.electron.process.env });
 export const versions = reactive({ ...window.electron.process.versions });

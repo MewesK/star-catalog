@@ -1,13 +1,19 @@
 import * as THREE from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { BloomEffect, EffectComposer, EffectPass, RenderPass } from 'postprocessing';
+
 import Controls from './Controls';
+import {
+  BLOOM_INTENSITY_DEFAULT,
+  BLOOM_LUMINANCE_SMOOTHING_DEFAULT,
+  BLOOM_LUMINANCE_THRESHOLD_DEFAULT,
+  BLOOM_RADIUS_DEFAULT,
+  CAMERA_FAR_DEFAULT,
+  CAMERA_FOV_DEFAULT,
+  CAMERA_NEAR_DEFAULT
+} from '@renderer/defaults';
 
 export default class Canvas {
-  static readonly CAMERA_FOV = 70;
-  static readonly CAMERA_NEAR = 1;
-  static readonly CAMERA_FAR = 50000;
-
   readonly clock = new THREE.Clock();
   readonly canvasSize = new THREE.Vector2(0, 0);
   readonly camera: THREE.PerspectiveCamera;
@@ -17,13 +23,14 @@ export default class Canvas {
   renderer = null as THREE.WebGLRenderer | null;
   composer = null as EffectComposer | null;
   renderPass = null as RenderPass | null;
+  bloomEffect = null as BloomEffect | null;
 
   constructor() {
     this.camera = new THREE.PerspectiveCamera(
-      Canvas.CAMERA_FOV,
+      CAMERA_FOV_DEFAULT,
       1,
-      Canvas.CAMERA_NEAR,
-      Canvas.CAMERA_FAR
+      CAMERA_NEAR_DEFAULT,
+      CAMERA_FAR_DEFAULT
     );
     this.camera.position.z = 3;
     this.stats = new Stats();
@@ -43,14 +50,17 @@ export default class Canvas {
     this.controls = new Controls(this);
 
     this.renderPass = new RenderPass(new THREE.Scene(), this.camera);
+
+    this.bloomEffect = new BloomEffect({
+      intensity: BLOOM_INTENSITY_DEFAULT,
+      radius: BLOOM_RADIUS_DEFAULT,
+      luminanceSmoothing: BLOOM_LUMINANCE_SMOOTHING_DEFAULT,
+      luminanceThreshold: BLOOM_LUMINANCE_THRESHOLD_DEFAULT
+    });
+
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(this.renderPass);
-    this.composer.addPass(
-      new EffectPass(
-        this.camera,
-        new BloomEffect({ intensity: 1.0, radius: 1, luminanceSmoothing: 0.2 })
-      )
-    );
+    this.composer.addPass(new EffectPass(this.camera, this.bloomEffect));
   }
 
   resize(width: number, height: number): void {

@@ -2,7 +2,7 @@ import { FlyControls } from 'three/examples/jsm/controls/FlyControls';
 import Canvas from './Canvas';
 
 export default class Controls {
-  private readonly controls: FlyControls;
+  readonly controls: FlyControls;
 
   constructor(canvas: Canvas) {
     if (!canvas.renderer) {

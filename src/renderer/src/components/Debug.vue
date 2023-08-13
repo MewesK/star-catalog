@@ -3,14 +3,14 @@ import { computed } from 'vue';
 import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
 
 import { versions } from '@renderer/helper';
-import { selectedStars, stars } from '@renderer/state';
+import { starsInRange, stars } from '@renderer/state';
 
 const items = computed(() => [
   `Electron v${versions.electron}`,
   `Chromium v${versions.chrome}`,
   `Node v${versions.node}`,
   WebGL.isWebGL2Available() ? 'WebGL v2' : WebGL.isWebGLAvailable() ? 'WebGL v1' : 'no WebGL',
-  `${selectedStars.value.length}/${stars.value.length} stars`
+  `${starsInRange.value.length}/${stars.value.length} stars`
 ]);
 </script>
 
