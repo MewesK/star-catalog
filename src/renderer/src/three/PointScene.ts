@@ -11,10 +11,10 @@ import {
   FOG_COLOR_DEFAULT,
   FOG_FAR_DEFAULT,
   FOG_NEAR_DEFAULT,
+  MOUSEOVER_COLOR_DEFAULT,
   PARTICLE_SIZE
 } from '@renderer/defaults';
 import { starsInRange } from '@renderer/state';
-import { MOUSEOVER_COLOR } from '@renderer/config';
 
 export default class PointScene extends BaseScene {
   pointerEnterCallback = null as
@@ -148,7 +148,7 @@ void main() {
           // Set color
           this.backupColor = new THREE.Color();
           this.backupColor.fromArray(attributes.customColor.array, index * 3);
-          new THREE.Color(MOUSEOVER_COLOR.value).toArray(attributes.customColor.array, index * 3);
+          new THREE.Color(MOUSEOVER_COLOR_DEFAULT).toArray(attributes.customColor.array, index * 3);
           attributes.customColor.needsUpdate = true;
 
           if (this.pointerEnterCallback) {

@@ -10,6 +10,7 @@ import StarDetails from '@renderer/components/StarDetails.vue';
 
 import { error, loading } from './loader';
 import { getStarName } from './helper';
+import { devMode } from './config';
 import { browser, config, selectedStar, details, menu } from './state';
 
 const theme = useTheme();
@@ -109,7 +110,7 @@ function onThemeToggle(): void {
 
     <v-main><star-canvas /></v-main>
 
-    <v-footer app :border="true" :height="22" :order="-1">
+    <v-footer v-if="devMode" :border="true" :height="22" :order="-1" app>
       <debug />
     </v-footer>
 
