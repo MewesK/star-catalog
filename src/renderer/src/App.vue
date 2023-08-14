@@ -96,15 +96,33 @@ function onThemeToggle(): void {
       </v-list>
     </v-navigation-drawer>
 
-    <v-navigation-drawer v-model="browser" :width="300" disable-resize-watcher permanent>
+    <v-navigation-drawer
+      v-model="browser"
+      :width="300"
+      :scrim="false"
+      disable-resize-watcher
+      temporary
+    >
       <star-browser />
     </v-navigation-drawer>
 
-    <v-navigation-drawer v-model="details" :width="300" disable-resize-watcher permanent>
+    <v-navigation-drawer
+      v-model="details"
+      :width="300"
+      :scrim="false"
+      disable-resize-watcher
+      temporary
+    >
       <star-details />
     </v-navigation-drawer>
 
-    <v-navigation-drawer v-model="config" :width="300" disable-resize-watcher permanent>
+    <v-navigation-drawer
+      v-model="config"
+      :width="300"
+      :scrim="false"
+      disable-resize-watcher
+      temporary
+    >
       <config />
     </v-navigation-drawer>
 
