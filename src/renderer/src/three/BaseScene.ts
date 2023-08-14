@@ -17,21 +17,21 @@ export default abstract class BaseScene {
     }
 
     this.running = true;
-    this.innerAnimate();
+    this.innerAnimate(0);
   }
 
   stop(): void {
     this.running = false;
   }
 
-  protected innerAnimate(): void {
+  protected innerAnimate(time: number): void {
     if (this.running) {
-      requestAnimationFrame(() => this.innerAnimate());
+      requestAnimationFrame((time) => this.innerAnimate(time));
     }
-    this.animate();
-    this.canvas.render();
+    this.animate(time);
+    this.canvas.render(time);
   }
 
-  abstract animate(): void;
+  abstract animate(time: number): void;
   abstract initialize(): void;
 }

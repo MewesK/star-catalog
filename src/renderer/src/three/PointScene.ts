@@ -177,11 +177,4 @@ void main() {
       );
     }
   }
-
-  lookAt(star: Star): void {
-    const cameraOffset = new THREE.Vector3(0.0, 0.0, 3.0);
-    const objectPosition = hygToWorld(star.x, star.y, star.z);
-    this.canvas.camera.position.copy(objectPosition).add(cameraOffset);
-    this.canvas.camera.rotation.set(0, 0, 0);
-  }
 }

@@ -1,9 +1,11 @@
+import * as TWEEN from '@tweenjs/tween.js';
 import { computed, ref } from 'vue';
 
 import Canvas from './three/Canvas';
 import PointScene from './three/PointScene';
 import { Star } from 'src/types';
 import { RENDER_DISTANCE, MAX_RENDER_DISTANCE } from './defaults';
+import { hygToWorld } from './three/helper';
 
 // State
 
@@ -42,8 +44,26 @@ export const starsInRange = computed((): Star[] => {
 
 export function selectStar(starIndex: number): void {
   console.log(`Selecting star #${starIndex}...`);
+
   selectedStarIndex.value = starIndex;
-  scene.lookAt(selectedStar.value);
-  browser.value = false;
-  details.value = true;
+
+  const destiantion = hygToWorld(
+    starsInRange.value[starIndex].x,
+    starsInRange.value[starIndex].y,
+    starsInRange.value[starIndex].z
+  );
+
+  canvas.positionTween = new TWEEN.Tween(canvas.camera.position, false)
+    .to(destiantion, 3000)
+    .easing(TWEEN.Easing.Quadratic.InOut)
+    .onUpdate((position) => {
+      canvas.camera.lookAt(position);
+    })
+    .onComplete(() => {
+      canvas.positionTween = null;
+      browser.value = false;
+      config.value = false;
+      details.value = true;
+    })
+    .start();
 }

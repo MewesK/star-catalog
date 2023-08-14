@@ -26,7 +26,6 @@ export default class Raycaster {
     this.raycaster.setFromCamera(this.mousePointer, camera);
     const intersections = this.raycaster.intersectObject(points);
     if (intersections.length > 0) {
-      console.log(intersections.length, intersections);
       if (this.intersectedIndex != intersections[0].index) {
         if (this.intersectedIndex !== null) {
           pointerLeaveCallback(this.intersectedIndex);

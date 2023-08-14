@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as TWEEN from '@tweenjs/tween.js';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { BloomEffect, EffectComposer, EffectPass, RenderPass } from 'postprocessing';
 
@@ -24,6 +25,10 @@ export default class Canvas {
   composer = null as EffectComposer | null;
   renderPass = null as RenderPass | null;
   bloomEffect = null as BloomEffect | null;
+
+  currentPosition = null as THREE.Vector3 | null;
+  positionTween = null as TWEEN.Tween<THREE.Vector3> | null;
+  rotationTween = null as TWEEN.Tween<THREE.Euler> | null;
 
   constructor() {
     this.camera = new THREE.PerspectiveCamera(
@@ -74,11 +79,16 @@ export default class Canvas {
     this.composer?.setSize(width, height);
   }
 
-  render(): void {
+  render(time: number): void {
     const delta = this.clock.getDelta();
 
     this.composer?.render(delta);
-    this.controls?.update(delta);
+
+    if (this.positionTween) {
+      this.positionTween.update(time, false);
+    } else if (this.controls) {
+      this.controls.update(delta);
+    }
 
     this.stats.update();
   }

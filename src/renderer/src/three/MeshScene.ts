@@ -5,7 +5,7 @@ import Canvas from './Canvas';
 
 import { bvToColor } from './helper';
 import { sunBwTexture } from './textures';
-import { CAMERA_FAR } from '@renderer/config';
+import { CAMERA_FAR_DEFAULT } from '@renderer/defaults';
 import { starsInRange } from '@renderer/state';
 
 export default class MeshScene extends BaseScene {
@@ -18,7 +18,7 @@ export default class MeshScene extends BaseScene {
   initialize(): void {
     this.scene.clear();
 
-    this.scene.fog = new THREE.Fog(0x000000, 1, CAMERA_FAR.value / 10);
+    this.scene.fog = new THREE.Fog(0x000000, 1, CAMERA_FAR_DEFAULT / 10);
 
     const geometryPool = [
       { geometry: new THREE.IcosahedronGeometry(100, 16), distance: 50 },
