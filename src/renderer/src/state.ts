@@ -44,7 +44,7 @@ export const starsInRange = computed((): Star[] => {
 // Setter
 
 export function selectStar(starIndex: number): void {
-  if (starIndex === selectedStarIndex.value) {
+  if (starIndex === selectedStarIndex.value || canvas.flightTween) {
     return;
   }
 
@@ -68,10 +68,18 @@ export function selectStar(starIndex: number): void {
   const targetQuaternion = new THREE.Quaternion();
   targetQuaternion.setFromRotationMatrix(rotationMatrix);
 
+  // Compute target destiantion with offset
+
+  const destinationWithOffset = new THREE.Vector3();
+  destinationWithOffset
+    .subVectors(canvas.camera.position, destiantion)
+    .setLength(2)
+    .add(destiantion);
+
   // Start flight tween
 
   canvas.flightTween = new TWEEN.Tween(canvas.camera.position)
-    .to(destiantion, 3000)
+    .to(destinationWithOffset, 2000)
     .easing(TWEEN.Easing.Quadratic.InOut)
     .onStart(() => console.log('Flight starting...'))
     .onUpdate((_destiantion, elapsed) => {
