@@ -27,8 +27,7 @@ export default class Canvas {
   bloomEffect = null as BloomEffect | null;
 
   currentPosition = null as THREE.Vector3 | null;
-  positionTween = null as TWEEN.Tween<THREE.Vector3> | null;
-  rotationTween = null as TWEEN.Tween<THREE.Euler> | null;
+  flightTween = null as TWEEN.Tween<THREE.Vector3> | null;
 
   constructor() {
     this.camera = new THREE.PerspectiveCamera(
@@ -37,7 +36,6 @@ export default class Canvas {
       CAMERA_NEAR_DEFAULT,
       CAMERA_FAR_DEFAULT
     );
-    this.camera.position.z = 3;
     this.stats = new Stats();
   }
 
@@ -84,8 +82,8 @@ export default class Canvas {
 
     this.composer?.render(delta);
 
-    if (this.positionTween) {
-      this.positionTween.update(time, false);
+    if (this.flightTween) {
+      this.flightTween.update(time);
     } else if (this.controls) {
       this.controls.update(delta);
     }

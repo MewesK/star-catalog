@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
 import { computed, ref } from 'vue';
 
@@ -43,9 +44,15 @@ export const starsInRange = computed((): Star[] => {
 // Setter
 
 export function selectStar(starIndex: number): void {
+  if (starIndex === selectedStarIndex.value) {
+    return;
+  }
+
   console.log(`Selecting star #${starIndex}...`);
 
   selectedStarIndex.value = starIndex;
+
+  // Compute target location
 
   const destiantion = hygToWorld(
     starsInRange.value[starIndex].x,
@@ -53,17 +60,28 @@ export function selectStar(starIndex: number): void {
     starsInRange.value[starIndex].z
   );
 
-  canvas.positionTween = new TWEEN.Tween(canvas.camera.position, false)
+  // Compute target rotation
+
+  const rotationMatrix = new THREE.Matrix4();
+  rotationMatrix.lookAt(canvas.camera.position, destiantion, canvas.camera.up);
+
+  const targetQuaternion = new THREE.Quaternion();
+  targetQuaternion.setFromRotationMatrix(rotationMatrix);
+
+  // Start flight tween
+
+  canvas.flightTween = new TWEEN.Tween(canvas.camera.position)
     .to(destiantion, 3000)
     .easing(TWEEN.Easing.Quadratic.InOut)
-    .onUpdate((position) => {
-      canvas.camera.lookAt(position);
+    .onStart(() => console.log('Flight starting...'))
+    .onUpdate((_destiantion, elapsed) => {
+      if (!canvas.camera.quaternion.equals(targetQuaternion)) {
+        canvas.camera.quaternion.rotateTowards(targetQuaternion, elapsed / 100);
+      }
     })
     .onComplete(() => {
-      canvas.positionTween = null;
-      browser.value = false;
-      config.value = false;
-      details.value = true;
+      console.log('...flight ended.');
+      canvas.flightTween = null;
     })
     .start();
 }
