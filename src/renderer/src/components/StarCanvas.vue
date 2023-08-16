@@ -98,6 +98,20 @@ function onPointerOver(): void {
 function onPointerOut(): void {
   if (canvas.controls) {
     canvas.controls.controls.enabled = false;
+    canvas.controls.controls.moveState = {
+      up: 0,
+      down: 0,
+      left: 0,
+      right: 0,
+      forward: 0,
+      back: 0,
+      pitchUp: 0,
+      pitchDown: 0,
+      yawLeft: 0,
+      yawRight: 0,
+      rollLeft: 0,
+      rollRight: 0
+    };
   }
 }
 
