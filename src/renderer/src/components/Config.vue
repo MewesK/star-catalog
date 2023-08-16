@@ -4,15 +4,17 @@ import { bloom, devMode, fog } from '@renderer/config';
 
 <template>
   <v-container fluid>
-    <v-switch v-model="bloom" label="Bloom">
-      <template #details>Toggle the bloom effect which makes the stars glow.</template>
-    </v-switch>
-    <v-switch v-model="fog" label="Fog">
-      <template #details>Toggle the fog effect which hides distant stars.</template>
-    </v-switch>
-    <v-switch v-model="devMode" label="Dev Mode">
-      <template #details>Toggle the development mode.</template>
-    </v-switch>
+    <v-switch
+      v-model="bloom"
+      label="Bloom"
+      messages="Toggle the bloom effect which makes the stars glow."
+    ></v-switch>
+    <v-switch
+      v-model="fog"
+      label="Fog"
+      messages="Toggle the fog effect which hides distant stars."
+    ></v-switch>
+    <v-switch v-model="devMode" label="Dev Mode" messages="Toggle the development mode."></v-switch>
   </v-container>
 </template>
 

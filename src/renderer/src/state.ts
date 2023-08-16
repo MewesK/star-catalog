@@ -24,7 +24,7 @@ export const config = ref(false);
 // Getter
 
 export const selectedStar = computed((): Star | null =>
-  selectedStarIndex.value ? starsInRange.value[selectedStarIndex.value] : null
+  selectedStarIndex.value !== null ? starsInRange.value[selectedStarIndex.value] : null
 );
 export const starsInRange = computed((): Star[] => {
   const start = performance.now();

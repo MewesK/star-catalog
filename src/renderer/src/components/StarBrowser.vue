@@ -2,10 +2,9 @@
 import { useElementSize, useParentElement } from '@vueuse/core';
 
 import { format, getStarName } from '@renderer/helper';
-import { selectStar, starsInRange } from '@renderer/state';
+import { selectStar, selectedStarIndex, starsInRange } from '@renderer/state';
 
-const parentEl = useParentElement();
-const { height } = useElementSize(parentEl);
+const { height } = useElementSize(useParentElement());
 </script>
 
 <template>
@@ -15,6 +14,7 @@ const { height } = useElementSize(parentEl);
         :title="getStarName(item)"
         :subtitle="`(${format(item.x)}, ${format(item.y)}, ${format(item.z)})`"
         :base-color="item.proper || item.bf || item.gl ? '' : 'grey-darken-1'"
+        :active="selectedStarIndex === index"
       >
         <template #append>
           <v-btn icon="navigate_next" size="xx-small" variant="tonal" @click="selectStar(index)" />

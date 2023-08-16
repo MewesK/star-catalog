@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import { useElementSize, useParentElement } from '@vueuse/core';
-
 import { selectedStar } from '@renderer/state';
 
-const parentEl = useParentElement();
-const { height } = useElementSize(parentEl);
+const { height } = useElementSize(useParentElement());
 </script>
 
 <template>
-  <v-table v-if="selectedStar" density="compact" hover fixed-header :height="height">
+  <v-table v-if="selectedStar !== null" density="compact" hover :height="height" fixed-header>
     <thead class="elevation-6 text-caption">
       <tr>
         <th>Property</th>
