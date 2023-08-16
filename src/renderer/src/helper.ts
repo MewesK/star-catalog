@@ -14,11 +14,11 @@ export function getStarName(star: Star | null): string {
     if (star.proper) {
       return star.proper;
     }
-    if (star.bf) {
-      return star.bf;
-    }
     if (star.gl) {
       return star.gl;
+    }
+    if (star.bf) {
+      return star.bf;
     }
     if (star.hip) {
       return `HIP ${star.hip}`;
