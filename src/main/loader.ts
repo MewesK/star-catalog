@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { parse } from 'csv-parse';
 import { BrowserWindow } from 'electron';
-import { Star } from '../types';
+import { Star } from '../types/Star';
 
 import hygData35Csv from '../../resources/hygdata_v35.csv?asset';
 

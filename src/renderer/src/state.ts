@@ -4,7 +4,7 @@ import { computed, ref } from 'vue';
 
 import Canvas from './three/Canvas';
 import PointScene from './three/PointScene';
-import { Star } from 'src/types';
+import { Star } from 'src/types/Star';
 import { RENDER_DISTANCE, MAX_RENDER_DISTANCE } from './defaults';
 import { hygToWorld } from './three/helper';
 

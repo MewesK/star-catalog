@@ -89,6 +89,18 @@ function onPointerMove(event: PointerEvent): void {
   scene.raycaster.updatePointer(worldCoordinates.x, worldCoordinates.y);
 }
 
+function onPointerOver(): void {
+  if (canvas.controls) {
+    canvas.controls.controls.enabled = true;
+  }
+}
+
+function onPointerOut(): void {
+  if (canvas.controls) {
+    canvas.controls.controls.enabled = false;
+  }
+}
+
 function onClick(): void {
   if (hoverIndex.value === null) {
     return;
@@ -103,6 +115,8 @@ function onClick(): void {
       ref="canvasElement"
       :style="{ cursor: showTooltip ? 'pointer' : 'auto' }"
       @pointermove.prevent="onPointerMove"
+      @pointerout="onPointerOut"
+      @pointerover="onPointerOver"
       @click.prevent="onClick"
     ></canvas>
     <v-snackbar
