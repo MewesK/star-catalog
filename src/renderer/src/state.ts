@@ -11,7 +11,7 @@ import { hygToWorld } from './three/helper';
 // State
 
 export const stars = ref<Star[]>([]);
-export const selectedStarIndex = ref(0);
+export const selectedStarIndex = ref<number | null>(null);
 
 export const canvas = new Canvas();
 export const scene = new PointScene(canvas);
@@ -23,7 +23,9 @@ export const config = ref(false);
 
 // Getter
 
-export const selectedStar = computed((): Star => starsInRange.value[selectedStarIndex.value]);
+export const selectedStar = computed((): Star | null =>
+  selectedStarIndex.value ? starsInRange.value[selectedStarIndex.value] : null
+);
 export const starsInRange = computed((): Star[] => {
   const start = performance.now();
 
@@ -43,7 +45,7 @@ export const starsInRange = computed((): Star[] => {
 
 // Setter
 
-export function selectStar(starIndex: number): void {
+export function selectStar(starIndex: number, noAnimation = false): void {
   if (starIndex === selectedStarIndex.value || canvas.flightTween) {
     return;
   }
@@ -60,36 +62,39 @@ export function selectStar(starIndex: number): void {
     starsInRange.value[starIndex].z
   );
 
-  // Compute target rotation
-
-  const rotationMatrix = new THREE.Matrix4();
-  rotationMatrix.lookAt(canvas.camera.position, destiantion, canvas.camera.up);
-
-  const targetQuaternion = new THREE.Quaternion();
-  targetQuaternion.setFromRotationMatrix(rotationMatrix);
-
-  // Compute target destiantion with offset
+  // Compute target destination with offset
 
   const destinationWithOffset = new THREE.Vector3();
   destinationWithOffset
     .subVectors(canvas.camera.position, destiantion)
-    .setLength(2)
+    .setLength(1.5)
     .add(destiantion);
 
-  // Start flight tween
+  if (noAnimation) {
+    canvas.camera.position.copy(destinationWithOffset);
+    canvas.camera.lookAt(destiantion);
+  } else {
+    // Compute target rotation
+    const rotationMatrix = new THREE.Matrix4();
+    rotationMatrix.lookAt(canvas.camera.position, destiantion, canvas.camera.up);
 
-  canvas.flightTween = new TWEEN.Tween(canvas.camera.position)
-    .to(destinationWithOffset, 2000)
-    .easing(TWEEN.Easing.Quadratic.InOut)
-    .onStart(() => console.log('Flight starting...'))
-    .onUpdate((_destiantion, elapsed) => {
-      if (!canvas.camera.quaternion.equals(targetQuaternion)) {
-        canvas.camera.quaternion.rotateTowards(targetQuaternion, elapsed / 100);
-      }
-    })
-    .onComplete(() => {
-      console.log('...flight ended.');
-      canvas.flightTween = null;
-    })
-    .start();
+    const targetQuaternion = new THREE.Quaternion();
+    targetQuaternion.setFromRotationMatrix(rotationMatrix);
+
+    // Start flight tween
+    canvas.flightTween = new TWEEN.Tween(canvas.camera.position)
+      .to(destinationWithOffset, 2000)
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .onStart(() => console.log('Flight starting...'))
+      .onUpdate((_destiantion, elapsed) => {
+        if (!canvas.camera.quaternion.equals(targetQuaternion)) {
+          canvas.camera.quaternion.rotateTowards(targetQuaternion, elapsed / 10);
+        }
+      })
+      .onComplete(() => {
+        console.log('...flight ended.');
+        canvas.flightTween = null;
+      })
+      .start();
+  }
 }

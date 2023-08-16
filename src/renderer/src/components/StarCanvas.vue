@@ -58,7 +58,7 @@ function initialize(): void {
 
   scene.initialize();
   scene.start();
-  selectStar(0);
+  selectStar(0, true);
 }
 
 function onPointerEnter(starIndex: number): void {

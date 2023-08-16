@@ -36,6 +36,7 @@ export default class Canvas {
       CAMERA_NEAR_DEFAULT,
       CAMERA_FAR_DEFAULT
     );
+    this.camera.position.z = -1;
     this.stats = new Stats();
   }
 
