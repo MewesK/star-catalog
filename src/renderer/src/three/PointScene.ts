@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import BaseScene from './BaseScene';
 import Canvas from './Canvas';
 import Raycaster from './Raycaster';
+import Nearby, { Box, BoxObject } from './Nearby';
 
 import { bvToColor, hygToWorld } from './helper';
 import { Star } from 'src/types/Star';
@@ -11,10 +12,11 @@ import {
   FOG_COLOR_DEFAULT,
   FOG_FAR_DEFAULT,
   FOG_NEAR_DEFAULT,
+  MAX_RENDER_DISTANCE,
   MOUSEOVER_COLOR_DEFAULT,
   PARTICLE_SIZE
 } from '@renderer/defaults';
-import { starsInRange } from '@renderer/state';
+import { stars, starsInRange } from '@renderer/state';
 
 export default class PointScene extends BaseScene {
   pointerEnterCallback = null as
@@ -22,11 +24,13 @@ export default class PointScene extends BaseScene {
     | null;
   pointerLeaveCallback = null as ((index: number) => void) | null;
 
-  readonly raycaster = new Raycaster();
+  nearby = null as Nearby | null;
+  points = null as THREE.Points | null;
+  raycaster = null as Raycaster | null;
 
-  private points = null as THREE.Points | null;
-  private backupColor = null as THREE.Color | null;
-  private backupSize = null as number | null;
+  private backupColor = new THREE.Color();
+  private backupNearbyStars = [] as Star[];
+  private backupSize = 0;
 
   constructor(canvas: Canvas) {
     super(canvas);
@@ -46,6 +50,9 @@ export default class PointScene extends BaseScene {
     this.scene.background = new THREE.Color(0x0000000);
     this.scene.fog = new THREE.Fog(FOG_COLOR_DEFAULT, FOG_NEAR_DEFAULT, FOG_FAR_DEFAULT);
 
+    this.nearby = new Nearby(MAX_RENDER_DISTANCE, MAX_RENDER_DISTANCE, MAX_RENDER_DISTANCE);
+    this.raycaster = new Raycaster();
+
     const starsInRangeLength = starsInRange.value.length;
 
     const positions = new Float32Array(starsInRangeLength * 3);
@@ -62,6 +69,20 @@ export default class PointScene extends BaseScene {
 
       sizes[i] = PARTICLE_SIZE - (0.5 + Math.random()) / 2;
       alphas[i] = 0.75 + Math.random() / 4;
+
+      this.nearby.insert(
+        new BoxObject(
+          i,
+          new Box(
+            positions[i * 3],
+            positions[i * 3 + 1],
+            positions[i * 3 + 2],
+            sizes[i],
+            sizes[i],
+            sizes[i]
+          )
+        )
+      );
     }
 
     const geometry = new THREE.BufferGeometry();
@@ -131,8 +152,8 @@ void main() {
   }
 
   animate(): void {
-    // Raycasting
-    if (this.points) {
+    if (this.points && this.raycaster && this.nearby) {
+      // Raycasting
       const geometry = this.points.geometry;
       const attributes = geometry.attributes;
 
@@ -146,7 +167,6 @@ void main() {
           attributes.size.needsUpdate = true;
 
           // Set color
-          this.backupColor = new THREE.Color();
           this.backupColor.fromArray(attributes.customColor.array, index * 3);
           new THREE.Color(MOUSEOVER_COLOR_DEFAULT).toArray(attributes.customColor.array, index * 3);
           attributes.customColor.needsUpdate = true;
@@ -157,24 +177,30 @@ void main() {
         },
         (index) => {
           // Reset size
-          if (this.backupSize) {
-            attributes.size.array[index] = this.backupSize;
-            attributes.size.needsUpdate = true;
-            this.backupSize = null;
-          }
+          attributes.size.array[index] = this.backupSize;
+          attributes.size.needsUpdate = true;
 
           // Reset color
-          if (this.backupColor) {
-            this.backupColor.toArray(attributes.customColor.array, index * 3);
-            attributes.customColor.needsUpdate = true;
-            this.backupColor = null;
-          }
+          this.backupColor.toArray(attributes.customColor.array, index * 3);
+          attributes.customColor.needsUpdate = true;
 
           if (this.pointerLeaveCallback) {
             this.pointerLeaveCallback(index);
           }
         }
       );
+
+      // Nearby star search
+      const nearbyBoxObjects = this.nearby.query(
+        this.canvas.camera.position.x,
+        this.canvas.camera.position.y,
+        this.canvas.camera.position.z
+      );
+      const nearbyStars = [] as Star[];
+      for (const boxObject of nearbyBoxObjects.keys()) {
+        nearbyStars.push(stars.value[boxObject.id]);
+      }
+      this.backupNearbyStars = nearbyStars;
     }
   }
 }

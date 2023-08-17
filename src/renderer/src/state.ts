@@ -35,7 +35,7 @@ export const starsInRange = computed((): Star[] => {
     );
   }
   const end = performance.now();
-  console.log(`Searching for nearby stars: ${end - start} ms`);
+  console.log(`Searching for stars in range: ${end - start} ms`);
 
   return nearbyStars;
 });
@@ -47,7 +47,7 @@ export function selectStar(star: Star, noAnimation = false): void {
     return;
   }
 
-  console.log(`Selecting star #${star}...`);
+  console.log(`Selecting star #${star.id}...`);
 
   selectedStar.value = star;
 
