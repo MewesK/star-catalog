@@ -27,6 +27,7 @@ onMounted(() => {
 
   canvas.initialize(canvasElement.value);
   canvas.stats.dom.classList.add('stats');
+  canvas.stats.dom.hidden = !isDev;
   canvasContainerElement.value.appendChild(canvas.stats.dom);
 
   useResizeObserver(

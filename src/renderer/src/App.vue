@@ -65,7 +65,9 @@ function onThemeToggle(): void {
         <v-app-bar-nav-icon variant="text" @click.stop="onMainMenuToggle"></v-app-bar-nav-icon>
       </template>
 
-      <v-app-bar-title>{{ getStarName(selectedStar) }}</v-app-bar-title>
+      <v-app-bar-title class="text-center text-h5" style="text-shadow: 0 0 1em white">
+        {{ getStarName(selectedStar) }}
+      </v-app-bar-title>
 
       <template #append>
         <v-btn icon @click="onThemeToggle">
