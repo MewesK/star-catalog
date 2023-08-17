@@ -12,9 +12,9 @@ const { height: parentHeight } = useElementSize(useParentElement());
   <v-card :height="parentHeight" class="d-flex flex-column">
     <v-card-title>Details</v-card-title>
 
-    <v-divider class="elevation-6 "></v-divider>
+    <v-divider></v-divider>
 
-    <v-card-text ref="card" class="elevation-6 flex-grow-1 pa-0">
+    <v-card-text ref="card" class="flex-grow-1 pa-0">
       <v-table
         v-if="selectedStar !== null"
         density="compact"

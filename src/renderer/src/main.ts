@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import { createVuetify } from 'vuetify';
 import { aliases, md } from 'vuetify/iconsets/md';
+
 import App from '@renderer/App.vue';
 
 // Import CSS
@@ -15,7 +16,21 @@ const vuetify = createVuetify({
     sets: { md }
   },
   theme: {
-    defaultTheme: 'dark'
+    defaultTheme: 'dark',
+    themes: {
+      light: {
+        dark: false,
+        colors: {
+          primary: '#01579B'
+        }
+      },
+      dark: {
+        dark: true,
+        colors: {
+          primary: '#01579B'
+        }
+      }
+    }
   }
 });
 
