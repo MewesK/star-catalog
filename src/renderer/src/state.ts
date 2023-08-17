@@ -11,7 +11,7 @@ import { hygToWorld } from './three/helper';
 // State
 
 export const stars = ref<Star[]>([]);
-export const selectedStarIndex = ref<number | null>(null);
+export const selectedStar = ref<Star | null>(null);
 
 export const canvas = new Canvas();
 export const scene = new PointScene(canvas);
@@ -23,9 +23,6 @@ export const config = ref(false);
 
 // Getter
 
-export const selectedStar = computed((): Star | null =>
-  selectedStarIndex.value !== null ? starsInRange.value[selectedStarIndex.value] : null
-);
 export const starsInRange = computed((): Star[] => {
   const start = performance.now();
 
@@ -45,25 +42,19 @@ export const starsInRange = computed((): Star[] => {
 
 // Setter
 
-export function selectStar(starIndex: number, noAnimation = false): void {
-  if (starIndex === selectedStarIndex.value || canvas.flightTween) {
+export function selectStar(star: Star, noAnimation = false): void {
+  if (star.id === selectedStar.value?.id || canvas.flightTween) {
     return;
   }
 
-  console.log(`Selecting star #${starIndex}...`);
+  console.log(`Selecting star #${star}...`);
 
-  selectedStarIndex.value = starIndex;
+  selectedStar.value = star;
 
   // Compute target location
-
-  const destiantion = hygToWorld(
-    starsInRange.value[starIndex].x,
-    starsInRange.value[starIndex].y,
-    starsInRange.value[starIndex].z
-  );
+  const destiantion = hygToWorld(star.x, star.y, star.z);
 
   // Compute target destination with offset
-
   const destinationWithOffset = new THREE.Vector3();
   destinationWithOffset
     .subVectors(canvas.camera.position, destiantion)

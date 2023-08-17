@@ -59,7 +59,7 @@ function initialize(): void {
 
   scene.initialize();
   scene.start();
-  selectStar(0, true);
+  selectStar(starsInRange.value[0], true);
 }
 
 function onPointerEnter(starIndex: number): void {
@@ -106,7 +106,7 @@ function onClick(): void {
   if (hoverIndex.value === null) {
     return;
   }
-  selectStar(hoverIndex.value);
+  selectStar(starsInRange.value[hoverIndex.value]);
 }
 </script>
 
