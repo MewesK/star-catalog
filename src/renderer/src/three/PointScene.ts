@@ -5,7 +5,7 @@ import Canvas from './Canvas';
 import Raycaster from './Raycaster';
 
 import { bvToColor, hygToWorld } from './helper';
-import { Star } from 'src/types';
+import { Star } from 'src/types/Star';
 import { starTexture } from './textures';
 import {
   FOG_COLOR_DEFAULT,

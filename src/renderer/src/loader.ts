@@ -2,7 +2,7 @@ import { IpcRendererEvent } from 'electron';
 import { ref } from 'vue';
 
 import { stars } from './state';
-import { Star } from 'src/types';
+import { Star } from 'src/types/Star';
 
 export const error = ref<Error | null>(null);
 export const loading = ref(true);
