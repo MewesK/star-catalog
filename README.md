@@ -32,3 +32,7 @@ $ npm run build:mac
 # For Linux
 $ npm run build:linux
 ```
+## Credits
+
+The [HYG star database](https://github.com/astronexus/HYG-Database) by David Nash, is licensed under a [Creative Commons Attribution-ShareAlike license](https://creativecommons.org/licenses/by-sa/2.5/).
+
