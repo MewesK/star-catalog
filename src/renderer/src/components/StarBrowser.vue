@@ -10,13 +10,18 @@ const query = ref('');
 const card = ref(null);
 const { height: cardHeight } = useElementSize(card);
 const { height: parentHeight } = useElementSize(useParentElement());
-const starsInRangeFiltered = computed((): Star[] =>
-  query.value
-    ? starsInRange.value.filter((star) =>
-        getStarName(star).toLowerCase().includes(query.value.toLowerCase())
-      )
-    : starsInRange.value
-);
+const starsInRangeFiltered = computed((): Star[] => {
+  if (query.value === '') {
+    return [...starsInRange.value.values()];
+  }
+  const result = [] as Star[];
+  starsInRange.value.forEach((value) => {
+    if (getStarName(value).toLowerCase().includes(query.value.toLowerCase())) {
+      result.push(value);
+    }
+  });
+  return result;
+});
 </script>
 
 <template>

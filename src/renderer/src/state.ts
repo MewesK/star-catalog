@@ -2,15 +2,15 @@ import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
 import { computed, ref } from 'vue';
 
+import { Star } from 'src/types/Star';
 import Canvas from './three/Canvas';
 import PointScene from './three/PointScene';
-import { Star } from 'src/types/Star';
 import { RENDER_DISTANCE, MAX_RENDER_DISTANCE } from './defaults';
 import { hygToWorld } from './three/helper';
 
 // State
 
-export const stars = ref<Star[]>([]);
+export const stars = ref<Map<number, Star>>(new Map());
 export const selectedStar = ref<Star | null>(null);
 
 export const canvas = new Canvas();
@@ -23,16 +23,19 @@ export const config = ref(false);
 
 // Getter
 
-export const starsInRange = computed((): Star[] => {
+export const starsInRange = computed((): Map<number, Star> => {
   const start = performance.now();
 
-  let nearbyStars = [] as Star[];
+  let nearbyStars = new Map<number, Star>();
   if (RENDER_DISTANCE >= MAX_RENDER_DISTANCE) {
     nearbyStars = stars.value;
   } else {
-    nearbyStars = stars.value.filter(
-      (star) => star.x <= RENDER_DISTANCE && star.y <= RENDER_DISTANCE && star.z <= RENDER_DISTANCE
-    );
+    const nullVector = new THREE.Vector3();
+    stars.value.forEach((value, key) => {
+      if (hygToWorld(value.x, value.y, value.z).distanceTo(nullVector) <= RENDER_DISTANCE) {
+        nearbyStars.set(key, value);
+      }
+    });
   }
   const end = performance.now();
   console.log(`Searching for stars in range: ${end - start} ms`);
@@ -47,7 +50,7 @@ export function selectStar(star: Star, noAnimation = false): void {
     return;
   }
 
-  console.log(`Selecting star #${star.id}...`);
+  console.log(`Selecting star #${star.id}...`, star);
 
   selectedStar.value = star;
 

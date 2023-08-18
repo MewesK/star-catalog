@@ -10,7 +10,7 @@ const items = computed(() => [
   `Chromium v${versions.chrome}`,
   `Node v${versions.node}`,
   WebGL.isWebGL2Available() ? 'WebGL v2' : WebGL.isWebGLAvailable() ? 'WebGL v1' : 'no WebGL',
-  `${starsInRange.value.length}/${stars.value.length} stars`
+  `${starsInRange.value.size}/${stars.value.size} stars`
 ]);
 </script>
 

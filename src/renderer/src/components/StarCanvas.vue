@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useDebounceFn, useResizeObserver, watchArray } from '@vueuse/core';
+import {  onMounted, ref, watch } from 'vue';
+import { useDebounceFn, useResizeObserver } from '@vueuse/core';
 
 import { screenToDevice } from '@renderer/three/helper';
 import { getStarName, isDev } from '@renderer/helper';
 import { canvas, scene, selectStar, starsInRange } from '@renderer/state';
+import { Star } from 'src/types/Star';
 
 const canvasElement = ref<HTMLCanvasElement | null>(null);
 const canvasContainerElement = ref<HTMLElement | null>(null);
 
-const hoverIndex = ref<number | null>(null);
+const currentStar = ref<Star | null>(null);
 const showTooltip = ref(false);
 const tooltipText = ref<string | null>(null);
 
@@ -44,7 +45,7 @@ onMounted(() => {
     }, 10)
   );
 
-  watchArray(starsInRange, initialize);
+  watch(starsInRange, initialize);
 });
 
 function initialize(): void {
@@ -59,21 +60,22 @@ function initialize(): void {
 
   scene.initialize();
   scene.start();
-  selectStar(starsInRange.value[0], true);
+
+  selectStar(starsInRange.value.values()[0] as Star, true);
 }
 
-function onPointerEnter(starIndex: number): void {
+function onPointerEnter(star: Star): void {
   if (!canvasElement.value || !canvas) {
     return;
   }
 
-  hoverIndex.value = starIndex;
+  currentStar.value = star;
   showTooltip.value = true;
-  tooltipText.value = getStarName(starsInRange.value[starIndex]);
+  tooltipText.value = getStarName(star);
 }
 
 function onPointerLeave(): void {
-  hoverIndex.value = null;
+  currentStar.value = null;
   showTooltip.value = false;
   tooltipText.value = null;
 }
@@ -103,10 +105,10 @@ function onPointerOut(): void {
 }
 
 function onClick(): void {
-  if (hoverIndex.value === null) {
+  if (currentStar.value === null) {
     return;
   }
-  selectStar(starsInRange.value[hoverIndex.value]);
+  selectStar(currentStar.value);
 }
 </script>
 
