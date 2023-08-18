@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { kdTree } from 'kd-tree-javascript/kdTree';
 
 import BaseScene from './BaseScene';
 import Canvas from './Canvas';
@@ -7,6 +6,9 @@ import Raycaster from './Raycaster';
 
 import { bvToColor, hygToWorld } from './helper';
 import { Star } from 'src/types/Star';
+import { StarObject } from 'src/types/StarObject';
+import { StarPosition } from 'src/types/StarPosition';
+import { starsInRange } from '@renderer/state';
 import { starTexture, sunBwTexture } from './textures';
 import {
   FOG_COLOR_DEFAULT,
@@ -15,7 +17,6 @@ import {
   MOUSEOVER_COLOR_DEFAULT,
   PARTICLE_SIZE
 } from '@renderer/defaults';
-import { stars, starsInRange } from '@renderer/state';
 
 export default class PointScene extends BaseScene {
   pointerEnterCallback = null as
@@ -24,11 +25,11 @@ export default class PointScene extends BaseScene {
   pointerLeaveCallback = null as ((star: Star) => void) | null;
 
   points = null as THREE.Points | null;
+  positions = [] as StarPosition[];
   raycaster = null as Raycaster | null;
 
   private backupCameraPosition = new THREE.Vector3();
   private backupColor = new THREE.Color();
-  private backupCoords = [] as THREE.Vector3[];
   private backupNearbyStars = [] as Star[];
   private backupSize = 0;
 
@@ -61,7 +62,7 @@ export default class PointScene extends BaseScene {
 
     const starsInRangeLength = starsInRange.value.size;
 
-    this.backupCoords = new Array<THREE.Vector3>(starsInRangeLength);
+    this.positions = new Array<StarPosition>(starsInRangeLength);
     const positions = new Float32Array(starsInRangeLength * 3);
     const colors = new Float32Array(starsInRangeLength * 3);
     const sizes = new Float32Array(starsInRangeLength);
@@ -70,10 +71,10 @@ export default class PointScene extends BaseScene {
     let i = 0;
     starsInRange.value.forEach((value, key) => {
       // Position
-      this.backupCoords[i] = hygToWorld(value.x, value.y, value.z);
-      this.backupCoords[i].toArray(positions, i * 3);
-      this.backupCoords[i].pointIndex = i;
-      this.backupCoords[i].starIndex = key;
+      this.positions[i] = hygToWorld(value.x, value.y, value.z) as StarPosition;
+      this.positions[i].toArray(positions, i * 3);
+      this.positions[i].pointIndex = i;
+      this.positions[i].starIndex = key;
       // Color
       bvToColor(value.ci).toArray(colors, i * 3);
       // Size
@@ -172,7 +173,7 @@ void main() {
           if (this.pointerEnterCallback) {
             this.pointerEnterCallback(
               starsInRange.value.get(
-                this.backupCoords.find((coord) => coord.pointIndex === index).starIndex
+                this.positions.find((position) => position.pointIndex === index)?.starIndex ?? 0
               ) as Star,
               intersection
             );
@@ -190,7 +191,7 @@ void main() {
           if (this.pointerLeaveCallback) {
             this.pointerLeaveCallback(
               starsInRange.value.get(
-                this.backupCoords.find((coord) => coord.pointIndex === index).starIndex
+                this.positions.find((position) => position.pointIndex === index)?.starIndex ?? 0
               ) as Star
             );
           }
@@ -203,18 +204,11 @@ void main() {
         this.canvas.flightTween === null
       ) {
         // Find nearby stars
-        const nearbyStars = this.backupCoords
-          .filter((coord) => Math.abs(coord.distanceTo(this.canvas.camera.position)) <= 10)
-          // @ts-ignore (hack)
-          .map((coord) => starsInRange.value.get(coord.starIndex) as Star);
-
-        /*console.log(
-          this.canvas.camera.position,
-          nearbyStars,
-          this.backupCoords.filter(
-            (coord) => Math.abs(coord.distanceTo(this.canvas.camera.position)) <= 10
-          )
-        );*/
+        const start = performance.now();
+        const nearbyStars = this.positions
+          .filter((position) => Math.abs(position.distanceTo(this.canvas.camera.position)) <= 10)
+          .map((position) => starsInRange.value.get(position.starIndex) as Star);
+        console.log(`Searching for nearby stars: ${performance.now() - start} ms`);
 
         // Create objects if necessary
         for (const newStar of nearbyStars) {
@@ -249,7 +243,10 @@ void main() {
       };
     }
 
-    const starLod = new THREE.LOD();
+    const starLod = new THREE.LOD() as StarObject;
+    starLod.starId = star.id;
+    starLod.position.copy(hygToWorld(star.x, star.y, star.z));
+
     for (let i = 0; i < this.geometryPool.length; i++) {
       const mesh = new THREE.Mesh(this.geometryPool[i].geometry, this.materialPool[star.ci].high);
       mesh.scale.set(0.1, 0.1, 0.1);
@@ -257,20 +254,18 @@ void main() {
       mesh.matrixAutoUpdate = false;
       starLod.addLevel(mesh, this.geometryPool[i].distance);
     }
-    starLod.position.copy(hygToWorld(star.x, star.y, star.z));
+
     starLod.updateMatrix();
     starLod.matrixAutoUpdate = false;
-    // @ts-ignore (hack)
-    starLod.starId = star.id;
 
     this.scene.add(starLod);
   }
 
   destroyStarObject(star: Star): void {
     for (const child of this.scene.children) {
-      // @ts-ignore (hack)
-      if (child.starId === star.id) {
+      if ((child as StarObject).starId === star.id) {
         child.removeFromParent();
+        break;
       }
     }
   }

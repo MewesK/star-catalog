@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {  onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useDebounceFn, useResizeObserver } from '@vueuse/core';
 
 import { screenToDevice } from '@renderer/three/helper';
@@ -61,7 +61,7 @@ function initialize(): void {
   scene.initialize();
   scene.start();
 
-  selectStar(starsInRange.value.values()[0] as Star, true);
+  selectStar(starsInRange.value.get(0) as Star, true);
 }
 
 function onPointerEnter(star: Star): void {

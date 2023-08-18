@@ -37,8 +37,7 @@ export const starsInRange = computed((): Map<number, Star> => {
       }
     });
   }
-  const end = performance.now();
-  console.log(`Searching for stars in range: ${end - start} ms`);
+  console.log(`Searching for stars in range: ${performance.now() - start} ms`);
 
   return nearbyStars;
 });
