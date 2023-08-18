@@ -60,7 +60,7 @@ export default class PointScene extends BaseScene {
 
     this.raycaster = new Raycaster();
 
-    const starsInRangeLength = starsInRange.value.size;
+    const starsInRangeLength = starsInRange.value.length;
 
     this.positions = new Array<StarPosition>(starsInRangeLength);
     const positions = new Float32Array(starsInRangeLength * 3);
@@ -68,21 +68,23 @@ export default class PointScene extends BaseScene {
     const sizes = new Float32Array(starsInRangeLength);
     const alphas = new Float32Array(starsInRangeLength);
 
-    let i = 0;
-    starsInRange.value.forEach((value, key) => {
+    for (let i = 0; i < starsInRangeLength; i++) {
+      const star = starsInRange.value[i];
+
       // Position
-      this.positions[i] = hygToWorld(value.x, value.y, value.z) as StarPosition;
+      this.positions[i] = hygToWorld(star.x, star.y, star.z) as StarPosition;
       this.positions[i].toArray(positions, i * 3);
-      this.positions[i].pointIndex = i;
-      this.positions[i].starIndex = key;
+      this.positions[i].starIndex = i;
+
       // Color
-      bvToColor(value.ci).toArray(colors, i * 3);
+      bvToColor(star.ci).toArray(colors, i * 3);
+
       // Size
       sizes[i] = PARTICLE_SIZE - (0.5 + Math.random()) / 2;
+
       // Alpha
       alphas[i] = 0.75 + Math.random() / 4;
-      i++;
-    });
+    }
 
     const geometry = new THREE.BufferGeometry();
     geometry.setDrawRange(0, Infinity);
@@ -171,12 +173,7 @@ void main() {
           attributes.customColor.needsUpdate = true;
 
           if (this.pointerEnterCallback) {
-            this.pointerEnterCallback(
-              starsInRange.value.get(
-                this.positions.find((position) => position.pointIndex === index)?.starIndex ?? 0
-              ) as Star,
-              intersection
-            );
+            this.pointerEnterCallback(starsInRange.value[index], intersection);
           }
         },
         (index) => {
@@ -189,11 +186,7 @@ void main() {
           attributes.customColor.needsUpdate = true;
 
           if (this.pointerLeaveCallback) {
-            this.pointerLeaveCallback(
-              starsInRange.value.get(
-                this.positions.find((position) => position.pointIndex === index)?.starIndex ?? 0
-              ) as Star
-            );
+            this.pointerLeaveCallback(starsInRange.value[index]);
           }
         }
       );
@@ -207,7 +200,7 @@ void main() {
         const start = performance.now();
         const nearbyStars = this.positions
           .filter((position) => Math.abs(position.distanceTo(this.canvas.camera.position)) <= 10)
-          .map((position) => starsInRange.value.get(position.starIndex) as Star);
+          .map((position) => starsInRange.value[position.starIndex]);
         console.log(`Searching for nearby stars: ${performance.now() - start} ms`);
 
         // Create objects if necessary

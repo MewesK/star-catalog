@@ -10,7 +10,7 @@ import { hygToWorld } from './three/helper';
 
 // State
 
-export const stars = ref<Map<number, Star>>(new Map());
+export const stars = ref<Star[]>([]);
 export const selectedStar = ref<Star | null>(null);
 
 export const canvas = new Canvas();
@@ -23,20 +23,19 @@ export const config = ref(false);
 
 // Getter
 
-export const starsInRange = computed((): Map<number, Star> => {
+export const starsInRange = computed((): Star[] => {
   const start = performance.now();
 
-  let nearbyStars = new Map<number, Star>();
+  let nearbyStars = [] as Star[];
   if (RENDER_DISTANCE >= MAX_RENDER_DISTANCE) {
     nearbyStars = stars.value;
   } else {
     const nullVector = new THREE.Vector3();
-    stars.value.forEach((value, key) => {
-      if (hygToWorld(value.x, value.y, value.z).distanceTo(nullVector) <= RENDER_DISTANCE) {
-        nearbyStars.set(key, value);
-      }
-    });
+    nearbyStars = stars.value.filter(
+      (star) => hygToWorld(star.x, star.y, star.z).distanceTo(nullVector) <= RENDER_DISTANCE
+    );
   }
+
   console.log(`Searching for stars in range: ${performance.now() - start} ms`);
 
   return nearbyStars;

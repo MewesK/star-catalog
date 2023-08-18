@@ -15,7 +15,7 @@ window.api.onUpdate((_event: IpcRendererEvent, starChunk: Star[]) => {
     starBuffer.push(...starChunk);
   } else {
     console.log(`Finished loading: ${performance.now() - start} ms`);
-    starBuffer.forEach((star, index) => stars.value.set(index, star));
+    stars.value = starBuffer;
     starBuffer = [];
     loading.value = false;
   }

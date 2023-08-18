@@ -61,7 +61,7 @@ function initialize(): void {
   scene.initialize();
   scene.start();
 
-  selectStar(starsInRange.value.get(0) as Star, true);
+  selectStar(starsInRange.value[0] as Star, true);
 }
 
 function onPointerEnter(star: Star): void {
