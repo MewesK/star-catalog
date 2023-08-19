@@ -1,5 +1,6 @@
-import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron';
 import { electronAPI } from '@electron-toolkit/preload';
+import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+
 import { Star } from '../types/Star';
 
 // Custom APIs for renderer

@@ -1,9 +1,10 @@
-import fs from 'fs';
+import fs from 'node:fs';
+
 import { parse } from 'csv-parse';
 import { BrowserWindow } from 'electron';
-import { Star } from '../types/Star';
 
 import hygData35Csv from '../../resources/hygdata_v35.csv?asset';
+import { Star } from '../types/Star';
 
 export default function (window: BrowserWindow): Promise<void> {
   return new Promise<void>((resolve, reject) => {

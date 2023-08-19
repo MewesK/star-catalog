@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useElementSize, useParentElement } from '@vueuse/core';
 import { bloom, devMode, fog } from '@renderer/config';
+import { useElementSize, useParentElement } from '@vueuse/core';
 import { computed } from 'vue';
 
 const { height: parentHeight } = useElementSize(useParentElement());

@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-
 import { ref, watch } from 'vue';
-import { canvas, scene } from './state';
+
 import { BLOOM_INTENSITY_DEFAULT, FOG_NEAR_DEFAULT } from './defaults';
 import { isDev } from './helper';
+import { canvas, scene } from './state';
 
 // Realtime Properties
 

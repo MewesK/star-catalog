@@ -1,12 +1,11 @@
-import { createApp } from 'vue';
-import { createVuetify } from 'vuetify';
-import { aliases, md } from 'vuetify/iconsets/md';
-
-import App from '@renderer/App.vue';
-
 // Import CSS
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 import 'vuetify/styles';
+
+import App from '@renderer/App.vue';
+import { createApp } from 'vue';
+import { createVuetify } from 'vuetify';
+import { aliases, md } from 'vuetify/iconsets/md';
 
 // Configure Vuetify
 const vuetify = createVuetify({

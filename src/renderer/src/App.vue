@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useTheme } from 'vuetify';
-
-import Config from './components/Config.vue';
 import Debug from '@renderer/components/Debug.vue';
 import StarBrowser from '@renderer/components/StarBrowser.vue';
 import StarCanvas from '@renderer/components/StarCanvas.vue';
 import StarDetails from '@renderer/components/StarDetails.vue';
+import { computed } from 'vue';
+import { useTheme } from 'vuetify';
 
-import { error, loading } from './loader';
-import { getStarName } from './helper';
+import Config from './components/Config.vue';
 import { devMode } from './config';
-import { browser, config, selectedStar, details, menu } from './state';
+import { getStarName } from './helper';
+import { error, loading } from './loader';
+import { browser, config, details, menu, selectedStar } from './state';
 
 const theme = useTheme();
 

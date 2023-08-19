@@ -1,15 +1,3 @@
-import * as THREE from 'three';
-
-import BaseScene from './BaseScene';
-import Canvas from './Canvas';
-import Raycaster from './Raycaster';
-
-import { bvToColor, hygToWorld } from './helper';
-import { Star } from 'src/types/Star';
-import { StarObject } from 'src/types/StarObject';
-import { StarPosition } from 'src/types/StarPosition';
-import { starsInRange } from '@renderer/state';
-import { starTexture, sunBwTexture } from './textures';
 import {
   FOG_COLOR_DEFAULT,
   FOG_FAR_DEFAULT,
@@ -17,6 +5,17 @@ import {
   MOUSEOVER_COLOR_DEFAULT,
   PARTICLE_SIZE
 } from '@renderer/defaults';
+import { starsInRange } from '@renderer/state';
+import { Star } from 'src/types/Star';
+import { StarObject } from 'src/types/StarObject';
+import { StarPosition } from 'src/types/StarPosition';
+import * as THREE from 'three';
+
+import BaseScene from './BaseScene';
+import Canvas from './Canvas';
+import { bvToColor, hygToWorld } from './helper';
+import Raycaster from './Raycaster';
+import { starTexture, sunBwTexture } from './textures';
 
 export default class PointScene extends BaseScene {
   pointerEnterCallback = null as
@@ -83,7 +82,7 @@ export default class PointScene extends BaseScene {
       sizes[i] = PARTICLE_SIZE - (0.5 + Math.random()) / 2;
 
       // Alpha
-      alphas[i] = 0.75 + Math.random() / 4;
+      alphas[i] = 0.5 + Math.random() / 4;
     }
 
     const geometry = new THREE.BufferGeometry();
@@ -164,7 +163,7 @@ void main() {
         (index, intersection) => {
           // Set size
           this.backupSize = attributes.size.array[index];
-          attributes.size.array[index] += Math.log2(Math.pow(intersection.distance, 2) + 1) / 10;
+          attributes.size.array[index] += intersection.distance / 10;
           attributes.size.needsUpdate = true;
 
           // Set color

@@ -1,9 +1,3 @@
-import * as THREE from 'three';
-import * as TWEEN from '@tweenjs/tween.js';
-import Stats from 'three/examples/jsm/libs/stats.module';
-import { BloomEffect, EffectComposer, EffectPass, RenderPass } from 'postprocessing';
-
-import Controls from './Controls';
 import {
   BLOOM_INTENSITY_DEFAULT,
   BLOOM_LUMINANCE_SMOOTHING_DEFAULT,
@@ -13,6 +7,12 @@ import {
   CAMERA_FOV_DEFAULT,
   CAMERA_NEAR_DEFAULT
 } from '@renderer/defaults';
+import * as TWEEN from '@tweenjs/tween.js';
+import { BloomEffect, EffectComposer, EffectPass, RenderPass } from 'postprocessing';
+import * as THREE from 'three';
+import Stats from 'three/examples/jsm/libs/stats.module';
+
+import Controls from './Controls';
 
 export default class Canvas {
   readonly clock = new THREE.Clock();

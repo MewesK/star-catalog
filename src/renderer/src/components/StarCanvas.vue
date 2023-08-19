@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
-import { useDebounceFn, useResizeObserver } from '@vueuse/core';
-
-import { screenToDevice } from '@renderer/three/helper';
 import { getStarName, isDev } from '@renderer/helper';
 import { canvas, scene, selectStar, starsInRange } from '@renderer/state';
+import { screenToDevice } from '@renderer/three/helper';
+import { useDebounceFn, useResizeObserver } from '@vueuse/core';
 import { Star } from 'src/types/Star';
+import { onMounted, ref, watch } from 'vue';
 
 const canvasElement = ref<HTMLCanvasElement | null>(null);
 const canvasContainerElement = ref<HTMLElement | null>(null);

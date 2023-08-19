@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+
 import Canvas from './Canvas';
 
 export default abstract class BaseScene {

@@ -1,5 +1,5 @@
-import * as THREE from 'three';
 import { SCALE_MULTIPLIER } from '@renderer/defaults';
+import * as THREE from 'three';
 
 /**
  * Converts B-V index (-0.4 to +2.0) to a THREE.js color

@@ -1,12 +1,12 @@
-import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
+import { Star } from 'src/types/Star';
+import * as THREE from 'three';
 import { computed, ref } from 'vue';
 
-import { Star } from 'src/types/Star';
+import { MAX_RENDER_DISTANCE, RENDER_DISTANCE } from './defaults';
 import Canvas from './three/Canvas';
-import PointScene from './three/PointScene';
-import { RENDER_DISTANCE, MAX_RENDER_DISTANCE } from './defaults';
 import { hygToWorld } from './three/helper';
+import SpaceScene from './three/SpaceScene';
 
 // State
 
@@ -14,7 +14,7 @@ export const stars = ref<Star[]>([]);
 export const selectedStar = ref<Star | null>(null);
 
 export const canvas = new Canvas();
-export const scene = new PointScene(canvas);
+export const scene = new SpaceScene(canvas);
 
 export const menu = ref(true);
 export const browser = ref(false);

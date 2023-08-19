@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { useElementSize, useParentElement } from '@vueuse/core';
-
 import { format, getStarName } from '@renderer/helper';
-import { selectStar, selectedStar, starsInRange } from '@renderer/state';
+import { selectedStar, selectStar, starsInRange } from '@renderer/state';
+import { useElementSize, useParentElement } from '@vueuse/core';
 import { Star } from 'src/types/Star';
+import { computed, ref } from 'vue';
 
 const query = ref('');
 const card = ref(null);

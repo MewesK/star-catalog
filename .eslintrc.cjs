@@ -16,6 +16,7 @@ module.exports = {
     '@vue/eslint-config-typescript/recommended',
     '@vue/eslint-config-prettier'
   ],
+  plugins: ['simple-import-sort', 'import'],
   rules: {
     '@typescript-eslint/ban-ts-comment': ['error', { 'ts-ignore': 'allow-with-description' }],
     '@typescript-eslint/explicit-function-return-type': 'error',
@@ -25,7 +26,12 @@ module.exports = {
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     'vue/require-default-prop': 'off',
-    'vue/multi-word-component-names': 'off'
+    'vue/multi-word-component-names': 'off',
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
+    'import/first': 'error',
+    'import/newline-after-import': 'error',
+    'import/no-duplicates': 'error'
   },
   overrides: [
     {

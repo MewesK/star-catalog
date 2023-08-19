@@ -1,4 +1,5 @@
 import { FlyControls } from 'three/examples/jsm/controls/FlyControls';
+
 import Canvas from './Canvas';
 
 export default class Controls {

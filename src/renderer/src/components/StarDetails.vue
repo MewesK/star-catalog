@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useElementSize, useParentElement } from '@vueuse/core';
 import { selectedStar } from '@renderer/state';
+import { useElementSize, useParentElement } from '@vueuse/core';
+import { ref } from 'vue';
 
 const card = ref(null);
 const { height: cardHeight } = useElementSize(card);
