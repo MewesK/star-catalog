@@ -4,9 +4,11 @@ export const MAX_RENDER_DISTANCE = 100000; // Distance that will load all stars 
 
 // Properties
 
-export const RENDER_DISTANCE = 1000; // Filter radius for rendered stars (Parsec)
+export const RENDER_DISTANCE = 5000; // Filter radius for rendered stars (Parsec)
+export const RENDER_DISTANCE_3D = 25;
 export const PARTICLE_ALPHA = 0.7;
 export const PARTICLE_SIZE = 0.5;
+export const MODEL_SCALE = 0.08;
 export const SCALE_MULTIPLIER = 10; // 1 unit = 1/SCALE_MULTIPLIER parsec (pc)
 
 // Realtime Properties
@@ -18,9 +20,9 @@ export const CAMERA_FAR_DEFAULT = 50000;
 export const CONTROLS_MOVEMENT_SPEED_DEFAULT = 100;
 export const CONTROLS_ROLLSPEED_DEFAULT = 0.5;
 
-export const BLOOM_INTENSITY_DEFAULT = 0.3;
-export const BLOOM_RADIUS_DEFAULT = 1;
-export const BLOOM_LUMINANCE_SMOOTHING_DEFAULT = 0.3;
+export const BLOOM_INTENSITY_DEFAULT = 0.5;
+export const BLOOM_RADIUS_DEFAULT = 1; // Not working
+export const BLOOM_LUMINANCE_SMOOTHING_DEFAULT = 0.0;
 export const BLOOM_LUMINANCE_THRESHOLD_DEFAULT = 0.3;
 
 export const FOG_COLOR_DEFAULT = 0x000000;

@@ -2,11 +2,14 @@ import {
   FOG_COLOR_DEFAULT,
   FOG_FAR_DEFAULT,
   FOG_NEAR_DEFAULT,
+  MODEL_SCALE,
   MOUSEOVER_COLOR_DEFAULT,
   PARTICLE_ALPHA,
-  PARTICLE_SIZE
+  PARTICLE_SIZE,
+  RENDER_DISTANCE_3D
 } from '@renderer/defaults';
 import { starsInRange } from '@renderer/state';
+import { useDebounceFn, useThrottleFn } from '@vueuse/core';
 import { Star } from 'src/types/Star';
 import { StarObject } from 'src/types/StarObject';
 import { StarPosition } from 'src/types/StarPosition';
@@ -39,6 +42,7 @@ export default class PointScene extends BaseScene {
     { geometry: new THREE.IcosahedronGeometry(1, 1), distance: 100 }
   ];
   private materialPool = {} as Record<number, { high: THREE.Material; low: THREE.Material }>;
+  private loadStarModels;
 
   constructor(canvas: Canvas) {
     super(canvas);
@@ -150,6 +154,35 @@ void main() {
 
     this.points = new THREE.Points(geometry, material);
     this.scene.add(this.points);
+
+    this.loadStarModels = useThrottleFn((): void => {
+      // Find nearby stars
+      const start = performance.now();
+      const nearbyStars = this.positions
+        .filter(
+          (position) =>
+            Math.abs(position.distanceTo(this.canvas.camera.position)) <= RENDER_DISTANCE_3D
+        )
+        .map((position) => starsInRange.value[position.starIndex]);
+      console.log(`Searching for nearby stars: ${performance.now() - start} ms`);
+
+      // Create objects if necessary
+      for (const newStar of nearbyStars) {
+        if (!this.backupNearbyStars.includes(newStar)) {
+          this.createStarObject(newStar);
+        }
+      }
+
+      // Destroy objects if necessary
+      for (const oldStar of this.backupNearbyStars) {
+        if (!nearbyStars.includes(oldStar)) {
+          this.destroyStarObject(oldStar);
+        }
+      }
+
+      this.backupCameraPosition.copy(this.canvas.camera.position);
+      this.backupNearbyStars = nearbyStars;
+    }, 100);
   }
 
   animate(): void {
@@ -193,33 +226,8 @@ void main() {
       );
 
       // Lazy-load/-unload nearby stars
-      if (
-        !this.canvas.camera.position.equals(this.backupCameraPosition) &&
-        this.canvas.flightTween === null
-      ) {
-        // Find nearby stars
-        const start = performance.now();
-        const nearbyStars = this.positions
-          .filter((position) => Math.abs(position.distanceTo(this.canvas.camera.position)) <= 10)
-          .map((position) => starsInRange.value[position.starIndex]);
-        console.log(`Searching for nearby stars: ${performance.now() - start} ms`);
-
-        // Create objects if necessary
-        for (const newStar of nearbyStars) {
-          if (!this.backupNearbyStars.includes(newStar)) {
-            this.createStarObject(newStar);
-          }
-        }
-
-        // Destroy objects if necessary
-        for (const oldStar of this.backupNearbyStars) {
-          if (!nearbyStars.includes(oldStar)) {
-            this.destroyStarObject(oldStar);
-          }
-        }
-
-        this.backupCameraPosition.copy(this.canvas.camera.position);
-        this.backupNearbyStars = nearbyStars;
+      if (!this.canvas.camera.position.equals(this.backupCameraPosition)) {
+        this.loadStarModels();
       }
     }
   }
@@ -243,7 +251,7 @@ void main() {
 
     for (let i = 0; i < this.geometryPool.length; i++) {
       const mesh = new THREE.Mesh(this.geometryPool[i].geometry, this.materialPool[star.ci].high);
-      mesh.scale.set(0.1, 0.1, 0.1);
+      mesh.scale.set(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
       mesh.updateMatrix();
       mesh.matrixAutoUpdate = false;
       starLod.addLevel(mesh, this.geometryPool[i].distance);

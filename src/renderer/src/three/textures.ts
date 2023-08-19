@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 import sunTextureImage from '../assets/2k_sun.jpg';
 import sunBwTextureImage from '../assets/2k_sun_bw.jpg';
-import starTextureImage from '../assets/star.png';
+import starTextureImage from '../assets/particle_light.png';
 
 const textureLoader = new THREE.TextureLoader();
 
