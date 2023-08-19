@@ -3,7 +3,7 @@ import { Star } from 'src/types/Star';
 import * as THREE from 'three';
 import { computed, ref } from 'vue';
 
-import { MAX_RENDER_DISTANCE, RENDER_DISTANCE } from './defaults';
+import { PARTICLE_SIZE, RENDER_DISTANCE, RENDER_DISTANCE_MAX } from './defaults';
 import Canvas from './three/Canvas';
 import { hygToWorld } from './three/helper';
 import SpaceScene from './three/SpaceScene';
@@ -27,7 +27,7 @@ export const starsInRange = computed((): Star[] => {
   const start = performance.now();
 
   let nearbyStars = [] as Star[];
-  if (RENDER_DISTANCE >= MAX_RENDER_DISTANCE) {
+  if (RENDER_DISTANCE >= RENDER_DISTANCE_MAX) {
     nearbyStars = stars.value;
   } else {
     const nullVector = new THREE.Vector3();
@@ -59,7 +59,7 @@ export function selectStar(star: Star, noAnimation = false): void {
   const destinationWithOffset = new THREE.Vector3();
   destinationWithOffset
     .subVectors(canvas.camera.position, destiantion)
-    .setLength(1.5)
+    .setLength(PARTICLE_SIZE * 3)
     .add(destiantion);
 
   if (noAnimation) {

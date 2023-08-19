@@ -6,7 +6,8 @@ import {
   MOUSEOVER_COLOR,
   PARTICLE_ALPHA,
   PARTICLE_SIZE,
-  RENDER_DISTANCE_3D
+  RENDER_DISTANCE_3D,
+  SCALE_MULTIPLIER
 } from '@renderer/defaults';
 import { starsInRange } from '@renderer/state';
 import { useThrottleFn } from '@vueuse/core';
@@ -198,7 +199,7 @@ void main() {
           // Set size
           this.backupSize = attributes.size.array[index];
           attributes.size.array[index] +=
-            attributes.size.array[index] * (intersection.distance / 10);
+            attributes.size.array[index] * (intersection.distance / SCALE_MULTIPLIER);
           attributes.size.needsUpdate = true;
 
           // Set color

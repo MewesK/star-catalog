@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Config from '@renderer/components/Config.vue';
 import Debug from '@renderer/components/Debug.vue';
 import StarBrowser from '@renderer/components/StarBrowser.vue';
 import StarCanvas from '@renderer/components/StarCanvas.vue';
@@ -6,7 +7,6 @@ import StarDetails from '@renderer/components/StarDetails.vue';
 import { computed } from 'vue';
 import { useTheme } from 'vuetify';
 
-import Config from './components/Config.vue';
 import { devMode } from './config';
 import { getStarName } from './helper';
 import { error, loading } from './loader';

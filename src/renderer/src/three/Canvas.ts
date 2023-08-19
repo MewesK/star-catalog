@@ -2,7 +2,6 @@ import {
   BLOOM_INTENSITY,
   BLOOM_LUMINANCE_SMOOTHING,
   BLOOM_LUMINANCE_THRESHOLD,
-  BLOOM_RADIUS,
   CAMERA_FAR,
   CAMERA_FOV,
   CAMERA_NEAR
@@ -52,13 +51,13 @@ export default class Canvas {
 
     this.bloomEffect = new BloomEffect({
       intensity: BLOOM_INTENSITY,
-      radius: BLOOM_RADIUS,
       luminanceSmoothing: BLOOM_LUMINANCE_SMOOTHING,
       luminanceThreshold: BLOOM_LUMINANCE_THRESHOLD
     });
 
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(this.renderPass);
+    //this.composer.addPass(new EffectPass(this.camera, new DepthOfFieldEffect(this.camera)));
     this.composer.addPass(new EffectPass(this.camera, this.bloomEffect));
   }
 

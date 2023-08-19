@@ -1,3 +1,4 @@
+import { RAYCASTER_THRESHOLD } from '@renderer/defaults';
 import * as THREE from 'three';
 
 export default class Raycaster {
@@ -7,7 +8,7 @@ export default class Raycaster {
   private intersectedIndex = null as number | null;
 
   constructor() {
-    this.raycaster.params.Points = { threshold: 0.2 };
+    this.raycaster.params.Points = { threshold: RAYCASTER_THRESHOLD };
   }
 
   check(
