@@ -9,7 +9,7 @@ import {
   RENDER_DISTANCE_3D
 } from '@renderer/defaults';
 import { starsInRange } from '@renderer/state';
-import { useDebounceFn, useThrottleFn } from '@vueuse/core';
+import { useThrottleFn } from '@vueuse/core';
 import { Star } from 'src/types/Star';
 import { StarObject } from 'src/types/StarObject';
 import { StarPosition } from 'src/types/StarPosition';
