@@ -3,6 +3,7 @@ import {
   FOG_FAR_DEFAULT,
   FOG_NEAR_DEFAULT,
   MOUSEOVER_COLOR_DEFAULT,
+  PARTICLE_ALPHA,
   PARTICLE_SIZE
 } from '@renderer/defaults';
 import { starsInRange } from '@renderer/state';
@@ -79,10 +80,10 @@ export default class PointScene extends BaseScene {
       bvToColor(star.ci).toArray(colors, i * 3);
 
       // Size
-      sizes[i] = PARTICLE_SIZE - (0.5 + Math.random()) / 2;
+      sizes[i] = PARTICLE_SIZE;
 
       // Alpha
-      alphas[i] = 0.5 + Math.random() / 4;
+      alphas[i] = PARTICLE_ALPHA;
     }
 
     const geometry = new THREE.BufferGeometry();
@@ -163,7 +164,8 @@ void main() {
         (index, intersection) => {
           // Set size
           this.backupSize = attributes.size.array[index];
-          attributes.size.array[index] += intersection.distance / 10;
+          attributes.size.array[index] +=
+            attributes.size.array[index] * (intersection.distance / 10);
           attributes.size.needsUpdate = true;
 
           // Set color
