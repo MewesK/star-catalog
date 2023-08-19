@@ -44,8 +44,24 @@ onMounted(() => {
       canvas.resize(entries[0].contentRect.width, entries[0].contentRect.height);
     }, 10)
   );
+
   window.addEventListener('keydown', onKeyDown);
   window.addEventListener('keyup', onKeyUp);
+
+  scene.pointerEnterCallback = (star: Star): void => {
+    if (!canvasElement.value || !canvas) {
+      return;
+    }
+    currentStar.value = star;
+    showTooltip.value = true;
+    tooltipText.value = getStarName(star);
+  };
+
+  scene.pointerLeaveCallback = (): void => {
+    currentStar.value = null;
+    showTooltip.value = false;
+    tooltipText.value = null;
+  };
 
   watch(starsInRange, initialize);
 });
@@ -57,29 +73,10 @@ function initialize(): void {
 
   console.log('Initializing scene...');
 
-  scene.pointerEnterCallback = onPointerEnter;
-  scene.pointerLeaveCallback = onPointerLeave;
-
   scene.initialize();
   scene.start();
 
   selectStar(starsInRange.value[0] as Star, true);
-}
-
-function onPointerEnter(star: Star): void {
-  if (!canvasElement.value || !canvas) {
-    return;
-  }
-
-  currentStar.value = star;
-  showTooltip.value = true;
-  tooltipText.value = getStarName(star);
-}
-
-function onPointerLeave(): void {
-  currentStar.value = null;
-  showTooltip.value = false;
-  tooltipText.value = null;
 }
 
 function onPointerMove(event: PointerEvent): void {
@@ -106,13 +103,6 @@ function onPointerOut(): void {
   }
 }
 
-function onClick(): void {
-  if (currentStar.value === null) {
-    return;
-  }
-  selectStar(currentStar.value);
-}
-
 function onKeyDown(event: KeyboardEvent): void {
   if (canvas.controls && event.key === 'Shift') {
     canvas.controls.controls.movementSpeed = CONTROLS_MOVEMENT_SPEED_WARP;
@@ -123,6 +113,13 @@ function onKeyUp(event: KeyboardEvent): void {
   if (canvas.controls && event.key === 'Shift') {
     canvas.controls.controls.movementSpeed = CONTROLS_MOVEMENT_SPEED_DEFAULT;
   }
+}
+
+function onClick(): void {
+  if (currentStar.value === null) {
+    return;
+  }
+  selectStar(currentStar.value);
 }
 </script>
 
