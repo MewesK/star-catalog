@@ -37,8 +37,8 @@ export default class PointScene extends BaseScene {
   private backupSize = 0;
 
   private geometryPool = [
-    { geometry: new THREE.IcosahedronGeometry(1, 3), distance: 0 },
-    { geometry: new THREE.IcosahedronGeometry(1, 2), distance: 50 },
+    { geometry: new THREE.IcosahedronGeometry(1, 16), distance: 0 },
+    { geometry: new THREE.IcosahedronGeometry(1, 8), distance: 50 },
     { geometry: new THREE.IcosahedronGeometry(1, 1), distance: 100 }
   ];
   private materialPool = {} as Record<number, { high: THREE.Material; low: THREE.Material }>;
