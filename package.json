@@ -17,7 +17,8 @@
     "postinstall": "electron-builder install-app-deps",
     "build:win": "npm run build && electron-builder --win --config",
     "build:mac": "npm run build && electron-builder --mac --config",
-    "build:linux": "npm run build && electron-builder --linux --config"
+    "build:linux": "npm run build && electron-builder --linux --config",
+    "build:icons": "electron-icon-builder --flatten --input=./resources/logo.png --output=./build && mv ./build/icons/icon.* ./build && cp ./build/icons/512x512.png ./build/icon.png"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^2.0.0",
@@ -37,6 +38,7 @@
     "csv-parse": "^5.4.0",
     "electron": "^25.4.0",
     "electron-builder": "^24.6.3",
+    "electron-icon-builder": "^2.0.1",
     "electron-vite": "^1.0.27",
     "eslint": "^8.46.0",
     "eslint-plugin-import": "^2.28.1",
