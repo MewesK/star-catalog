@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { CONTROLS_MOVEMENT_SPEED_DEFAULT, CONTROLS_MOVEMENT_SPEED_WARP } from '@renderer/defaults';
 import { getStarName, isDev } from '@renderer/helper';
 import { canvas, scene, selectStar, starsInRange } from '@renderer/state';
 import { screenToDevice } from '@renderer/three/helper';
@@ -43,6 +44,8 @@ onMounted(() => {
       canvas.resize(entries[0].contentRect.width, entries[0].contentRect.height);
     }, 10)
   );
+  window.addEventListener('keydown', onKeyDown);
+  window.addEventListener('keyup', onKeyUp);
 
   watch(starsInRange, initialize);
 });
@@ -108,6 +111,18 @@ function onClick(): void {
     return;
   }
   selectStar(currentStar.value);
+}
+
+function onKeyDown(event: KeyboardEvent): void {
+  if (canvas.controls && event.key === 'Shift') {
+    canvas.controls.controls.movementSpeed = CONTROLS_MOVEMENT_SPEED_WARP;
+  }
+}
+
+function onKeyUp(event: KeyboardEvent): void {
+  if (canvas.controls && event.key === 'Shift') {
+    canvas.controls.controls.movementSpeed = CONTROLS_MOVEMENT_SPEED_DEFAULT;
+  }
 }
 </script>
 

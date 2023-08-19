@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { ref, watch } from 'vue';
 
-import { BLOOM_INTENSITY_DEFAULT, FOG_NEAR_DEFAULT } from './defaults';
+import { BLOOM_INTENSITY, FOG_NEAR } from './defaults';
 import { isDev } from './helper';
 import { canvas, scene } from './state';
 
@@ -9,12 +9,12 @@ import { canvas, scene } from './state';
 
 export const bloom = ref(true);
 watch(bloom, (newValue) => {
-  if (canvas.bloomEffect) canvas.bloomEffect.intensity = newValue ? BLOOM_INTENSITY_DEFAULT : 0;
+  if (canvas.bloomEffect) canvas.bloomEffect.intensity = newValue ? BLOOM_INTENSITY : 0;
 });
 
 export const fog = ref(true);
 watch(fog, (newValue) => {
-  (scene.scene.fog as THREE.Fog).near = newValue ? FOG_NEAR_DEFAULT : Infinity;
+  (scene.scene.fog as THREE.Fog).near = newValue ? FOG_NEAR : Infinity;
 });
 
 export const devMode = ref(isDev);

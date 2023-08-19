@@ -1,11 +1,11 @@
 import {
-  BLOOM_INTENSITY_DEFAULT,
-  BLOOM_LUMINANCE_SMOOTHING_DEFAULT,
-  BLOOM_LUMINANCE_THRESHOLD_DEFAULT,
-  BLOOM_RADIUS_DEFAULT,
-  CAMERA_FAR_DEFAULT,
-  CAMERA_FOV_DEFAULT,
-  CAMERA_NEAR_DEFAULT
+  BLOOM_INTENSITY,
+  BLOOM_LUMINANCE_SMOOTHING,
+  BLOOM_LUMINANCE_THRESHOLD,
+  BLOOM_RADIUS,
+  CAMERA_FAR,
+  CAMERA_FOV,
+  CAMERA_NEAR
 } from '@renderer/defaults';
 import * as TWEEN from '@tweenjs/tween.js';
 import { BloomEffect, EffectComposer, EffectPass, RenderPass } from 'postprocessing';
@@ -30,12 +30,7 @@ export default class Canvas {
   flightTween = null as TWEEN.Tween<THREE.Vector3> | null;
 
   constructor() {
-    this.camera = new THREE.PerspectiveCamera(
-      CAMERA_FOV_DEFAULT,
-      1,
-      CAMERA_NEAR_DEFAULT,
-      CAMERA_FAR_DEFAULT
-    );
+    this.camera = new THREE.PerspectiveCamera(CAMERA_FOV, 1, CAMERA_NEAR, CAMERA_FAR);
     this.camera.position.z = -1;
     this.stats = new Stats();
   }
@@ -56,10 +51,10 @@ export default class Canvas {
     this.renderPass = new RenderPass(new THREE.Scene(), this.camera);
 
     this.bloomEffect = new BloomEffect({
-      intensity: BLOOM_INTENSITY_DEFAULT,
-      radius: BLOOM_RADIUS_DEFAULT,
-      luminanceSmoothing: BLOOM_LUMINANCE_SMOOTHING_DEFAULT,
-      luminanceThreshold: BLOOM_LUMINANCE_THRESHOLD_DEFAULT
+      intensity: BLOOM_INTENSITY,
+      radius: BLOOM_RADIUS,
+      luminanceSmoothing: BLOOM_LUMINANCE_SMOOTHING,
+      luminanceThreshold: BLOOM_LUMINANCE_THRESHOLD
     });
 
     this.composer = new EffectComposer(this.renderer);

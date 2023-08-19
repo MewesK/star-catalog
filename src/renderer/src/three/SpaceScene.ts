@@ -1,9 +1,9 @@
 import {
-  FOG_COLOR_DEFAULT,
-  FOG_FAR_DEFAULT,
-  FOG_NEAR_DEFAULT,
+  FOG_COLOR,
+  FOG_FAR,
+  FOG_NEAR,
   MODEL_SCALE,
-  MOUSEOVER_COLOR_DEFAULT,
+  MOUSEOVER_COLOR,
   PARTICLE_ALPHA,
   PARTICLE_SIZE,
   RENDER_DISTANCE_3D
@@ -60,7 +60,7 @@ export default class PointScene extends BaseScene {
     }
 
     this.scene.background = new THREE.Color(0x0000000);
-    this.scene.fog = new THREE.Fog(FOG_COLOR_DEFAULT, FOG_NEAR_DEFAULT, FOG_FAR_DEFAULT);
+    this.scene.fog = new THREE.Fog(FOG_COLOR, FOG_NEAR, FOG_FAR);
 
     this.raycaster = new Raycaster();
 
@@ -203,7 +203,7 @@ void main() {
 
           // Set color
           this.backupColor.fromArray(attributes.customColor.array, index * 3);
-          new THREE.Color(MOUSEOVER_COLOR_DEFAULT).toArray(attributes.customColor.array, index * 3);
+          new THREE.Color(MOUSEOVER_COLOR).toArray(attributes.customColor.array, index * 3);
           attributes.customColor.needsUpdate = true;
 
           if (this.pointerEnterCallback) {
