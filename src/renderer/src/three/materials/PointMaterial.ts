@@ -13,13 +13,13 @@ varying vec3 vColor;
 varying float vAlpha;
 
 void main() {
-  vColor = customColor;
-  vAlpha = alpha;
+    vColor = customColor;
+    vAlpha = alpha;
 
-  vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 
-  gl_PointSize = size * ( 300.0 / -mvPosition.z );
-  gl_Position = projectionMatrix * mvPosition;
+    gl_PointSize = size * ( 300.0 / -mvPosition.z );
+    gl_Position = projectionMatrix * mvPosition;
 }`,
       fragmentShader: `
 uniform vec3 color;
@@ -32,17 +32,18 @@ varying vec3 vColor;
 varying float vAlpha;
 
 void main() {
-	gl_FragColor = vec4( vColor, vAlpha );
-	gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
-  #ifdef USE_FOG
-    #ifdef USE_LOGDEPTHBUF_EXT
-      float depth = gl_FragDepthEXT / gl_FragCoord.w;
-    #else
-      float depth = gl_FragCoord.z / gl_FragCoord.w;
+    gl_FragColor = vec4( vColor, vAlpha * clamp( ( gl_FragCoord.z - 0.94 ) * 10.0 , 0.0, 1.0 ) );
+    gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+
+    #ifdef USE_FOG
+        #ifdef USE_LOGDEPTHBUF_EXT
+            float depth = gl_FragDepthEXT / gl_FragCoord.w;
+        #else
+            float depth = gl_FragCoord.z / gl_FragCoord.w;
+        #endif
+        float fogFactor = smoothstep( fogNear, fogFar, depth );
+        gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
     #endif
-    float fogFactor = smoothstep( fogNear, fogFar, depth );
-    gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
-  #endif
 }`,
       blending: THREE.AdditiveBlending,
       depthTest: false,
