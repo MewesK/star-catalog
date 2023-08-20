@@ -22,7 +22,7 @@ import { bvToColor, hygToWorld } from './helper';
 import AnimatedStarMaterial from './materials/AnimatedStarMaterial';
 import PointMaterial from './materials/PointMaterial';
 import Raycaster from './Raycaster';
-import { cloudTexture, lavaTexture, starTexture } from './textures';
+import { pointTexture, sunTexture, surfaceTexture } from './textures';
 
 export default class PointScene extends BaseScene {
   pointerEnterCallback = null as
@@ -102,7 +102,7 @@ export default class PointScene extends BaseScene {
 
     const material = new PointMaterial({
       color: { value: new THREE.Color(0xffffff) },
-      pointTexture: { value: starTexture },
+      pointTexture: { value: pointTexture },
       alphaTest: { value: 0.9 },
       fogColor: { value: this.scene.fog.color },
       fogNear: { value: (this.scene.fog as THREE.Fog).near },
@@ -197,13 +197,13 @@ export default class PointScene extends BaseScene {
     if (!this.materialPool[star.ci]) {
       this.materialPool[star.ci] = new AnimatedStarMaterial({
         emissive: { value: bvToColor(star.ci) }, // TODO
-        emissiveMap: { value: lavaTexture }, // TODO
+        emissiveMap: { value: surfaceTexture }, // TODO
         fogDensity: { value: 0.02 },
         fogColor: { value: new THREE.Vector3(0, 0, 0) },
         time: { value: 1.0 },
         uvScale: { value: new THREE.Vector2(3.0, 1.0) },
-        texture1: { value: cloudTexture },
-        texture2: { value: lavaTexture }
+        texture1: { value: sunTexture },
+        texture2: { value: surfaceTexture }
       });
     }
 
