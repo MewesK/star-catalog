@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 
 export default class PointMaterial extends THREE.ShaderMaterial {
-
   constructor(uniforms: { [uniform: string]: THREE.IUniform } | undefined) {
     super({
       uniforms,
