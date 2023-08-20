@@ -19,8 +19,10 @@ import * as THREE from 'three';
 import BaseScene from './BaseScene';
 import Canvas from './Canvas';
 import { bvToColor, hygToWorld } from './helper';
+import AnimatedStarMaterial from './materials/AnimatedStarMaterial';
+import PointMaterial from './materials/PointMaterial';
 import Raycaster from './Raycaster';
-import { starTexture, sunBwTexture } from './textures';
+import { cloudTexture, lavaTexture, starTexture } from './textures';
 
 export default class PointScene extends BaseScene {
   pointerEnterCallback = null as
@@ -42,7 +44,7 @@ export default class PointScene extends BaseScene {
     { geometry: new THREE.IcosahedronGeometry(1, 8), distance: 50 },
     { geometry: new THREE.IcosahedronGeometry(1, 1), distance: 100 }
   ];
-  private materialPool = {} as Record<number, { high: THREE.Material; low: THREE.Material }>;
+  private materialPool = {} as Record<number, AnimatedStarMaterial>;
   private loadStarModels;
 
   constructor(canvas: Canvas) {
@@ -98,59 +100,13 @@ export default class PointScene extends BaseScene {
     geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
     geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
 
-    const material = new THREE.ShaderMaterial({
-      uniforms: {
-        color: { value: new THREE.Color(0xffffff) },
-        pointTexture: { value: starTexture },
-        alphaTest: { value: 0.9 },
-        fogColor: { value: this.scene.fog.color },
-        fogNear: { value: (this.scene.fog as THREE.Fog).near },
-        fogFar: { value: (this.scene.fog as THREE.Fog).far }
-      },
-      vertexShader: `
-attribute float alpha;
-attribute float size;
-attribute vec3 customColor;
-
-varying vec3 vColor;
-varying float vAlpha;
-
-void main() {
-  vColor = customColor;
-  vAlpha = alpha;
-
-  vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-
-  gl_PointSize = size * ( 300.0 / -mvPosition.z );
-  gl_Position = projectionMatrix * mvPosition;
-}`,
-      fragmentShader: `
-uniform vec3 color;
-uniform sampler2D pointTexture;
-uniform vec3 fogColor;
-uniform float fogNear;
-uniform float fogFar;
-
-varying vec3 vColor;
-varying float vAlpha;
-
-void main() {
-	gl_FragColor = vec4( vColor, vAlpha );
-	gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
-  #ifdef USE_FOG
-    #ifdef USE_LOGDEPTHBUF_EXT
-      float depth = gl_FragDepthEXT / gl_FragCoord.w;
-    #else
-      float depth = gl_FragCoord.z / gl_FragCoord.w;
-    #endif
-    float fogFactor = smoothstep( fogNear, fogFar, depth );
-    gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
-  #endif
-}`,
-      blending: THREE.AdditiveBlending,
-      depthTest: false,
-      transparent: true,
-      fog: true
+    const material = new PointMaterial({
+      color: { value: new THREE.Color(0xffffff) },
+      pointTexture: { value: starTexture },
+      alphaTest: { value: 0.9 },
+      fogColor: { value: this.scene.fog.color },
+      fogNear: { value: (this.scene.fog as THREE.Fog).near },
+      fogFar: { value: (this.scene.fog as THREE.Fog).far }
     });
 
     this.points = new THREE.Points(geometry, material);
@@ -187,6 +143,10 @@ void main() {
   }
 
   animate(): void {
+    Object.values(this.materialPool).forEach(
+      (material) => (material.uniforms['time'].value += this.clock.getDelta() / 3)
+    );
+
     if (this.points && this.raycaster) {
       // Raycasting
       const geometry = this.points.geometry;
@@ -235,15 +195,16 @@ void main() {
 
   createStarObject(star: Star): void {
     if (!this.materialPool[star.ci]) {
-      this.materialPool[star.ci] = {
-        high: new THREE.MeshLambertMaterial({
-          emissive: bvToColor(star.ci),
-          emissiveMap: sunBwTexture
-        }),
-        low: new THREE.MeshLambertMaterial({
-          emissive: bvToColor(star.ci)
-        })
-      };
+      this.materialPool[star.ci] = new AnimatedStarMaterial({
+        emissive: { value: bvToColor(star.ci) }, // TODO
+        emissiveMap: { value: lavaTexture }, // TODO
+        fogDensity: { value: 0.02 },
+        fogColor: { value: new THREE.Vector3(0, 0, 0) },
+        time: { value: 1.0 },
+        uvScale: { value: new THREE.Vector2(3.0, 1.0) },
+        texture1: { value: cloudTexture },
+        texture2: { value: lavaTexture }
+      });
     }
 
     const starLod = new THREE.LOD() as StarObject;
@@ -251,7 +212,7 @@ void main() {
     starLod.position.copy(hygToWorld(star.x, star.y, star.z));
 
     for (let i = 0; i < this.geometryPool.length; i++) {
-      const mesh = new THREE.Mesh(this.geometryPool[i].geometry, this.materialPool[star.ci].high);
+      const mesh = new THREE.Mesh(this.geometryPool[i].geometry, this.materialPool[star.ci]);
       mesh.scale.set(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
       mesh.updateMatrix();
       mesh.matrixAutoUpdate = false;

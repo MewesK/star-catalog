@@ -5,6 +5,7 @@ import Canvas from './Canvas';
 export default abstract class BaseScene {
   readonly canvas: Canvas;
   readonly scene = new THREE.Scene();
+  readonly clock = new THREE.Clock();
 
   running = false;
 
