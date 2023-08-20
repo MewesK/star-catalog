@@ -7,7 +7,7 @@ import {
   CAMERA_NEAR
 } from '@renderer/defaults';
 import * as TWEEN from '@tweenjs/tween.js';
-import { BloomEffect, EffectComposer, EffectPass, RenderPass } from 'postprocessing';
+import { BloomEffect, EffectComposer, EffectPass, GodRaysEffect, RenderPass } from 'postprocessing';
 import * as THREE from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 

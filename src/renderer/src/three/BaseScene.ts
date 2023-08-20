@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 import Canvas from './Canvas';
 
-export default abstract class BaseScene {
+export default abstract class BaseScene extends EventTarget {
   readonly canvas: Canvas;
   readonly scene = new THREE.Scene();
   readonly clock = new THREE.Clock();
@@ -10,6 +10,7 @@ export default abstract class BaseScene {
   running = false;
 
   constructor(canvas: Canvas) {
+    super();
     this.canvas = canvas;
   }
 

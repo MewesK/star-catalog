@@ -2,6 +2,7 @@
 import { CONTROLS_MOVEMENT_SPEED_DEFAULT, CONTROLS_MOVEMENT_SPEED_WARP } from '@renderer/defaults';
 import { getStarName, isDev } from '@renderer/helper';
 import { canvas, scene, selectStar, starsInRange } from '@renderer/state';
+import { PointerEnterEvent } from '@renderer/three/SpaceScene';
 import { screenToDevice } from '@renderer/three/helper';
 import { useDebounceFn, useResizeObserver } from '@vueuse/core';
 import { Star } from 'src/types/Star';
@@ -48,20 +49,8 @@ onMounted(() => {
   window.addEventListener('keydown', onKeyDown);
   window.addEventListener('keyup', onKeyUp);
 
-  scene.pointerEnterCallback = (star: Star): void => {
-    if (!canvasElement.value || !canvas) {
-      return;
-    }
-    currentStar.value = star;
-    showTooltip.value = true;
-    tooltipText.value = getStarName(star);
-  };
-
-  scene.pointerLeaveCallback = (): void => {
-    currentStar.value = null;
-    showTooltip.value = false;
-    tooltipText.value = null;
-  };
+  scene.addEventListener('pointerenter', onPointerEnterStar as EventListener);
+  scene.addEventListener('pointerleave', onPointerLeaveStar as EventListener);
 
   watch(starsInRange, initialize);
 });
@@ -77,6 +66,21 @@ function initialize(): void {
   scene.start();
 
   selectStar(starsInRange.value[0] as Star, true);
+}
+
+function onPointerEnterStar(event: PointerEnterEvent): void {
+  if (!canvasElement.value || !canvas) {
+    return;
+  }
+  currentStar.value = event.detail.star;
+  showTooltip.value = true;
+  tooltipText.value = getStarName(event.detail.star);
+}
+
+function onPointerLeaveStar(): void {
+  currentStar.value = null;
+  showTooltip.value = false;
+  tooltipText.value = null;
 }
 
 function onPointerMove(event: PointerEvent): void {
