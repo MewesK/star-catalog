@@ -35,9 +35,9 @@ export default class PointScene extends BaseScene {
 
   private backupCameraPosition = new THREE.Vector3();
   private backupColor = new THREE.Color();
-  private backupNearbyStars = [] as Star[];
   private backupSize = 0;
 
+  private nearbyStars = new Map<number, StarObjectEntry>();
   private geometryPool = [
     { geometry: new THREE.IcosahedronGeometry(1, 16), distance: 0 },
     { geometry: new THREE.IcosahedronGeometry(1, 8), distance: 50 },
@@ -54,14 +54,14 @@ export default class PointScene extends BaseScene {
       throw new Error('Canvas not initialized.');
     }
 
+    // Scene setup
+    this.scene.clear();
+    this.scene.background = new THREE.Color(0x0000000);
+    this.scene.fog = new THREE.Fog(FOG_COLOR, FOG_NEAR, FOG_FAR);
+
     if (this.canvas.renderPass.mainScene !== this.scene) {
       this.canvas.renderPass.mainScene = this.scene;
     }
-
-    this.scene.clear();
-
-    this.scene.background = new THREE.Color(0x0000000);
-    this.scene.fog = new THREE.Fog(FOG_COLOR, FOG_NEAR, FOG_FAR);
 
     this.raycaster = new Raycaster();
     this.raycaster.addEventListener(
@@ -73,6 +73,7 @@ export default class PointScene extends BaseScene {
       this.onPointerLeave.bind(this) as EventListener
     );
 
+    // Create points
     const starsInRangeLength = starsInRange.value.length;
 
     this.positions = new Array<StarPosition>(starsInRangeLength);
@@ -116,13 +117,6 @@ export default class PointScene extends BaseScene {
     });
 
     this.points = new THREE.Points(geometry, material);
-
-    /*if (this.canvas.composer) {
-      this.canvas.composer.addPass(
-        new EffectPass(this.canvas.camera, new GodRaysEffect(this.canvas.camera, this.points))
-      );
-    }*/
-
     this.scene.add(this.points);
   }
 
@@ -207,25 +201,27 @@ export default class PointScene extends BaseScene {
       .map((position) => starsInRange.value[position.starIndex]);
     console.log(`Searching for nearby stars: ${performance.now() - start} ms`);
 
+    // Destroy objects if necessary
+    this.nearbyStars.forEach((value, key) => {
+      if (!nearbyStars.includes(value.object)) {
+        this.destroyStarObject(value);
+        this.nearbyStars.delete(key);
+      }
+    });
+
     // Create objects if necessary
     for (const newStar of nearbyStars) {
-      if (!this.backupNearbyStars.includes(newStar)) {
-        this.createStarObject(newStar);
-      }
-    }
-
-    // Destroy objects if necessary
-    for (const oldStar of this.backupNearbyStars) {
-      if (!nearbyStars.includes(oldStar)) {
-        this.destroyStarObject(oldStar);
+      if (!this.nearbyStars.has(newStar.id)) {
+        this.nearbyStars.set(newStar.id, this.createStarObject(newStar));
       }
     }
 
     this.backupCameraPosition.copy(this.canvas.camera.position);
-    this.backupNearbyStars = nearbyStars;
   }
 
-  createStarObject(star: Star): void {
+  createStarObject(star: Star): StarObjectEntry {
+    const result = { object: star } as StarObjectEntry;
+
     if (!this.materialPool[star.ci]) {
       this.materialPool[star.ci] = new AnimatedStarMaterial({
         emissive: { value: bvToColor(star.ci) }, // TODO
@@ -249,20 +245,35 @@ export default class PointScene extends BaseScene {
       mesh.updateMatrix();
       mesh.matrixAutoUpdate = false;
       starLod.addLevel(mesh, this.geometryPool[i].distance);
+      if (i === 0) {
+        result.mesh = mesh;
+        result.effect = new EffectPass(
+          this.canvas.camera,
+          new GodRaysEffect(this.canvas.camera, mesh, {
+            decay: 0.85,
+            weight: 0.3
+          })
+        );
+        if (this.canvas.composer) {
+          this.canvas.composer.addPass(result.effect);
+        }
+      }
     }
 
     starLod.updateMatrix();
     starLod.matrixAutoUpdate = false;
 
+    result.lod = starLod;
     this.scene.add(starLod);
+
+    return result;
   }
 
-  destroyStarObject(star: Star): void {
-    for (const child of this.scene.children) {
-      if ((child as StarObject).starId === star.id) {
-        child.removeFromParent();
-        break;
-      }
+  destroyStarObject(starObjectEntry: StarObjectEntry): void {
+    starObjectEntry.lod.removeFromParent();
+    starObjectEntry.effect.dispose();
+    if (this.canvas.composer) {
+      this.canvas.composer.removePass(starObjectEntry.effect);
     }
   }
 }
@@ -289,4 +300,11 @@ export class PointerLeaveEvent extends CustomEvent<{ star: Star }> {
       }
     } as CustomEventInit);
   }
+}
+
+export interface StarObjectEntry {
+  lod: StarObject;
+  mesh: THREE.Mesh;
+  effect: EffectPass;
+  object: Star;
 }
