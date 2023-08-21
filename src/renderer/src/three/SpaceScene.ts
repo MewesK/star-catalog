@@ -255,7 +255,7 @@ export default class PointScene extends BaseScene {
           })
         );
         if (this.canvas.composer) {
-          this.canvas.composer.addPass(result.effect);
+          this.canvas.composer.addPass(result.effect, this.canvas.composer.passes.length - 1);
         }
       }
     }
