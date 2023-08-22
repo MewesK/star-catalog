@@ -32,7 +32,7 @@ varying vec3 vColor;
 varying float vAlpha;
 
 void main() {
-    gl_FragColor = vec4( vColor, vAlpha * clamp( ( gl_FragCoord.z - 0.96 ) * 10.0 , 0.0, 1.0 ) );
+    gl_FragColor = vec4( vColor, vAlpha * clamp( ( gl_FragCoord.z - 0.97 ) * 10.0 , 0.0, 1.0 ) );
     gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
 
     #ifdef USE_FOG

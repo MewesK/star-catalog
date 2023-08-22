@@ -52,7 +52,9 @@ export default class Canvas {
     this.bloomEffect = new BloomEffect({
       intensity: BLOOM_INTENSITY,
       luminanceSmoothing: BLOOM_LUMINANCE_SMOOTHING,
-      luminanceThreshold: BLOOM_LUMINANCE_THRESHOLD
+      luminanceThreshold: BLOOM_LUMINANCE_THRESHOLD,
+      mipmapBlur: true,
+      radius: 0.5
     });
 
     this.composer = new EffectComposer(this.renderer);

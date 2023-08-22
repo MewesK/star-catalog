@@ -12,6 +12,16 @@ watch(bloom, (newValue) => {
   if (canvas.bloomEffect) canvas.bloomEffect.intensity = newValue ? BLOOM_INTENSITY : 0;
 });
 
+export const rays = ref(true);
+watch(rays, (newValue) => {
+  if (canvas.composer)
+    scene.nearbyStars.forEach((value) => {
+      value.effects.forEach((effect) => {
+        effect.enabled = newValue;
+      });
+    });
+});
+
 export const fog = ref(true);
 watch(fog, (newValue) => {
   (scene.scene.fog as THREE.Fog).near = newValue ? FOG_NEAR : Infinity;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { bloom, devMode, fog } from '@renderer/config';
+import { bloom, devMode, fog, rays } from '@renderer/config';
 import { useElementSize, useParentElement } from '@vueuse/core';
 import { computed } from 'vue';
 
@@ -9,12 +9,14 @@ const selected = computed({
   get() {
     return [
       bloom.value ? 'bloom' : null,
+      rays.value ? 'rays' : null,
       fog.value ? 'fog' : null,
       devMode.value ? 'devMode' : null
     ];
   },
   set(value) {
     bloom.value = value.includes('bloom');
+    rays.value = value.includes('rays');
     fog.value = value.includes('fog');
     devMode.value = value.includes('devMode');
   }
@@ -39,6 +41,20 @@ const selected = computed({
 
         <v-list-item-subtitle>
           Toggle the bloom effect which makes the stars glow
+        </v-list-item-subtitle>
+      </v-list-item>
+
+      <v-list-item value="rays">
+        <template #prepend="{ isActive }">
+          <v-list-item-action start>
+            <v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
+          </v-list-item-action>
+        </template>
+
+        <v-list-item-title>God Rays</v-list-item-title>
+
+        <v-list-item-subtitle>
+          Toggle the god ray effect which makes the stars glow
         </v-list-item-subtitle>
       </v-list-item>
 

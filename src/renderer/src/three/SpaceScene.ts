@@ -1,3 +1,4 @@
+import { rays } from '@renderer/config';
 import {
   FOG_COLOR,
   FOG_FAR,
@@ -6,6 +7,9 @@ import {
   MOUSEOVER_COLOR,
   PARTICLE_ALPHA,
   PARTICLE_SIZE,
+  RAYS_DECAY,
+  RAYS_SAMPLES,
+  RAYS_WEIGHT,
   RENDER_DISTANCE_3D,
   SCALE_MULTIPLIER
 } from '@renderer/defaults';
@@ -31,39 +35,21 @@ import { pointTexture, sunTexture, surfaceTexture } from './textures';
 export default class PointScene extends BaseScene {
   points = null as THREE.Points | null;
   positions = [] as StarPosition[];
-  raycaster = null as Raycaster | null;
+  nearbyStars = new Map<number, StarObjectEntry>();
+  raycaster = new Raycaster();
 
   private backupCameraPosition = new THREE.Vector3();
   private backupColor = new THREE.Color();
   private backupSize = 0;
 
-  private nearbyStars = new Map<number, StarObjectEntry>();
   private geometryPool = [
     { geometry: new THREE.IcosahedronGeometry(1, 16), distance: 0 },
-    { geometry: new THREE.IcosahedronGeometry(1, 8), distance: 50 },
-    { geometry: new THREE.IcosahedronGeometry(1, 1), distance: 100 }
+    { geometry: new THREE.IcosahedronGeometry(1, 8), distance: 50 }
   ];
   private materialPool = {} as Record<number, AnimatedStarMaterial>;
 
   constructor(canvas: Canvas) {
     super(canvas);
-  }
-
-  initialize(): void {
-    if (!this.canvas.renderer || !this.canvas.renderPass) {
-      throw new Error('Canvas not initialized.');
-    }
-
-    // Scene setup
-    this.scene.clear();
-    this.scene.background = new THREE.Color(0x0000000);
-    this.scene.fog = new THREE.Fog(FOG_COLOR, FOG_NEAR, FOG_FAR);
-
-    if (this.canvas.renderPass.mainScene !== this.scene) {
-      this.canvas.renderPass.mainScene = this.scene;
-    }
-
-    this.raycaster = new Raycaster();
     this.raycaster.addEventListener(
       'pointerenter',
       this.onPointerEnter.bind(this) as EventListener
@@ -72,8 +58,19 @@ export default class PointScene extends BaseScene {
       'pointerleave',
       this.onPointerLeave.bind(this) as EventListener
     );
+  }
 
-    // Create points
+  initialize(): void {
+    if (!this.canvas.renderer || !this.canvas.renderPass || !this.canvas.bloomEffect) {
+      throw new Error('Canvas not initialized');
+    }
+
+    // Scene setup
+    this.scene.clear();
+    this.scene.background = new THREE.Color(0x0000000);
+    this.scene.fog = new THREE.Fog(FOG_COLOR, FOG_NEAR, FOG_FAR);
+
+    // Prepare BufferGeometry attributes & nearby star search table
     const starsInRangeLength = starsInRange.value.length;
 
     this.positions = new Array<StarPosition>(starsInRangeLength);
@@ -100,6 +97,7 @@ export default class PointScene extends BaseScene {
       alphas[i] = PARTICLE_ALPHA;
     }
 
+    // Create BufferGeometry
     const geometry = new THREE.BufferGeometry();
     geometry.setDrawRange(0, Infinity);
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -107,17 +105,23 @@ export default class PointScene extends BaseScene {
     geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
     geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
 
-    const material = new PointMaterial({
-      color: { value: new THREE.Color(0xffffff) },
-      pointTexture: { value: pointTexture },
-      alphaTest: { value: 0.9 },
-      fogColor: { value: this.scene.fog.color },
-      fogNear: { value: (this.scene.fog as THREE.Fog).near },
-      fogFar: { value: (this.scene.fog as THREE.Fog).far }
-    });
-
-    this.points = new THREE.Points(geometry, material);
+    // Create Points
+    this.points = new THREE.Points(
+      geometry,
+      new PointMaterial({
+        color: { value: new THREE.Color(0xffffff) },
+        pointTexture: { value: pointTexture },
+        alphaTest: { value: 0.9 },
+        fogColor: { value: this.scene.fog.color },
+        fogNear: { value: (this.scene.fog as THREE.Fog).near },
+        fogFar: { value: (this.scene.fog as THREE.Fog).far }
+      })
+    );
     this.scene.add(this.points);
+
+    // Activate scene
+    this.canvas.bloomEffect.mainScene = this.scene;
+    this.canvas.renderPass.mainScene = this.scene;
   }
 
   animate(): void {
@@ -220,13 +224,13 @@ export default class PointScene extends BaseScene {
   }
 
   createStarObject(star: Star): StarObjectEntry {
-    const result = { object: star } as StarObjectEntry;
+    const result = { object: star, effects: [] as EffectPass[] } as StarObjectEntry;
 
     if (!this.materialPool[star.ci]) {
       this.materialPool[star.ci] = new AnimatedStarMaterial({
-        emissive: { value: bvToColor(star.ci) }, // TODO
-        emissiveMap: { value: surfaceTexture }, // TODO
-        fogDensity: { value: 0.02 },
+        // TODO emissive: { value: bvToColor(star.ci) },
+        // TODO emissiveMap: { value: surfaceTexture },
+        fogDensity: { value: 0.005 },
         fogColor: { value: new THREE.Vector3(0, 0, 0) },
         time: { value: 1.0 },
         uvScale: { value: new THREE.Vector2(3.0, 1.0) },
@@ -245,19 +249,16 @@ export default class PointScene extends BaseScene {
       mesh.updateMatrix();
       mesh.matrixAutoUpdate = false;
       starLod.addLevel(mesh, this.geometryPool[i].distance);
-      if (i === 0) {
-        result.mesh = mesh;
-        result.effect = new EffectPass(
-          this.canvas.camera,
-          new GodRaysEffect(this.canvas.camera, mesh, {
-            decay: 0.85,
-            weight: 0.3
-          })
-        );
-        if (this.canvas.composer) {
-          this.canvas.composer.addPass(result.effect, this.canvas.composer.passes.length - 1);
-        }
-      }
+      result.effects[i] = new EffectPass(
+        this.canvas.camera,
+        new GodRaysEffect(this.canvas.camera, mesh, {
+          decay: RAYS_DECAY,
+          weight: RAYS_WEIGHT,
+          samples: RAYS_SAMPLES
+        })
+      );
+      result.effects[i].enabled = rays.value;
+      this.canvas.composer?.addPass(result.effects[i], this.canvas.composer?.passes.length - 1);
     }
 
     starLod.updateMatrix();
@@ -271,10 +272,10 @@ export default class PointScene extends BaseScene {
 
   destroyStarObject(starObjectEntry: StarObjectEntry): void {
     starObjectEntry.lod.removeFromParent();
-    starObjectEntry.effect.dispose();
-    if (this.canvas.composer) {
-      this.canvas.composer.removePass(starObjectEntry.effect);
-    }
+    starObjectEntry.effects.forEach((effect) => {
+      effect.dispose();
+      this.canvas.composer?.removePass(effect);
+    });
   }
 }
 
@@ -304,7 +305,6 @@ export class PointerLeaveEvent extends CustomEvent<{ star: Star }> {
 
 export interface StarObjectEntry {
   lod: StarObject;
-  mesh: THREE.Mesh;
-  effect: EffectPass;
+  effects: EffectPass[];
   object: Star;
 }
