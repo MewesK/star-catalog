@@ -18,7 +18,7 @@ export const CONTROLS_MOVEMENT_SPEED_DEFAULT = SCALE_MULTIPLIER * 0.01;
 export const CONTROLS_MOVEMENT_SPEED_WARP = SCALE_MULTIPLIER * 5;
 export const CONTROLS_ROLLSPEED = 0.5;
 
-export const BLOOM_INTENSITY = 1.0;
+export const BLOOM_INTENSITY = 1.5;
 export const BLOOM_LUMINANCE_SMOOTHING = 0.05;
 export const BLOOM_LUMINANCE_THRESHOLD = 0.01;
 
@@ -28,7 +28,7 @@ export const FOG_FAR = SCALE_MULTIPLIER * 250;
 
 export const RAYS_DECAY = 0.85;
 export const RAYS_WEIGHT = 0.25;
-export const RAYS_SAMPLES = 100;
+export const RAYS_SAMPLES = 60;
 
 export const MOUSEOVER_COLOR = 0xffa0a0;
 export const RAYCASTER_THRESHOLD = SCALE_MULTIPLIER * 0.01;

@@ -43,11 +43,13 @@ $ npm run build:mac
 # For Linux
 $ npm run build:linux
 ```
+
 ## Credits
 
 ### resources/hygdata_v35.csv
+
 The ["HYG" star database](https://github.com/astronexus/HYG-Database) by David Nash, is licensed under the [CC BY-SA 2.5 license](https://creativecommons.org/licenses/by-sa/2.5).
 
 ### resources/logo.svg (and the derived formats)
-The ["Space" icon](https://thenounproject.com/browse/icons/term/space) by Alina Oleynik, is licensed under a [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0).
 
+The ["Space" icon](https://thenounproject.com/browse/icons/term/space) by Alina Oleynik, is licensed under a [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0).

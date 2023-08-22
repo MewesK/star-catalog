@@ -54,7 +54,7 @@ export default class Canvas {
       luminanceSmoothing: BLOOM_LUMINANCE_SMOOTHING,
       luminanceThreshold: BLOOM_LUMINANCE_THRESHOLD,
       mipmapBlur: true,
-      radius: 0.5
+      radius: 0.7
     });
 
     this.composer = new EffectComposer(this.renderer);
