@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Config from '@renderer/components/Config.vue';
 import Debug from '@renderer/components/Debug.vue';
+import Settings from '@renderer/components/Settings.vue';
 import StarBrowser from '@renderer/components/StarBrowser.vue';
 import StarCanvas from '@renderer/components/StarCanvas.vue';
 import StarDetails from '@renderer/components/StarDetails.vue';
@@ -124,7 +124,7 @@ function onThemeToggle(): void {
       disable-resize-watcher
       temporary
     >
-      <config />
+      <settings />
     </v-navigation-drawer>
 
     <v-main><star-canvas /></v-main>

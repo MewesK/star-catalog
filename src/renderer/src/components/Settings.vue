@@ -25,7 +25,7 @@ const selected = computed({
 
 <template>
   <v-card :height="parentHeight">
-    <v-card-title>Config</v-card-title>
+    <v-card-title>Settings</v-card-title>
 
     <v-divider></v-divider>
 
