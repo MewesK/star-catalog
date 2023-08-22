@@ -126,9 +126,9 @@ export default class PointScene extends BaseScene {
 
   animate(): void {
     // Animate materials
-    Object.values(this.materialPool).forEach(
-      (material) => (material.uniforms['time'].value += this.clock.getDelta() / 3)
-    );
+    Object.values(this.materialPool).forEach((material) => {
+      material.uniforms.time.value += this.clock.getDelta() / 3;
+    });
 
     if (this.points && this.raycaster) {
       // Raycasting
@@ -233,7 +233,7 @@ export default class PointScene extends BaseScene {
         fogDensity: { value: 0.005 },
         fogColor: { value: new THREE.Vector3(0, 0, 0) },
         time: { value: 1.0 },
-        uvScale: { value: new THREE.Vector2(3.0, 1.0) },
+        uvScale: { value: new THREE.Vector2(1.0, 3.0) },
         texture1: { value: sunTexture },
         texture2: { value: surfaceTexture }
       });
