@@ -229,8 +229,7 @@ export default class PointScene extends BaseScene {
 
     if (!this.materialPool[star.ci]) {
       this.materialPool[star.ci] = new AnimatedStarMaterial({
-        // TODO emissive: { value: bvToColor(star.ci) },
-        // TODO emissiveMap: { value: surfaceTexture },
+        customColor: { value: bvToColor(star.ci) },
         fogDensity: { value: 0.005 },
         fogColor: { value: new THREE.Vector3(0, 0, 0) },
         time: { value: 1.0 },

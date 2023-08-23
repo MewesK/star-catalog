@@ -4,7 +4,7 @@ export default class AnimatedStarMaterial extends THREE.ShaderMaterial {
   constructor(uniforms: { [uniform: string]: THREE.IUniform } | undefined) {
     super({
       uniforms,
-      vertexShader: `
+      vertexShader: /*glsl*/ `
 uniform vec2 uvScale;
 varying vec2 vUv;
 
@@ -14,6 +14,7 @@ void main() {
   gl_Position = projectionMatrix * mvPosition;
 }`,
       fragmentShader: `
+uniform vec3 customColor;
 uniform float time;
 
 uniform float fogDensity;
@@ -27,6 +28,7 @@ varying vec2 vUv;
 void main(void) {
   vec2 position = - 1.0 + 2.0 * vUv;
 
+  // Noise
   vec4 noise = texture2D( texture1, vUv );
   vec2 T1 = vUv + vec2( 1.5, - 1.5 ) * time * 0.02;
   vec2 T2 = vUv + vec2( - 0.5, 2.0 ) * time * 0.01;
@@ -36,17 +38,20 @@ void main(void) {
   T2.x -= noise.y * 0.2;
   T2.y += noise.z * 0.2;
 
+  // Lava
   float p = texture2D( texture1, T1 * 2.0 ).a;
 
-  vec4 color = texture2D( texture2, T2 * 2.0 );
-  vec4 temp = color * ( vec4( p, p, p, p ) * 2.0 ) + ( color * color - 0.1 );
+  vec4 texColor = texture2D( texture2, T2 * 2.0 );
+  vec4 newColor = texColor * ( vec4( p, p, p, p ) * 2.0 ) + ( texColor * texColor - 0.1 );
 
-  if( temp.r > 1.0 ) { temp.bg += clamp( temp.r - 2.0, 0.0, 100.0 ); }
-  if( temp.g > 1.0 ) { temp.rb += temp.g - 1.0; }
-  if( temp.b > 1.0 ) { temp.rg += temp.b - 1.0; }
+  if( newColor.r > 1.0 ) { newColor.bg += clamp( newColor.r - 2.0, 0.0, 100.0 ); }
+  if( newColor.g > 1.0 ) { newColor.rb += newColor.g - 1.0; }
+  if( newColor.b > 1.0 ) { newColor.rg += newColor.b - 1.0; }
 
-  gl_FragColor = temp;
+  // Colorize
+  gl_FragColor = vec4( customColor * newColor.rgb, 1.0 );
 
+  // Fog
   float depth = gl_FragCoord.z / gl_FragCoord.w;
   const float LOG2 = 1.442695;
   float fogFactor = exp2( - fogDensity * fogDensity * depth * depth * LOG2 );
