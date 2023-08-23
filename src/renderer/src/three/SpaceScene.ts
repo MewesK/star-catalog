@@ -126,8 +126,9 @@ export default class PointScene extends BaseScene {
 
   animate(): void {
     // Animate materials
+    const delta = this.clock.getDelta() / 3.0;
     Object.values(this.materialPool).forEach((material) => {
-      material.uniforms.time.value += this.clock.getDelta() / 3;
+      material.uniforms.time.value += delta;
     });
 
     if (this.points && this.raycaster) {
@@ -193,7 +194,7 @@ export default class PointScene extends BaseScene {
   // Star objects
   //
 
-  updateStarObjectsThrotteled = useThrottleFn(this.updateStarObjects, 100);
+  updateStarObjectsThrotteled = useThrottleFn(this.updateStarObjects, 200);
   updateStarObjects(): void {
     // Find nearby stars
     const start = performance.now();
