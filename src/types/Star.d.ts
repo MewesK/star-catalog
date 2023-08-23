@@ -1,11 +1,11 @@
 export interface Star {
-  // The database primary key.
+  // [Integer] The database primary key.
   id: number;
-  // The star's ID in the Hipparcos catalog, if known.
+  // [Integer] The star's ID in the Hipparcos catalog, if known.
   hip: number;
-  // The star's ID in the Henry Draper catalog, if known.
+  // [Integer] The star's ID in the Henry Draper catalog, if known.
   hd: number;
-  // The star's ID in the Harvard Revised catalog, which is the same as its number in the Yale Bright Star Catalog.
+  // [Integer] The star's ID in the Harvard Revised catalog, which is the same as its number in the Yale Bright Star Catalog.
   hr: number;
   // The star's ID in the third edition of the Gliese Catalog of Nearby Stars.
   gl: string;
@@ -50,7 +50,7 @@ export interface Star {
   flam: string;
   //The standard constellation abbreviation
   con: string;
-  //Identifies a star in a multiple star system.comp = ID of companion star, comp_primary = ID of primary star for this component, and base = catalog ID or name for this multi - star system.Currently only used for Gliese stars.
+  // [Integer, Integer, String] Identifies a star in a multiple star system.comp = ID of companion star, comp_primary = ID of primary star for this component, and base = catalog ID or name for this multi - star system.Currently only used for Gliese stars.
   comp: number;
   comp_primary: number;
   base: string;

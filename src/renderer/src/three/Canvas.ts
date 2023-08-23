@@ -4,7 +4,10 @@ import {
   BLOOM_LUMINANCE_THRESHOLD,
   CAMERA_FAR,
   CAMERA_FOV,
-  CAMERA_NEAR
+  CAMERA_NEAR,
+  PARTICLE_SIZE,
+  TRAVEL_ROTATION_MULTIPLIER,
+  TRAVEL_TIME
 } from '@renderer/defaults';
 import * as TWEEN from '@tweenjs/tween.js';
 import { BloomEffect, EffectComposer, EffectPass, RenderPass, SMAAEffect } from 'postprocessing';
@@ -40,7 +43,8 @@ export default class Canvas {
       powerPreference: 'high-performance',
       antialias: false,
       stencil: false,
-      depth: false
+      depth: false,
+      logarithmicDepthBuffer: true
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.autoClear = false;
@@ -87,5 +91,46 @@ export default class Canvas {
     }
 
     this.stats.update();
+  }
+
+  flyTo(destiantion: THREE.Vector3, instantly = false): void {
+    // Compute target destination with offset
+    const destinationWithOffset = new THREE.Vector3();
+    destinationWithOffset
+      .subVectors(this.camera.position, destiantion)
+      .setLength(PARTICLE_SIZE * 3)
+      .add(destiantion);
+
+    if (instantly) {
+      // Instant teleportation
+      this.camera.position.copy(destinationWithOffset);
+      this.camera.lookAt(destiantion);
+    } else {
+      // Compute target rotation
+      const rotationMatrix = new THREE.Matrix4();
+      rotationMatrix.lookAt(this.camera.position, destiantion, this.camera.up);
+
+      const targetQuaternion = new THREE.Quaternion();
+      targetQuaternion.setFromRotationMatrix(rotationMatrix);
+
+      // Start flight tween
+      this.flightTween = new TWEEN.Tween(this.camera.position)
+        .to(destinationWithOffset, TRAVEL_TIME)
+        .easing(TWEEN.Easing.Quadratic.InOut)
+        .onStart(() => console.log('Flight starting...'))
+        .onUpdate((_destiantion, elapsed) => {
+          if (!this.camera.quaternion.equals(targetQuaternion)) {
+            this.camera.quaternion.rotateTowards(
+              targetQuaternion,
+              elapsed * TRAVEL_ROTATION_MULTIPLIER
+            );
+          }
+        })
+        .onComplete(() => {
+          console.log('...flight ended.');
+          this.flightTween = null;
+        })
+        .start();
+    }
   }
 }

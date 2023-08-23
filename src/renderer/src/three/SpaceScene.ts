@@ -194,7 +194,7 @@ export default class PointScene extends BaseScene {
   // Star objects
   //
 
-  updateStarObjectsThrotteled = useThrottleFn(this.updateStarObjects, 200);
+  updateStarObjectsThrotteled = useThrottleFn(this.updateStarObjects, 250);
   updateStarObjects(): void {
     // Find nearby stars
     const start = performance.now();
@@ -204,7 +204,11 @@ export default class PointScene extends BaseScene {
           Math.abs(position.distanceTo(this.canvas.camera.position)) <= RENDER_DISTANCE_3D
       )
       .map((position) => starsInRange.value[position.starIndex]);
-    console.log(`Searching for nearby stars: ${performance.now() - start} ms`);
+    console.log(
+      `Searching for nearby stars: ${performance.now() - start} ms`,
+      this.canvas.camera.position,
+      nearbyStars
+    );
 
     // Destroy objects if necessary
     this.nearbyStars.forEach((value, key) => {
@@ -230,7 +234,7 @@ export default class PointScene extends BaseScene {
     if (!this.materialPool[star.ci]) {
       this.materialPool[star.ci] = new AnimatedStarMaterial({
         customColor: { value: bvToColor(star.ci) },
-        fogDensity: { value: 0.005 },
+        fogDensity: { value: 0.00005 },
         fogColor: { value: new THREE.Vector3(0, 0, 0) },
         time: { value: 1.0 },
         uvScale: { value: new THREE.Vector2(1.0, 3.0) },
