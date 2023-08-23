@@ -2,9 +2,9 @@
 
 export const SCALE_MULTIPLIER = 100; // 1 unit = 1/SCALE_MULTIPLIER parsec (pc)
 
-export const RENDER_DISTANCE = SCALE_MULTIPLIER * 500; // Filter radius for rendered stars (Parsec)
+export const RENDER_DISTANCE = SCALE_MULTIPLIER * 1000; // Filter radius for rendered stars (Parsec)
 export const RENDER_DISTANCE_MAX = SCALE_MULTIPLIER * 10000; // Distance that will load all stars (Parsec)
-export const RENDER_DISTANCE_3D = SCALE_MULTIPLIER * 3.5;
+export const RENDER_DISTANCE_3D = SCALE_MULTIPLIER * 2.5;
 
 export const MODEL_SCALE = SCALE_MULTIPLIER * 0.008;
 export const PARTICLE_SIZE = SCALE_MULTIPLIER * 0.05;
