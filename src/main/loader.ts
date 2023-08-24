@@ -6,6 +6,16 @@ import { BrowserWindow } from 'electron';
 import hygData35Csv from '../../resources/hygdata_v35.csv?asset';
 import { Star } from '../types/Star';
 
+function toInt<T>(value: string, empty: T): number | T {
+  return value === '' ? empty : parseInt(value);
+}
+function toFloat<T>(value: string, empty: T): number | T {
+  return value === '' ? empty : parseFloat(value);
+}
+function toString<T>(value: string, empty: T): string | T {
+  return value === '' ? empty : value;
+}
+
 export default function (window: BrowserWindow): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     try {
@@ -20,43 +30,43 @@ export default function (window: BrowserWindow): Promise<void> {
           let line: Record<string, string>;
           while ((line = parser.read()) !== null) {
             buffer.push({
-              id: parseInt(line.id),
-              hip: parseInt(line.hip),
-              hd: parseInt(line.hd),
-              hr: parseInt(line.hr),
-              gl: line.gl,
-              bf: line.bf,
-              proper: line.proper,
-              ra: parseFloat(line.ra),
-              dec: parseFloat(line.dec),
-              dist: parseFloat(line.dist),
-              pmra: parseFloat(line.pmra),
-              pmdec: parseFloat(line.pmdec),
-              rv: parseFloat(line.rv),
-              mag: parseFloat(line.mag),
-              absmag: parseFloat(line.absmag),
-              spect: line.spect,
-              ci: parseFloat(line.ci),
-              x: parseFloat(line.x),
-              y: parseFloat(line.y),
-              z: parseFloat(line.z),
-              vx: parseFloat(line.vx),
-              vy: parseFloat(line.vy),
-              vz: parseFloat(line.vz),
-              rarad: parseFloat(line.rarad),
-              decrad: parseFloat(line.decrad),
-              pmrarad: parseFloat(line.pmrarad),
-              pmdecrad: parseFloat(line.pmdecrad),
-              bayer: line.bayer,
-              flam: line.flam,
-              con: line.con,
-              comp: parseInt(line.comp),
-              comp_primary: parseInt(line.comp_primary),
-              base: line.base,
-              lum: parseFloat(line.lum),
-              var: line.var,
-              var_min: parseFloat(line.var_min),
-              var_max: parseFloat(line.var_max)
+              id: toInt(line.id, 0),
+              hip: toInt(line.hip, null),
+              hd: toInt(line.hd, null),
+              hr: toInt(line.hr, null),
+              gl: toString(line.gl, null),
+              bf: toString(line.bf, null),
+              proper: toString(line.proper, null),
+              ra: toFloat(line.ra, 0.0),
+              dec: toFloat(line.dec, 0.0),
+              dist: toFloat(line.dist, 0.0),
+              pmra: toFloat(line.pmra, 0.0),
+              pmdec: toFloat(line.pmdec, 0.0),
+              rv: toFloat(line.rv, 0.0),
+              mag: toFloat(line.mag, 0.0),
+              absmag: toFloat(line.absmag, 0.0),
+              spect: toString(line.spect, null),
+              ci: toFloat(line.ci, 0.0),
+              x: toFloat(line.x, 0.0),
+              y: toFloat(line.y, 0.0),
+              z: toFloat(line.z, 0.0),
+              vx: toFloat(line.vx, 0.0),
+              vy: toFloat(line.vy, 0.0),
+              vz: toFloat(line.vz, 0.0),
+              rarad: toFloat(line.rarad, 0.0),
+              decrad: toFloat(line.decrad, 0.0),
+              pmrarad: toFloat(line.pmrarad, 0.0),
+              pmdecrad: toFloat(line.pmdecrad, 0.0),
+              bayer: toString(line.bayer, null),
+              flam: toString(line.flam, null),
+              con: toString(line.con, null),
+              comp: toInt(line.comp, 0),
+              comp_primary: toInt(line.comp_primary, 0),
+              base: toString(line.base, null),
+              lum: toFloat(line.lum, 0.0),
+              var: toString(line.var, null),
+              var_min: toFloat(line.var_min, null),
+              var_max: toFloat(line.var_max, null)
             });
           }
           if (buffer.length > 0) {
