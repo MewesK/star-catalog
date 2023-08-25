@@ -3,17 +3,17 @@ import {
   FOG_COLOR,
   FOG_FAR,
   FOG_NEAR,
-  MODEL_SCALE,
-  MOUSEOVER_COLOR,
+  MODEL_FOG_DENSITY,
+  MODEL_RAYS_DECAY,
+  MODEL_RAYS_SAMPLES,
+  MODEL_RAYS_WEIGHT,
+  MODEL_SIZE,
   PARTICLE_ALPHA,
+  PARTICLE_MOUSEOVER_COLOR,
   PARTICLE_SIZE,
-  RAYS_DECAY,
-  RAYS_SAMPLES,
-  RAYS_WEIGHT,
-  RENDER_DISTANCE_3D,
-  SCALE_MULTIPLIER
+  RENDER_DISTANCE_3D
 } from '@renderer/defaults';
-import { starsInRange } from '@renderer/state';
+import { selectedStar, starsInRange } from '@renderer/state';
 import { useThrottleFn } from '@vueuse/core';
 import { EffectPass, GodRaysEffect } from 'postprocessing';
 import { Star } from 'src/types/Star';
@@ -40,7 +40,6 @@ export default class PointScene extends BaseScene {
 
   private backupCameraPosition = new THREE.Vector3();
   private backupColor = new THREE.Color();
-  private backupSize = 0;
 
   private geometryPool = [
     { geometry: new THREE.IcosahedronGeometry(1, 16), distance: 0 },
@@ -156,15 +155,9 @@ export default class PointScene extends BaseScene {
     const geometry = this.points.geometry;
     const attributes = geometry.attributes;
 
-    // Set size
-    this.backupSize = attributes.size.array[index];
-    attributes.size.array[index] +=
-      attributes.size.array[index] * (intersection.distance / SCALE_MULTIPLIER);
-    attributes.size.needsUpdate = true;
-
     // Set color
     this.backupColor.fromArray(attributes.customColor.array, index * 3);
-    new THREE.Color(MOUSEOVER_COLOR).toArray(attributes.customColor.array, index * 3);
+    new THREE.Color(PARTICLE_MOUSEOVER_COLOR).toArray(attributes.customColor.array, index * 3);
     attributes.customColor.needsUpdate = true;
 
     this.dispatchEvent(new PointerEnterEvent(starsInRange.value[index], intersection));
@@ -178,10 +171,6 @@ export default class PointScene extends BaseScene {
     const index = event.detail.starIndex;
     const geometry = this.points.geometry;
     const attributes = geometry.attributes;
-
-    // Reset size
-    attributes.size.array[index] = this.backupSize;
-    attributes.size.needsUpdate = true;
 
     // Reset color
     this.backupColor.toArray(attributes.customColor.array, index * 3);
@@ -198,28 +187,36 @@ export default class PointScene extends BaseScene {
   updateStarObjects(): void {
     // Find nearby stars
     const start = performance.now();
-    const nearbyStars = this.positions
+    const newNearbyStars = this.positions
       .filter(
         (position) =>
           Math.abs(position.distanceTo(this.canvas.camera.position)) <= RENDER_DISTANCE_3D
       )
       .map((position) => starsInRange.value[position.starIndex]);
     console.log(
-      `Searching for nearby stars: ${performance.now() - start} ms`,
-      this.canvas.camera.position,
-      nearbyStars
+      `Searching for ${newNearbyStars.length} nearby stars: ${performance.now() - start} ms`
     );
+    if (this.canvas.flightTween && selectedStar.value) {
+      console.log(
+        Math.abs(
+          hygToWorld(selectedStar.value.x, selectedStar.value.y, selectedStar.value.z).distanceTo(
+            this.canvas.camera.position
+          )
+        ),
+        RENDER_DISTANCE_3D
+      );
+    }
 
     // Destroy objects if necessary
     this.nearbyStars.forEach((value, key) => {
-      if (!nearbyStars.includes(value.object)) {
+      if (!newNearbyStars.includes(value.object)) {
         this.destroyStarObject(value);
         this.nearbyStars.delete(key);
       }
     });
 
     // Create objects if necessary
-    for (const newStar of nearbyStars) {
+    for (const newStar of newNearbyStars) {
       if (!this.nearbyStars.has(newStar.id)) {
         this.nearbyStars.set(newStar.id, this.createStarObject(newStar));
       }
@@ -234,8 +231,8 @@ export default class PointScene extends BaseScene {
     if (!this.materialPool[star.ci]) {
       this.materialPool[star.ci] = new AnimatedStarMaterial({
         customColor: { value: bvToColor(star.ci) },
-        fogDensity: { value: 0.00005 },
-        fogColor: { value: new THREE.Vector3(0, 0, 0) },
+        fogDensity: { value: MODEL_FOG_DENSITY },
+        fogColor: { value: new THREE.Color(FOG_COLOR) },
         time: { value: 1.0 },
         uvScale: { value: new THREE.Vector2(1.0, 3.0) },
         texture1: { value: sunTexture },
@@ -249,16 +246,16 @@ export default class PointScene extends BaseScene {
 
     for (let i = 0; i < this.geometryPool.length; i++) {
       const mesh = new THREE.Mesh(this.geometryPool[i].geometry, this.materialPool[star.ci]);
-      mesh.scale.set(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
+      mesh.scale.set(MODEL_SIZE, MODEL_SIZE, MODEL_SIZE);
       mesh.updateMatrix();
       mesh.matrixAutoUpdate = false;
       starLod.addLevel(mesh, this.geometryPool[i].distance);
       result.effects[i] = new EffectPass(
         this.canvas.camera,
         new GodRaysEffect(this.canvas.camera, mesh, {
-          decay: RAYS_DECAY,
-          weight: RAYS_WEIGHT,
-          samples: RAYS_SAMPLES
+          decay: MODEL_RAYS_DECAY,
+          weight: MODEL_RAYS_WEIGHT,
+          samples: MODEL_RAYS_SAMPLES
         })
       );
       result.effects[i].enabled = rays.value;

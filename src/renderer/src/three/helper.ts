@@ -1,4 +1,4 @@
-import { SCALE_MULTIPLIER } from '@renderer/defaults';
+import { DISTANCE_MULTIPLIER, ZOOM_MULTIPLIER } from '@renderer/defaults';
 import * as THREE from 'three';
 
 /**
@@ -80,5 +80,9 @@ export function deviceToScreen(x: number, y: number, bounds: DOMRect): THREE.Vec
 }
 
 export function hygToWorld(x: number, y: number, z: number): THREE.Vector3 {
-  return new THREE.Vector3(x * SCALE_MULTIPLIER, y * SCALE_MULTIPLIER, z * SCALE_MULTIPLIER);
+  return new THREE.Vector3(
+    x * ZOOM_MULTIPLIER * DISTANCE_MULTIPLIER,
+    y * ZOOM_MULTIPLIER * DISTANCE_MULTIPLIER,
+    z * ZOOM_MULTIPLIER * DISTANCE_MULTIPLIER
+  );
 }

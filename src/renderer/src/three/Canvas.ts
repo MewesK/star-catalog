@@ -6,9 +6,11 @@ import {
   CAMERA_FOV,
   CAMERA_NEAR,
   PARTICLE_SIZE,
+  RENDER_DISTANCE_3D,
   TRAVEL_ROTATION_MULTIPLIER,
   TRAVEL_TIME
 } from '@renderer/defaults';
+import { scene } from '@renderer/state';
 import * as TWEEN from '@tweenjs/tween.js';
 import { BloomEffect, EffectComposer, EffectPass, RenderPass, SMAAEffect } from 'postprocessing';
 import * as THREE from 'three';
@@ -85,7 +87,7 @@ export default class Canvas {
     this.composer?.render(delta);
 
     if (this.flightTween) {
-      this.flightTween.update(time);
+      TWEEN.update(time);
     } else if (this.controls) {
       this.controls.update(delta);
     }
@@ -95,15 +97,21 @@ export default class Canvas {
 
   flyTo(destiantion: THREE.Vector3, instantly = false): void {
     // Compute target destination with offset
-    const destinationWithOffset = new THREE.Vector3();
-    destinationWithOffset
+    const destinationWithRenderDistanceOffset = new THREE.Vector3();
+    destinationWithRenderDistanceOffset
+      .subVectors(this.camera.position, destiantion)
+      .setLength(RENDER_DISTANCE_3D * 0.5)
+      .add(destiantion);
+
+    const destinationWithViewDistanceOffset = new THREE.Vector3();
+    destinationWithViewDistanceOffset
       .subVectors(this.camera.position, destiantion)
       .setLength(PARTICLE_SIZE * 3)
       .add(destiantion);
 
     if (instantly) {
       // Instant teleportation
-      this.camera.position.copy(destinationWithOffset);
+      this.camera.position.copy(destinationWithViewDistanceOffset);
       this.camera.lookAt(destiantion);
     } else {
       // Compute target rotation
@@ -115,9 +123,8 @@ export default class Canvas {
 
       // Start flight tween
       this.flightTween = new TWEEN.Tween(this.camera.position)
-        .to(destinationWithOffset, TRAVEL_TIME)
-        .easing(TWEEN.Easing.Quadratic.InOut)
-        .onStart(() => console.log('Flight starting...'))
+        .to(destinationWithRenderDistanceOffset, TRAVEL_TIME * 0.7)
+        .easing(TWEEN.Easing.Quartic.InOut)
         .onUpdate((_destiantion, elapsed) => {
           if (!this.camera.quaternion.equals(targetQuaternion)) {
             this.camera.quaternion.rotateTowards(
@@ -125,12 +132,34 @@ export default class Canvas {
               elapsed * TRAVEL_ROTATION_MULTIPLIER
             );
           }
-        })
-        .onComplete(() => {
-          console.log('...flight ended.');
-          this.flightTween = null;
-        })
-        .start();
+        });
+      if (destinationWithViewDistanceOffset.distanceTo(destiantion) > RENDER_DISTANCE_3D) {
+        this.flightTween
+          .to(destinationWithRenderDistanceOffset, TRAVEL_TIME * 0.7)
+          .onStart(() => console.log('Long flight starting...'))
+          .onComplete(() => {
+            scene.updateStarObjects();
+          })
+          .chain(
+            new TWEEN.Tween(this.camera.position)
+              .to(destinationWithViewDistanceOffset, TRAVEL_TIME * 0.3)
+              .easing(TWEEN.Easing.Linear.None)
+              .onComplete(() => {
+                console.log('...flight ended.');
+                this.flightTween = null;
+              })
+          )
+          .start();
+      } else {
+        this.flightTween
+          .to(destinationWithViewDistanceOffset, TRAVEL_TIME)
+          .onStart(() => console.log('Short flight starting...'))
+          .onComplete(() => {
+            console.log('...flight ended.');
+            this.flightTween = null;
+          })
+          .start();
+      }
     }
   }
 }
