@@ -90,7 +90,7 @@ export default class PointScene extends BaseScene {
       bvToColor(star.ci).toArray(colors, i * 3);
 
       // Size
-      sizes[i] = PARTICLE_SIZE;
+      sizes[i] = PARTICLE_SIZE * star.lum;
 
       // Alpha
       alphas[i] = PARTICLE_ALPHA;
