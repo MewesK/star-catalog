@@ -46,7 +46,8 @@ export default class Canvas {
       antialias: false,
       stencil: false,
       depth: false,
-      logarithmicDepthBuffer: true
+      logarithmicDepthBuffer: true,
+      precision: 'highp'
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.autoClear = false;
