@@ -17,6 +17,7 @@ import * as THREE from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
 import Controls from './Controls';
+import { onShaderError } from './helper';
 
 export default class Canvas {
   readonly clock = new THREE.Clock();
@@ -51,28 +52,7 @@ export default class Canvas {
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.autoClear = false;
-    this.renderer.debug.onShaderError = (gl, program, vs, fs): void => {
-      const parseForErrors = (gl, shader, name): void => {
-        const errors = gl.getShaderInfoLog(shader).trim();
-        const prefix = 'Errors in ' + name + ':' + '\n\n' + errors;
-
-        if (errors !== '') {
-          const code = gl.getShaderSource(shader).replaceAll('\t', '  ');
-          const lines = code.split('\n');
-          let linedCode = '';
-          let i = 1;
-          for (const line of lines) {
-            linedCode += (i < 10 ? ' ' : '') + i + ':\t\t' + line + '\n';
-            i++;
-          }
-
-          console.error(prefix + '\n' + linedCode);
-        }
-      };
-
-      parseForErrors(gl, vs, 'Vertex Shader');
-      parseForErrors(gl, fs, 'Fragment Shader');
-    };
+    this.renderer.debug.onShaderError = onShaderError;
 
     this.controls = new Controls(this);
 

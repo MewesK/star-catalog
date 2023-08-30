@@ -86,3 +86,35 @@ export function hygToWorld(x: number, y: number, z: number): THREE.Vector3 {
     z * ZOOM_MULTIPLIER * DISTANCE_MULTIPLIER
   );
 }
+
+export function onShaderError(
+  gl: WebGLRenderingContext,
+  _program: WebGLProgram,
+  glVertexShader: WebGLShader,
+  glFragmentShader: WebGLShader
+): void {
+  function parseForErrors(shader: WebGLShader, name: string): void {
+    let message = '';
+    const errors = gl.getShaderInfoLog(shader);
+    if (errors) {
+      message += `Errors in ${name}:\n\n${errors}`;
+    }
+    const source = gl.getShaderSource(shader);
+    if (source) {
+      message += source
+        .replaceAll('\t', '  ')
+        .split('\n')
+        .reduce(
+          (previousValue: string, currentValue: string, currentIndex: number): string =>
+            `${previousValue}\n${currentIndex + 1}:\t\t${currentValue}`,
+          `\n`
+        );
+    }
+    if (message) {
+      console.error(message);
+    }
+  }
+
+  parseForErrors(glVertexShader, 'Vertex Shader');
+  parseForErrors(glFragmentShader, 'Fragment Shader');
+}
