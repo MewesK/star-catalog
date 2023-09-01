@@ -21,10 +21,13 @@
     "build:icons": "electron-icon-builder --flatten --input=./resources/logo.png --output=./build && mv ./build/icons/icon.* ./build && cp ./build/icons/512x512.png ./build/icon.png"
   },
   "dependencies": {
+    "@babylonjs/core": "^6.19.1",
     "@electron-toolkit/preload": "^2.0.0",
     "@electron-toolkit/utils": "^2.0.0"
   },
   "devDependencies": {
+    "@babylonjs/gui": "^6.19.1",
+    "@babylonjs/inspector": "^6.19.1",
     "@electron-toolkit/tsconfig": "^1.0.1",
     "@electron/notarize": "^2.1.0",
     "@rushstack/eslint-patch": "^1.3.2",
