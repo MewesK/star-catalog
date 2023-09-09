@@ -1,5 +1,5 @@
 import { Star } from 'src/types/Star';
-import { computed, ref, ShallowRef, shallowRef } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
 
 import Galaxy from './babylon/Galaxy';
 import { hygToWorld } from './babylon/helper';
