@@ -3,11 +3,9 @@ import {
   AxesViewer,
   Color3,
   Color4,
-  DefaultRenderingPipeline,
   Engine,
   ExecuteCodeAction,
   FxaaPostProcess,
-  HighlightsPostProcess,
   PhotoDome,
   Scene,
   Sprite,
@@ -17,6 +15,7 @@ import {
 import {
   CAMERA_FOV,
   CAMERA_MAX_Z,
+  CAMERA_SENSIBILITY,
   CAMERA_SPEED_DEFAULT,
   FOG_END,
   FOG_START,
@@ -51,7 +50,7 @@ export default class GalacticScene {
     this.camera.speed = CAMERA_SPEED_DEFAULT;
     this.camera.fov = CAMERA_FOV;
     this.camera.maxZ = CAMERA_MAX_Z;
-    this.camera.angularSensibility = 150.0;
+    this.camera.angularSensibility = CAMERA_SENSIBILITY;
     this.camera.setTarget(Vector3.Zero());
     this.camera.attachControl(true);
 

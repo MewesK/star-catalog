@@ -1,5 +1,5 @@
 import { Star } from 'src/types/Star';
-import { computed, ref } from 'vue';
+import { computed, ref, ShallowRef, shallowRef } from 'vue';
 
 import Galaxy from './babylon/Galaxy';
 import { hygToWorld } from './babylon/helper';
@@ -9,8 +9,7 @@ import { RENDER_DISTANCE, RENDER_DISTANCE_MAX } from './defaults';
 
 export const stars = ref<Star[]>([]);
 export const selectedStar = ref<Star | null>(null);
-
-export let galaxy = null as Galaxy | null;
+export const galaxy = shallowRef<Galaxy | null>(null);
 
 export const menu = ref(true);
 export const browser = ref(false);
@@ -43,14 +42,14 @@ export function selectStar(star: Star, instantly = false): void {
   console.log(`Selecting star #${star.id}...`);
   selectedStar.value = star;
 
-  if (galaxy) {
-    galaxy.flyTo(star, instantly);
+  if (galaxy.value) {
+    galaxy.value.flyTo(star, instantly);
   }
 }
 
 // Actions
 
 export function createGalaxy(canvas: HTMLCanvasElement): Galaxy {
-  galaxy = new Galaxy(canvas);
-  return galaxy;
+  galaxy.value = new Galaxy(canvas);
+  return galaxy.value;
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import BabylonCanvas from '@renderer/components/BabylonCanvas.vue';
 import Debug from '@renderer/components/Debug.vue';
+import GalaxyCanvas from '@renderer/components/GalaxyCanvas.vue';
 import Settings from '@renderer/components/Settings.vue';
 import StarBrowser from '@renderer/components/StarBrowser.vue';
 import StarDetails from '@renderer/components/StarDetails.vue';
@@ -127,7 +127,7 @@ function onThemeToggle(): void {
       <settings />
     </v-navigation-drawer>
 
-    <v-main><babylon-canvas /></v-main>
+    <v-main><galaxy-canvas /></v-main>
 
     <v-footer v-if="devMode" :border="true" :height="22" :order="-1" app>
       <debug />
