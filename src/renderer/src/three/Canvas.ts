@@ -2,7 +2,7 @@ import {
   BLOOM_INTENSITY,
   BLOOM_LUMINANCE_SMOOTHING,
   BLOOM_LUMINANCE_THRESHOLD,
-  CAMERA_FAR,
+  CAMERA_MAX_Z,
   CAMERA_FOV,
   CAMERA_NEAR,
   PARTICLE_SIZE,
@@ -35,7 +35,7 @@ export default class Canvas {
   flightTween = null as TWEEN.Tween<THREE.Vector3> | null;
 
   constructor() {
-    this.camera = new THREE.PerspectiveCamera(CAMERA_FOV, 1, CAMERA_NEAR, CAMERA_FAR);
+    this.camera = new THREE.PerspectiveCamera(CAMERA_FOV, 1, CAMERA_NEAR, CAMERA_MAX_Z);
     this.camera.position.z = -1;
     this.stats = new Stats();
   }

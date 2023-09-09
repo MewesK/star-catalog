@@ -1,35 +1,36 @@
 <script setup lang="ts">
-import { createScene } from '@renderer/babylon/GalaxyScene';
-import { starsInRange } from '@renderer/state';
-import { useDebounceFn, useResizeObserver } from '@vueuse/core';
+import { isDev } from '@renderer/helper';
+import { createScene, selectStar, starsInRange } from '@renderer/state';
+import { useDebounceFn, useElementSize, useParentElement, useResizeObserver } from '@vueuse/core';
 import { onMounted, ref, watch } from 'vue';
 
 const canvasElement = ref<HTMLCanvasElement | null>(null);
 const canvasContainerElement = ref<HTMLElement | null>(null);
+const { width: parentWidth, height: parentHeight } = useElementSize(useParentElement());
+
+if (isDev) {
+  import.meta.hot?.on('vite:afterUpdate', (): void => window.location.reload());
+}
 
 onMounted(() => {
-  if (!canvasContainerElement.value) {
-    return;
-  }
-
   console.log('Waiting for stars to load...');
 
+  const scene = createScene(canvasElement.value as HTMLCanvasElement);
+
+  useResizeObserver(
+    canvasContainerElement,
+    useDebounceFn((entries) => {
+      const canavsSize = entries[0].contentRect as DOMRectReadOnly;
+      console.log(`Resizing canvas to ${canavsSize.width}x${canavsSize.height}...`);
+      scene.engine.setSize(canavsSize.width, canavsSize.height);
+    }, 10)
+  );
+
   watch(starsInRange, () => {
-    if (!canvasElement.value) {
-      return;
-    }
-
-    console.log('Initializing scene...', canvasElement.value.getBoundingClientRect());
-    const engine = createScene(canvasElement.value);
-
-    useResizeObserver(
-      canvasContainerElement,
-      useDebounceFn((entries) => {
-        const canavsSize = entries[0].contentRect as DOMRectReadOnly;
-        console.log(`Resizing canvas to ${canavsSize.width}x${canavsSize.height}...`);
-        engine.setSize(canavsSize.width, canavsSize.height);
-      }, 10)
-    );
+    console.log('Initializing scene...');
+    scene.initialize();
+    scene.engine.setSize(parentWidth.value, parentHeight.value);
+    selectStar(starsInRange.value[0], true);
   });
 });
 </script>
@@ -42,8 +43,8 @@ onMounted(() => {
 
 <style scoped>
 .canvas-container {
-  display: flex;
   height: 100%;
+  display: flex;
   background-color: black;
 }
 

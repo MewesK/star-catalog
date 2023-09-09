@@ -1,8 +1,8 @@
 import { rays } from '@renderer/config';
 import {
   FOG_COLOR,
-  FOG_FAR,
-  FOG_NEAR,
+  FOG_END,
+  FOG_START,
   MODEL_FOG_DENSITY,
   MODEL_RAYS_DECAY,
   MODEL_RAYS_SAMPLES,
@@ -67,7 +67,7 @@ export default class PointScene extends BaseScene {
     // Scene setup
     this.scene.clear();
     this.scene.background = new THREE.Color(0x0000000);
-    this.scene.fog = new THREE.Fog(FOG_COLOR, FOG_NEAR, FOG_FAR);
+    this.scene.fog = new THREE.Fog(FOG_COLOR, FOG_START, FOG_END);
 
     // Prepare BufferGeometry attributes & nearby star search table
     const starsInRangeLength = starsInRange.value.length;
