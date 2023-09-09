@@ -1,10 +1,8 @@
-import { Scene } from '@babylonjs/core';
-import * as THREE from 'three';
+import { AxesViewer, Scene } from '@babylonjs/core';
 import { ref, watch } from 'vue';
 
-import { BLOOM_INTENSITY, FOG_START } from './defaults';
 import { isDev } from './helper';
-import { scene } from './state';
+import { galaxy } from './state';
 
 // Realtime Properties
 
@@ -25,12 +23,26 @@ watch(rays, (newValue) => {
 
 export const fog = ref(true);
 watch(fog, (newValue) => {
-  if (scene) {
-    scene.scene.fogMode = newValue ? Scene.FOGMODE_LINEAR : Scene.FOGMODE_NONE;
+  if (galaxy) {
+    galaxy.galacticScene.scene.fogMode = newValue ? Scene.FOGMODE_LINEAR : Scene.FOGMODE_NONE;
   }
 });
 
 export const devMode = ref(isDev);
 watch(devMode, (newValue) => {
-  //canvas.stats.dom.hidden = !newValue;
+  if (galaxy) {
+    if (!newValue) {
+      galaxy.galacticScene.axesViewer?.dispose();
+    } else {
+      galaxy.galacticScene.axesViewer = new AxesViewer(
+        galaxy.galacticScene.scene,
+        10.0,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        0.2
+      );
+    }
+  }
 });

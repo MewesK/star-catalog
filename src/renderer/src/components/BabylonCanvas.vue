@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { isDev } from '@renderer/helper';
-import { createScene, selectStar, starsInRange } from '@renderer/state';
+import { createGalaxy, selectStar, starsInRange } from '@renderer/state';
 import { useDebounceFn, useElementSize, useParentElement, useResizeObserver } from '@vueuse/core';
 import { onMounted, ref, watch } from 'vue';
 
@@ -15,21 +15,21 @@ if (isDev) {
 onMounted(() => {
   console.log('Waiting for stars to load...');
 
-  const scene = createScene(canvasElement.value as HTMLCanvasElement);
+  const galaxy = createGalaxy(canvasElement.value as HTMLCanvasElement);
 
   useResizeObserver(
     canvasContainerElement,
     useDebounceFn((entries) => {
       const canavsSize = entries[0].contentRect as DOMRectReadOnly;
       console.log(`Resizing canvas to ${canavsSize.width}x${canavsSize.height}...`);
-      scene.engine.setSize(canavsSize.width, canavsSize.height);
+      galaxy.engine.setSize(canavsSize.width, canavsSize.height);
     }, 10)
   );
 
   watch(starsInRange, () => {
     console.log('Initializing scene...');
-    scene.initialize();
-    scene.engine.setSize(parentWidth.value, parentHeight.value);
+    galaxy.initialize();
+    galaxy.engine.setSize(parentWidth.value, parentHeight.value);
     selectStar(starsInRange.value[0], true);
   });
 });

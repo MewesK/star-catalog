@@ -10,7 +10,7 @@ import {
   TRAVEL_ROTATION_MULTIPLIER,
   TRAVEL_TIME
 } from '@renderer/defaults';
-import { scene } from '@renderer/state';
+import { galaxy } from '@renderer/state';
 import * as TWEEN from '@tweenjs/tween.js';
 import { BloomEffect, EffectComposer, EffectPass, RenderPass, SMAAEffect } from 'postprocessing';
 import * as THREE from 'three';
@@ -141,7 +141,7 @@ export default class Canvas {
           .to(destinationWithRenderDistanceOffset, TRAVEL_TIME * 0.7)
           .onStart(() => console.log('Long flight starting...'))
           .onComplete(() => {
-            scene.updateStarObjects();
+            galaxy.updateStarObjects();
           })
           .chain(
             new TWEEN.Tween(this.camera.position)
