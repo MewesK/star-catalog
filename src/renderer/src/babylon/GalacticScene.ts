@@ -90,7 +90,7 @@ export default class GalacticScene {
     let starSprite;
     for (let i = 0; i < starsInRange.value.length; i++) {
       const star = starsInRange.value[i];
-      starSprite = new Sprite('star', this.spriteManager);
+      starSprite = new Sprite(`${i}`, this.spriteManager);
       starSprite.position = hygToWorld(star.x, star.y, star.z);
       starSprite.color = bvToColor(star.ci, PARTICLE_ALPHA);
       starSprite.size = Math.log(star.lum) * SIZE_MULTIPLIER;

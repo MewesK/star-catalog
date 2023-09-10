@@ -1,28 +1,7 @@
-import {
-  Animation,
-  Epsilon,
-  FlyCamera,
-  Matrix,
-  Nullable,
-  PostProcess,
-  Vector3
-} from '@babylonjs/core';
+import { Animation, Epsilon, FlyCamera, Matrix, Vector3 } from '@babylonjs/core';
 import { TRAVEL_TIME, WATCH_DISTANCE } from '@renderer/defaults';
 
 export class AnimatedFlyCamera extends FlyCamera {
-  getFirstPostProcess(): Nullable<PostProcess> {
-    return this._getFirstPostProcess();
-  }
-  
-  getLastPostProcess(): Nullable<PostProcess> {
-    for (let ppIndex = this._postProcesses.length - 1; ppIndex >= 0; ppIndex--) {
-      if (this._postProcesses[ppIndex] !== null) {
-        return this._postProcesses[ppIndex];
-      }
-    }
-    return null;
-  }
-
   setTargetAnimated(target: Vector3): number {
     // Position
     const targetPosition = this.position

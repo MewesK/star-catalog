@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { isDev } from '@renderer/helper';
+import { PointerInfo } from '@babylonjs/core';
+import { getStarName, isDev } from '@renderer/helper';
 import { createGalaxy, selectStar, starsInRange } from '@renderer/state';
 import { useDebounceFn, useElementSize, useParentElement, useResizeObserver } from '@vueuse/core';
 import { onMounted, ref, watch } from 'vue';
@@ -7,6 +8,9 @@ import { onMounted, ref, watch } from 'vue';
 const canvasElement = ref<HTMLCanvasElement | null>(null);
 const canvasContainerElement = ref<HTMLElement | null>(null);
 const { width: parentWidth, height: parentHeight } = useElementSize(useParentElement());
+
+const showTooltip = ref(false);
+const tooltipText = ref<string | null>(null);
 
 if (isDev) {
   import.meta.hot?.on('vite:afterUpdate', (): void => window.location.reload());
@@ -16,6 +20,15 @@ onMounted(() => {
   console.log('Waiting for stars to load...');
 
   const galaxy = createGalaxy(canvasElement.value as HTMLCanvasElement);
+  galaxy.galacticScene.scene.onPointerObservable.add((pointerInfo: PointerInfo): void => {
+    if (pointerInfo.pickInfo?.hit && pointerInfo.pickInfo?.pickedSprite?.name) {
+      showTooltip.value = true;
+      tooltipText.value = getStarName(starsInRange.value[pointerInfo.pickInfo.pickedSprite.name]);
+    } else {
+      showTooltip.value = false;
+      tooltipText.value = null;
+    }
+  });
 
   useResizeObserver(
     canvasContainerElement,
@@ -38,6 +51,16 @@ onMounted(() => {
 <template>
   <div ref="canvasContainerElement" class="canvas-container">
     <canvas ref="canvasElement"></canvas>
+    <v-snackbar
+      v-model="showTooltip"
+      attach
+      location="top"
+      rounded="pill"
+      :timeout="-1"
+      style="margin-top: 80px"
+    >
+      {{ tooltipText }}
+    </v-snackbar>
   </div>
 </template>
 
@@ -50,5 +73,10 @@ onMounted(() => {
 
 canvas {
   flex-grow: 1;
+}
+
+:deep(.v-snackbar__content) {
+  text-align: center;
+  font-weight: bold;
 }
 </style>
