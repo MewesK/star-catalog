@@ -8,7 +8,6 @@ import {
   FxaaPostProcess,
   PhotoDome,
   Scene,
-  Sprite,
   SpriteManager,
   Vector3
 } from '@babylonjs/core';
@@ -30,6 +29,7 @@ import milkywayTexture from '../assets/milkyway_gaia_4000x2000.png';
 import starTexture from '../assets/particle_light.png';
 import { AnimatedFlyCamera } from './AnimatedFlyCamera';
 import { bvToColor, hygToWorld } from './helper';
+import { StarSprite } from './StarSprite';
 
 export default class GalacticScene {
   readonly scene: Scene;
@@ -90,7 +90,7 @@ export default class GalacticScene {
     let starSprite;
     for (let i = 0; i < starsInRange.value.length; i++) {
       const star = starsInRange.value[i];
-      starSprite = new Sprite(`${i}`, this.spriteManager);
+      starSprite = new StarSprite('starSprite', star, this.spriteManager);
       starSprite.position = hygToWorld(star.x, star.y, star.z);
       starSprite.color = bvToColor(star.ci, PARTICLE_ALPHA);
       starSprite.size = Math.log(star.lum) * SIZE_MULTIPLIER;

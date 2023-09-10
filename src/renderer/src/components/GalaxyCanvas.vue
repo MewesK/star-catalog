@@ -5,6 +5,8 @@ import { createGalaxy, selectStar, starsInRange } from '@renderer/state';
 import { useDebounceFn, useElementSize, useParentElement, useResizeObserver } from '@vueuse/core';
 import { onMounted, ref, watch } from 'vue';
 
+import { StarSprite } from '../babylon/StarSprite';
+
 const canvasElement = ref<HTMLCanvasElement | null>(null);
 const canvasContainerElement = ref<HTMLElement | null>(null);
 const { width: parentWidth, height: parentHeight } = useElementSize(useParentElement());
@@ -21,9 +23,9 @@ onMounted(() => {
 
   const galaxy = createGalaxy(canvasElement.value as HTMLCanvasElement);
   galaxy.galacticScene.scene.onPointerObservable.add((pointerInfo: PointerInfo): void => {
-    if (pointerInfo.pickInfo?.hit && pointerInfo.pickInfo?.pickedSprite?.name) {
+    if (pointerInfo.pickInfo?.hit && pointerInfo.pickInfo?.pickedSprite) {
       showTooltip.value = true;
-      tooltipText.value = getStarName(starsInRange.value[pointerInfo.pickInfo.pickedSprite.name]);
+      tooltipText.value = getStarName((pointerInfo.pickInfo.pickedSprite as StarSprite).star);
     } else {
       showTooltip.value = false;
       tooltipText.value = null;
