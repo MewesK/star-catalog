@@ -1,4 +1,4 @@
-import { Engine, KeyboardEventTypes } from '@babylonjs/core';
+import { Engine, KeyboardEventTypes, Vector3 } from '@babylonjs/core';
 import { CAMERA_SPEED_DEFAULT, CAMERA_SPEED_WARP, RENDER_DISTANCE_3D } from '@renderer/defaults';
 import { starPositionsInRange } from '@renderer/state';
 import { useThrottleFn } from '@vueuse/core';
@@ -14,6 +14,7 @@ export default class Galaxy {
   readonly galacticScene: GalacticScene;
   readonly planetaryScene: PlanetaryScene;
   nearbyStars = [] as StarPosition[];
+  lastCameraPosition = Vector3.Zero();
 
   constructor(canvas: HTMLCanvasElement) {
     this.engine = new Engine(canvas, true);
@@ -38,14 +39,17 @@ export default class Galaxy {
     });
 
     this.engine.runRenderLoop((): void => {
-      this.updateStarObjectsThrotteled();
+      if (!this.lastCameraPosition.equals(this.galacticScene.camera.position)) {
+        this.lastCameraPosition = this.galacticScene.camera.position.clone();
+        this.updateStarObjectsThrotteled();
+      }
       this.galacticScene.scene.render();
       this.planetaryScene.scene.render();
     });
   }
 
   flyTo(target: Star, instantly = false): void {
-    console.log(`Flying to star #${target.id}...`, target);
+    console.log(`Flying to star #${target.id}...`);
 
     const galacticSceneEndFrame = this.galacticScene.camera.setTargetAnimated(
       realToWorld(target.x, target.y, target.z)
@@ -54,11 +58,16 @@ export default class Galaxy {
       this.galacticScene.camera,
       instantly ? galacticSceneEndFrame : 0,
       galacticSceneEndFrame,
-      false
+      false,
+      undefined,
+      () => {
+        console.log(`Arrived at star #${target.id}...`);
+        this.updateStarObjects();
+      }
     );
   }
 
-  updateStarObjectsThrotteled = useThrottleFn(this.updateStarObjects, 2500);
+  updateStarObjectsThrotteled = useThrottleFn(this.updateStarObjects, 500);
   updateStarObjects(): void {
     // Find nearby stars
     const start = performance.now();

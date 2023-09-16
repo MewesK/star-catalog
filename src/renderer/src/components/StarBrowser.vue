@@ -40,7 +40,6 @@ const starsInRangeFiltered = computed((): Star[] =>
           <v-list-item
             :title="getStarName(item)"
             :subtitle="`(${format(item.x)}, ${format(item.y)}, ${format(item.z)})`"
-            :base-color="item.proper || item.bf || item.gl ? '' : 'grey-darken-1'"
             :active="selectedStar?.id === item.id"
           >
             <template #append>
