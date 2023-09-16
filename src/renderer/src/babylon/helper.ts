@@ -51,6 +51,8 @@ export function bvToColor(bv: number, alpha = 1.0): Color4 {
 /**
  * Converts parsec (pc) to light years (ly).
  * @see https://en.wikipedia.org/wiki/Parsec
+ * @param ly Parsec
+ * @returns Lightyears
  */
 export function pcToLy(pc: number): number {
   return pc * 3.26156;
@@ -59,12 +61,21 @@ export function pcToLy(pc: number): number {
 /**
  * Converts light years (ly) to parsec (pc).
  * @see https://en.wikipedia.org/wiki/Light-year
+ * @param ly Lightyears
+ * @returns Parsec
  */
 export function lyToPc(ly: number): number {
   return ly / 3.26156;
 }
 
-export function hygToWorld(x: number, y: number, z: number): Vector3 {
+/**
+ * Converts real positions to world positions.
+ * @param x Parsec
+ * @param y Parsec
+ * @param z Parsec
+ * @returns Position in world coordinates.
+ */
+export function realToWorld(x: number, y: number, z: number): Vector3 {
   return new Vector3(
     x * ZOOM_MULTIPLIER * DISTANCE_MULTIPLIER,
     y * ZOOM_MULTIPLIER * DISTANCE_MULTIPLIER,

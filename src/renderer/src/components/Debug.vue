@@ -4,8 +4,6 @@ import { galaxy, stars, starsInRange } from '@renderer/state';
 import { computed } from 'vue';
 
 const glInfo = computed(() => galaxy.value?.engine.getGlInfo());
-console.log(glInfo);
-
 const items = computed(() => [
   `Electron v${versions.electron}`,
   `Chromium v${versions.chrome}`,

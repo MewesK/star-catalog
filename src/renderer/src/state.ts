@@ -1,8 +1,9 @@
+import { Vector3 } from '@babylonjs/core';
 import { Star } from 'src/types/Star';
 import { computed, ref, shallowRef } from 'vue';
 
 import Galaxy from './babylon/Galaxy';
-import { hygToWorld } from './babylon/helper';
+import { realToWorld } from './babylon/helper';
 import { RENDER_DISTANCE, RENDER_DISTANCE_MAX } from './defaults';
 
 // State
@@ -24,13 +25,17 @@ export const starsInRange = computed((): Star[] => {
     RENDER_DISTANCE >= RENDER_DISTANCE_MAX
       ? stars.value
       : stars.value.filter(
-          (star) => hygToWorld(star.x, star.y, star.z).length() <= RENDER_DISTANCE
+          (star) => realToWorld(star.x, star.y, star.z).length() <= RENDER_DISTANCE
         );
 
   console.log(`Searching for stars in range: ${performance.now() - start} ms`);
 
   return result;
 });
+
+export const starPositionsInRange = computed((): Vector3[] =>
+  starsInRange.value.map((star) => realToWorld(star.x, star.y, star.z))
+);
 
 // Setter
 

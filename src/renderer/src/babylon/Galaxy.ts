@@ -1,8 +1,11 @@
 import { Engine } from '@babylonjs/core';
+import { RENDER_DISTANCE_3D } from '@renderer/defaults';
+import { starPositionsInRange } from '@renderer/state';
+import { useThrottleFn } from '@vueuse/core';
 import { Star } from 'src/types/Star';
 
 import GalacticScene from './GalacticScene';
-import { hygToWorld } from './helper';
+import { realToWorld } from './helper';
 import PlanetaryScene from './PlanetaryScene';
 
 export default class Galaxy {
@@ -21,6 +24,7 @@ export default class Galaxy {
     this.planetaryScene.initialize();
 
     this.engine.runRenderLoop((): void => {
+      this.updateStarObjectsThrotteled();
       this.galacticScene.scene.render();
       this.planetaryScene.scene.render();
     });
@@ -29,15 +33,39 @@ export default class Galaxy {
   flyTo(target: Star, instantly = false): void {
     console.log(`Flying to star #${target.id}...`, target);
 
-    const endFrame = this.galacticScene.camera.setTargetAnimated(
-      hygToWorld(target.x, target.y, target.z)
+    const galacticSceneEndFrame = this.galacticScene.camera.setTargetAnimated(
+      realToWorld(target.x, target.y, target.z)
     );
-
     this.galacticScene.scene.beginAnimation(
       this.galacticScene.camera,
-      instantly ? endFrame : 0,
-      endFrame,
+      instantly ? galacticSceneEndFrame : 0,
+      galacticSceneEndFrame,
       false
+    );
+
+    const planetarySceneEndFrame = this.planetaryScene.camera.setTargetAnimated(
+      realToWorld(target.x, target.y, target.z)
+    );
+    this.planetaryScene.scene.beginAnimation(
+      this.planetaryScene.camera,
+      instantly ? planetarySceneEndFrame : 0,
+      planetarySceneEndFrame,
+      false
+    );
+  }
+
+  updateStarObjectsThrotteled = useThrottleFn(this.updateStarObjects, 2500);
+  updateStarObjects(): void {
+    // Find nearby stars
+    const start = performance.now();
+    const newNearbyStars = starPositionsInRange.value.filter(
+      (position) =>
+        Math.abs(position.subtract(this.galacticScene.camera.position).length()) <=
+        RENDER_DISTANCE_3D
+    );
+
+    console.log(
+      `Searching for ${newNearbyStars.length} nearby stars: ${performance.now() - start} ms`
     );
   }
 }
