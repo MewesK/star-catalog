@@ -1,7 +1,6 @@
 import { Engine, Mesh, ParticleSystemSet, Scene, Vector3 } from '@babylonjs/core';
 import {
   CAMERA_FOV,
-  CAMERA_MAX_Z,
   CAMERA_SENSIBILITY,
   CAMERA_SPEED_DEFAULT,
   MODEL_SIZE,

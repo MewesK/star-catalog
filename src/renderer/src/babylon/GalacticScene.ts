@@ -35,6 +35,7 @@ import { StarSprite } from './StarSprite';
 export default class GalacticScene {
   readonly scene: Scene;
   readonly camera: AnimatedFlyCamera;
+  readonly dome: PhotoDome;
   readonly fxaaPostProcess: FxaaPostProcess;
   spriteManager = null as SpriteManager | null;
   axesViewer = null as AxesViewer | null;
@@ -56,9 +57,9 @@ export default class GalacticScene {
     this.camera.setTarget(Vector3.Zero());
     this.camera.attachControl(true);
 
-    const dome = new PhotoDome('galacticDome', milkywayTexture, {}, this.scene);
-    dome.infiniteDistance = true;
-    dome.mesh.isPickable = false;
+    this.dome = new PhotoDome('galacticDome', milkywayTexture, {}, this.scene);
+    this.dome.infiniteDistance = true;
+    this.dome.mesh.isPickable = false;
 
     this.fxaaPostProcess = new FxaaPostProcess('fxaaPostProcess', 4.0, this.camera);
 
