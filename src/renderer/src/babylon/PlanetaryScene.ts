@@ -55,20 +55,24 @@ export default class PlanetaryScene {
     // Clean up
     this.dispose();
 
+    const color = bvToColor(star.ci, PARTICLE_ALPHA);
+    const size = star.absmag + 20.0;
+    const spriteSize = size * PARTICLE_SIZE;
+    const particleSystemSize = size * MODEL_SIZE;
+
     // Create star sprite
     this.spriteManager = new SpriteManager('closeupStarManager', starTexture, 1, 256, this.scene);
     const starSprite = new StarSprite('closeupStarSprite', star, this.spriteManager);
-    starSprite.color = bvToColor(star.ci, PARTICLE_ALPHA);
-    starSprite.size = (star.absmag / 10.0 + 2.0) * PARTICLE_SIZE;
+    starSprite.color = color;
+    starSprite.size = spriteSize;
 
     // Create star particle system set
-    const size = MODEL_SIZE;
     this.starParticleSystemSet = ParticleSystemSet.Parse(
       {
         emitter: {
           kind: 'Sphere',
           options: {
-            diameter: 1.01 * size,
+            diameter: 1.01 * particleSystemSize,
             segments: 32,
             color: [0.3773, 0.093, 0.0266]
           },
@@ -83,7 +87,7 @@ export default class PlanetaryScene {
             isBillboardBased: false,
             particleEmitterType: {
               type: 'SphereParticleEmitter',
-              radius: 0.5 * size,
+              radius: 0.5 * particleSystemSize,
               radiusRange: 0,
               directionRandomizer: 0
             },
@@ -91,8 +95,8 @@ export default class PlanetaryScene {
             animations: [],
             minAngularSpeed: -0.4,
             maxAngularSpeed: 0.4,
-            minSize: 0.2 * size,
-            maxSize: 0.35 * size,
+            minSize: 0.2 * particleSystemSize,
+            maxSize: 0.35 * particleSystemSize,
             minScaleX: 1,
             maxScaleX: 1,
             minScaleY: 1,
@@ -150,7 +154,7 @@ export default class PlanetaryScene {
             renderingGroupId: 2,
             particleEmitterType: {
               type: 'SphereParticleEmitter',
-              radius: 0.5 * size,
+              radius: 0.5 * particleSystemSize,
               radiusRange: 0,
               directionRandomizer: 0
             },
@@ -158,8 +162,8 @@ export default class PlanetaryScene {
             animations: [],
             minAngularSpeed: 0,
             maxAngularSpeed: 0,
-            minSize: 0.5 * size,
-            maxSize: 0.5 * size,
+            minSize: 0.5 * particleSystemSize,
+            maxSize: 0.5 * particleSystemSize,
             minScaleX: 0.5,
             maxScaleX: 1,
             minScaleY: 0.5,
@@ -201,7 +205,7 @@ export default class PlanetaryScene {
               },
               {
                 gradient: 1,
-                factor1: 0.5 * size
+                factor1: 0.5 * particleSystemSize
               }
             ],
             textureMask: [1, 1, 1, 1],
@@ -223,7 +227,7 @@ export default class PlanetaryScene {
             capacity: 600,
             particleEmitterType: {
               type: 'SphereParticleEmitter',
-              radius: 0.5 * size,
+              radius: 0.5 * particleSystemSize,
               radiusRange: 0,
               directionRandomizer: 0
             },
@@ -231,8 +235,8 @@ export default class PlanetaryScene {
             animations: [],
             minAngularSpeed: 0,
             maxAngularSpeed: 0,
-            minSize: 0.5 * size,
-            maxSize: 0.5 * size,
+            minSize: 0.5 * particleSystemSize,
+            maxSize: 0.5 * particleSystemSize,
             minScaleX: 0.25,
             maxScaleX: 1.2,
             minScaleY: 0.75,

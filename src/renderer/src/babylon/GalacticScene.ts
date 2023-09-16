@@ -101,7 +101,7 @@ export default class GalacticScene {
       starSprite = new StarSprite('starSprite', star, this.spriteManager);
       starSprite.position = realToWorld(star.x, star.y, star.z);
       starSprite.color = bvToColor(star.ci, PARTICLE_ALPHA);
-      starSprite.size = (star.absmag / 10.0 + 2.0) * PARTICLE_SIZE;
+      starSprite.size = (star.absmag + 20.0) * PARTICLE_SIZE;
       starSprite.isPickable = true;
       starSprite.actionManager = new ActionManager(this.scene);
       starSprite.actionManager.registerAction(
