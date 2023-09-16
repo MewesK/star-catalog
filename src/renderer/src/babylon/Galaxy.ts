@@ -3,6 +3,7 @@ import { CAMERA_SPEED_DEFAULT, CAMERA_SPEED_WARP, RENDER_DISTANCE_3D } from '@re
 import { starPositionsInRange } from '@renderer/state';
 import { useThrottleFn } from '@vueuse/core';
 import { Star } from 'src/types/Star';
+import { StarPosition } from 'src/types/StarPosition';
 
 import GalacticScene from './GalacticScene';
 import { realToWorld } from './helper';
@@ -12,16 +13,16 @@ export default class Galaxy {
   readonly engine: Engine;
   readonly galacticScene: GalacticScene;
   readonly planetaryScene: PlanetaryScene;
+  nearbyStars = [] as StarPosition[];
 
   constructor(canvas: HTMLCanvasElement) {
     this.engine = new Engine(canvas, true);
-    this.planetaryScene = new PlanetaryScene(this.engine);
     this.galacticScene = new GalacticScene(this.engine);
+    this.planetaryScene = new PlanetaryScene(this.engine);
   }
 
   initialize(): void {
     this.galacticScene.initialize();
-    this.planetaryScene.initialize();
 
     this.galacticScene.scene.onKeyboardObservable.add((kbInfo) => {
       if (kbInfo.event.key === 'Shift') {
@@ -55,16 +56,6 @@ export default class Galaxy {
       galacticSceneEndFrame,
       false
     );
-
-    const planetarySceneEndFrame = this.planetaryScene.camera.setTargetAnimated(
-      realToWorld(target.x, target.y, target.z)
-    );
-    this.planetaryScene.scene.beginAnimation(
-      this.planetaryScene.camera,
-      instantly ? planetarySceneEndFrame : 0,
-      planetarySceneEndFrame,
-      false
-    );
   }
 
   updateStarObjectsThrotteled = useThrottleFn(this.updateStarObjects, 2500);
@@ -72,13 +63,37 @@ export default class Galaxy {
     // Find nearby stars
     const start = performance.now();
     const newNearbyStars = starPositionsInRange.value.filter(
-      (position) =>
-        Math.abs(position.subtract(this.galacticScene.camera.position).length()) <=
+      (starPosition) =>
+        Math.abs(starPosition.position.subtract(this.galacticScene.camera.position).length()) <=
         RENDER_DISTANCE_3D
     );
 
     console.log(
       `Searching for ${newNearbyStars.length} nearby stars: ${performance.now() - start} ms`
     );
+
+    if (
+      newNearbyStars.length !== this.nearbyStars.length ||
+      !newNearbyStars.every((starPosition) => this.nearbyStars.includes(starPosition))
+    ) {
+      this.nearbyStars = newNearbyStars;
+
+      // Initialize close-up
+      if (this.nearbyStars.length > 0) {
+        console.log(
+          `Initializing close-up of star #${this.nearbyStars[0].star.id}...`,
+          this.nearbyStars[0].star
+        );
+
+        this.planetaryScene.initialize(this.nearbyStars[0].star);
+        this.planetaryScene.camera.position = this.galacticScene.camera.position.subtract(
+          this.nearbyStars[0].position
+        );
+        this.planetaryScene.camera.rotation = this.galacticScene.camera.rotation;
+      } else {
+        console.log('Disposing star close-up');
+        this.planetaryScene.dispose();
+      }
+    }
   }
 }

@@ -1,5 +1,5 @@
-import { Vector3 } from '@babylonjs/core';
 import { Star } from 'src/types/Star';
+import { StarPosition } from 'src/types/StarPosition';
 import { computed, ref, shallowRef } from 'vue';
 
 import Galaxy from './babylon/Galaxy';
@@ -33,8 +33,10 @@ export const starsInRange = computed((): Star[] => {
   return result;
 });
 
-export const starPositionsInRange = computed((): Vector3[] =>
-  starsInRange.value.map((star) => realToWorld(star.x, star.y, star.z))
+export const starPositionsInRange = computed((): StarPosition[] =>
+  starsInRange.value.map(
+    (star) => ({ star, position: realToWorld(star.x, star.y, star.z) }) as StarPosition
+  )
 );
 
 // Setter

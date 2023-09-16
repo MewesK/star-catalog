@@ -1,23 +1,28 @@
-import { Engine, Mesh, ParticleSystemSet, Scene, Vector3 } from '@babylonjs/core';
+import { Engine, ParticleSystemSet, Scene, SpriteManager, Vector3 } from '@babylonjs/core';
 import {
   CAMERA_FOV,
   CAMERA_SENSIBILITY,
   CAMERA_SPEED_DEFAULT,
   MODEL_SIZE,
+  PARTICLE_ALPHA,
+  PARTICLE_SIZE,
   RENDER_DISTANCE_3D,
   WATCH_DISTANCE
 } from '@renderer/defaults';
-import { starsInRange } from '@renderer/state';
+import { Star } from 'src/types/Star';
 
-import tStar from '../assets/particle_light.png';
+import starTexture from '../assets/particle_light.png';
 import tSunFlare from '../assets/T_SunFlare.png';
 import tSunSurface from '../assets/T_SunSurface.png';
 import { AnimatedFlyCamera } from './AnimatedFlyCamera';
-import { realToWorld } from './helper';
+import { bvToColor } from './helper';
+import { StarSprite } from './StarSprite';
 
 export default class PlanetaryScene {
   readonly scene: Scene;
   readonly camera: AnimatedFlyCamera;
+  spriteManager = null as SpriteManager | null;
+  starParticleSystemSet = null as ParticleSystemSet | null;
 
   constructor(engine: Engine) {
     this.scene = new Scene(engine);
@@ -35,9 +40,30 @@ export default class PlanetaryScene {
     ParticleSystemSet.BaseAssetsUrl = '';
   }
 
-  initialize(): void {
+  dispose(): void {
+    if (this.spriteManager) {
+      this.spriteManager.dispose();
+      this.spriteManager = null;
+    }
+    if (this.starParticleSystemSet) {
+      this.starParticleSystemSet.dispose();
+      this.starParticleSystemSet = null;
+    }
+  }
+
+  initialize(star: Star): void {
+    // Clean up
+    this.dispose();
+
+    // Create star sprite
+    this.spriteManager = new SpriteManager('closeupStarManager', starTexture, 1, 256, this.scene);
+    const starSprite = new StarSprite('closeupStarSprite', star, this.spriteManager);
+    starSprite.color = bvToColor(star.ci, PARTICLE_ALPHA);
+    starSprite.size = (star.absmag / 10.0 + 2.0) * PARTICLE_SIZE;
+
+    // Create star particle system set
     const size = MODEL_SIZE;
-    const starParticleSystemSet = ParticleSystemSet.Parse(
+    this.starParticleSystemSet = ParticleSystemSet.Parse(
       {
         emitter: {
           kind: 'Sphere',
@@ -201,7 +227,7 @@ export default class PlanetaryScene {
               radiusRange: 0,
               directionRandomizer: 0
             },
-            textureName: '..' + tStar,
+            textureName: '..' + starTexture,
             animations: [],
             minAngularSpeed: 0,
             maxAngularSpeed: 0,
@@ -257,9 +283,6 @@ export default class PlanetaryScene {
       },
       this.scene
     );
-    (starParticleSystemSet.emitterNode as Mesh).position.copyFrom(
-      realToWorld(starsInRange.value[0].x, starsInRange.value[0].y, starsInRange.value[0].z)
-    );
-    starParticleSystemSet.start();
+    this.starParticleSystemSet.start();
   }
 }

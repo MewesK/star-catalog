@@ -1,6 +1,6 @@
-import * as THREE from 'three';
+import { Vector3 } from '@babylonjs/core';
 
-export interface StarPosition extends THREE.Vector3 {
-  pointIndex: number;
-  starIndex: number;
+export interface StarPosition {
+  star: Star;
+  position: Vector3;
 }
