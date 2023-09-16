@@ -1,16 +1,18 @@
 import {
   ActionManager,
-  AxesViewer,
   Color3,
   Color4,
   Engine,
   ExecuteCodeAction,
   FxaaPostProcess,
+  GroundMesh,
+  MeshBuilder,
   PhotoDome,
   Scene,
   SpriteManager,
   Vector3
 } from '@babylonjs/core';
+import { GridMaterial } from '@babylonjs/materials';
 import {
   CAMERA_FOV,
   CAMERA_MAX_Z,
@@ -38,7 +40,7 @@ export default class GalacticScene {
   readonly dome: PhotoDome;
   readonly fxaaPostProcess: FxaaPostProcess;
   spriteManager = null as SpriteManager | null;
-  axesViewer = null as AxesViewer | null;
+  ground = null as GroundMesh | null;
 
   constructor(engine: Engine) {
     this.scene = new Scene(engine);
@@ -64,15 +66,18 @@ export default class GalacticScene {
     this.fxaaPostProcess = new FxaaPostProcess('fxaaPostProcess', 4.0, this.camera);
 
     if (isDev) {
-      /*this.axesViewer = new AxesViewer(
-        this.scene,
-        10.0,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        0.2
-      );*/
+      const groundMaterial = new GridMaterial('groundMaterial', this.scene);
+      groundMaterial.majorUnitFrequency = 5;
+      groundMaterial.minorUnitVisibility = 0.5;
+      groundMaterial.gridRatio = 2;
+      groundMaterial.opacity = 0.99;
+
+      this.ground = MeshBuilder.CreateGround(
+        'ground',
+        { width: 100, height: 100, updatable: false },
+        this.scene
+      );
+      this.ground.material = groundMaterial;
     }
   }
 

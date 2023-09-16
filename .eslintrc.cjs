@@ -27,11 +27,11 @@ module.exports = {
     '@typescript-eslint/no-var-requires': 'off',
     'vue/require-default-prop': 'off',
     'vue/multi-word-component-names': 'off',
-    'simple-import-sort/imports': 'error',
-    'simple-import-sort/exports': 'error',
-    'import/first': 'error',
-    'import/newline-after-import': 'error',
-    'import/no-duplicates': 'error'
+    'simple-import-sort/imports': 'warn',
+    'simple-import-sort/exports': 'warn',
+    'import/first': 'warn',
+    'import/newline-after-import': 'warn',
+    'import/no-duplicates': 'warn'
   },
   overrides: [
     {

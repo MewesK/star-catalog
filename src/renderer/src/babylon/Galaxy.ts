@@ -1,5 +1,5 @@
-import { Engine } from '@babylonjs/core';
-import { RENDER_DISTANCE_3D } from '@renderer/defaults';
+import { Engine, KeyboardEventTypes } from '@babylonjs/core';
+import { CAMERA_SPEED_DEFAULT, CAMERA_SPEED_WARP, RENDER_DISTANCE_3D } from '@renderer/defaults';
 import { starPositionsInRange } from '@renderer/state';
 import { useThrottleFn } from '@vueuse/core';
 import { Star } from 'src/types/Star';
@@ -22,6 +22,19 @@ export default class Galaxy {
   initialize(): void {
     this.galacticScene.initialize();
     this.planetaryScene.initialize();
+
+    this.galacticScene.scene.onKeyboardObservable.add((kbInfo) => {
+      if (kbInfo.event.key === 'Shift') {
+        if (kbInfo.type === KeyboardEventTypes.KEYDOWN) {
+          this.galacticScene.camera.speed = CAMERA_SPEED_WARP;
+          this.planetaryScene.camera.speed = CAMERA_SPEED_WARP;
+        }
+        if (kbInfo.type === KeyboardEventTypes.KEYUP) {
+          this.galacticScene.camera.speed = CAMERA_SPEED_DEFAULT;
+          this.planetaryScene.camera.speed = CAMERA_SPEED_DEFAULT;
+        }
+      }
+    });
 
     this.engine.runRenderLoop((): void => {
       this.updateStarObjectsThrotteled();
