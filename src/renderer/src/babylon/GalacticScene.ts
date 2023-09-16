@@ -19,7 +19,8 @@ import {
   FOG_END,
   FOG_START,
   PARTICLE_ALPHA,
-  SIZE_MULTIPLIER,
+  PARTICLE_SIZE,
+  RENDER_DISTANCE_3D,
   WATCH_DISTANCE
 } from '@renderer/defaults';
 import { isDev } from '@renderer/helper';
@@ -49,6 +50,7 @@ export default class GalacticScene {
     this.camera = new AnimatedFlyCamera('camera', new Vector3(0, 0, -WATCH_DISTANCE), this.scene);
     this.camera.speed = CAMERA_SPEED_DEFAULT;
     this.camera.fov = CAMERA_FOV;
+    this.camera.minZ = RENDER_DISTANCE_3D;
     this.camera.maxZ = CAMERA_MAX_Z;
     this.camera.angularSensibility = CAMERA_SENSIBILITY;
     this.camera.setTarget(Vector3.Zero());
@@ -93,7 +95,7 @@ export default class GalacticScene {
       starSprite = new StarSprite('starSprite', star, this.spriteManager);
       starSprite.position = realToWorld(star.x, star.y, star.z);
       starSprite.color = bvToColor(star.ci, PARTICLE_ALPHA);
-      starSprite.size = Math.log(star.lum) * SIZE_MULTIPLIER;
+      starSprite.size = (star.absmag / 10.0 + 2.0) * PARTICLE_SIZE;
       starSprite.isPickable = true;
       starSprite.actionManager = new ActionManager(this.scene);
       starSprite.actionManager.registerAction(

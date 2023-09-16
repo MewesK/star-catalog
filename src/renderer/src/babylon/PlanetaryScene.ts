@@ -1,16 +1,20 @@
-import { Engine, ParticleSystemSet, Scene, Vector3 } from '@babylonjs/core';
+import { Engine, Mesh, ParticleSystemSet, Scene, Vector3 } from '@babylonjs/core';
 import {
   CAMERA_FOV,
   CAMERA_MAX_Z,
   CAMERA_SENSIBILITY,
   CAMERA_SPEED_DEFAULT,
+  MODEL_SIZE,
+  RENDER_DISTANCE_3D,
   WATCH_DISTANCE
 } from '@renderer/defaults';
+import { starsInRange } from '@renderer/state';
 
 import tStar from '../assets/particle_light.png';
 import tSunFlare from '../assets/T_SunFlare.png';
 import tSunSurface from '../assets/T_SunSurface.png';
 import { AnimatedFlyCamera } from './AnimatedFlyCamera';
+import { realToWorld } from './helper';
 
 export default class PlanetaryScene {
   readonly scene: Scene;
@@ -23,15 +27,17 @@ export default class PlanetaryScene {
     this.camera = new AnimatedFlyCamera('camera', new Vector3(0, 0, -WATCH_DISTANCE), this.scene);
     this.camera.speed = CAMERA_SPEED_DEFAULT;
     this.camera.fov = CAMERA_FOV;
-    this.camera.maxZ = CAMERA_MAX_Z;
+    this.camera.minZ = MODEL_SIZE / 2.0;
+    this.camera.maxZ = RENDER_DISTANCE_3D;
     this.camera.angularSensibility = CAMERA_SENSIBILITY;
     this.camera.setTarget(Vector3.Zero());
     this.camera.attachControl(true);
+
+    ParticleSystemSet.BaseAssetsUrl = '';
   }
 
   initialize(): void {
-    const size = 0.5;
-    ParticleSystemSet.BaseAssetsUrl = '';
+    const size = MODEL_SIZE;
     const starParticleSystemSet = ParticleSystemSet.Parse(
       {
         emitter: {
@@ -109,7 +115,8 @@ export default class PlanetaryScene {
             spriteCellChangeSpeed: 0,
             spriteCellWidth: 0,
             spriteCellHeight: 0,
-            isAnimationSheetEnabled: false
+            isAnimationSheetEnabled: false,
+            isLocal: true
           },
           {
             name: 'flareParticles',
@@ -181,7 +188,8 @@ export default class PlanetaryScene {
             spriteCellChangeSpeed: 0,
             spriteCellWidth: 0,
             spriteCellHeight: 0,
-            isAnimationSheetEnabled: false
+            isAnimationSheetEnabled: false,
+            isLocal: true
           },
           {
             name: 'glareParticles',
@@ -243,11 +251,15 @@ export default class PlanetaryScene {
             spriteCellChangeSpeed: 0,
             spriteCellWidth: 0,
             spriteCellHeight: 0,
-            isAnimationSheetEnabled: false
+            isAnimationSheetEnabled: false,
+            isLocal: true
           }
         ]
       },
       this.scene
+    );
+    (starParticleSystemSet.emitterNode as Mesh).position.copyFrom(
+      realToWorld(starsInRange.value[0].x, starsInRange.value[0].y, starsInRange.value[0].z)
     );
     starParticleSystemSet.start();
   }
