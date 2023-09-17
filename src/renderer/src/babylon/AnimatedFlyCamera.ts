@@ -1,21 +1,22 @@
 import {
   Animation,
   CircleEase,
+  CubicEase,
   EasingFunction,
   Epsilon,
   FlyCamera,
   Matrix,
   Vector3
 } from '@babylonjs/core';
-import { TRAVEL_TIME, WATCH_DISTANCE } from '@renderer/defaults';
+import { TRAVEL_TIME } from '@renderer/defaults';
 
 export class AnimatedFlyCamera extends FlyCamera {
-  setTargetAnimated(target: Vector3): number {
+  setTargetAnimated(target: Vector3, distance: number): number {
     // Position
     const targetPosition = this.position
       .subtract(target)
       .normalize()
-      .scaleInPlace(WATCH_DISTANCE)
+      .scaleInPlace(distance)
       .add(target);
 
     if (targetPosition.z === target.z) {
@@ -52,7 +53,7 @@ export class AnimatedFlyCamera extends FlyCamera {
       Animation.ANIMATIONLOOPMODE_CONSTANT
     );
 
-    const positionEasingFunction = new CircleEase();
+    const positionEasingFunction = new CubicEase();
     positionEasingFunction.setEasingMode(EasingFunction.EASINGMODE_EASEINOUT);
     positionAnimation.setEasingFunction(positionEasingFunction);
 

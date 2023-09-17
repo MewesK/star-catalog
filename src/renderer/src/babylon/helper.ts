@@ -1,5 +1,11 @@
 import { Color4, Vector3 } from '@babylonjs/core';
-import { DISTANCE_MULTIPLIER, ZOOM_MULTIPLIER } from '@renderer/defaults';
+import {
+  DISTANCE_MULTIPLIER,
+  MODEL_SIZE,
+  PARTICLE_SIZE,
+  ZOOM_MULTIPLIER
+} from '@renderer/defaults';
+import { Star } from 'src/types/Star';
 
 /**
  * Converts B-V index (-0.4 to +2.0) to a THREE.js color
@@ -81,4 +87,12 @@ export function realToWorld(x: number, y: number, z: number): Vector3 {
     y * ZOOM_MULTIPLIER * DISTANCE_MULTIPLIER,
     z * ZOOM_MULTIPLIER * DISTANCE_MULTIPLIER
   );
+}
+
+export function realToModelSize(star: Star): number {
+  return (star.absmag + 20.0) * MODEL_SIZE;
+}
+
+export function realToSpriteSize(star: Star): number {
+  return (star.absmag + 20.0) * PARTICLE_SIZE;
 }

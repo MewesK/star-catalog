@@ -1,13 +1,11 @@
-import { Engine, ParticleSystemSet, Scene, SpriteManager, Vector3 } from '@babylonjs/core';
+import {  Engine, ParticleSystemSet, Scene, SpriteManager, Vector3 } from '@babylonjs/core';
 import {
   CAMERA_FOV,
   CAMERA_SENSIBILITY,
   CAMERA_SPEED_DEFAULT,
   MODEL_SIZE,
   PARTICLE_ALPHA,
-  PARTICLE_SIZE,
-  RENDER_DISTANCE_3D,
-  WATCH_DISTANCE
+  RENDER_DISTANCE_3D
 } from '@renderer/defaults';
 import { Star } from 'src/types/Star';
 
@@ -15,7 +13,7 @@ import starTexture from '../assets/particle_light.png';
 import tSunFlare from '../assets/T_SunFlare.png';
 import tSunSurface from '../assets/T_SunSurface.png';
 import { AnimatedFlyCamera } from './AnimatedFlyCamera';
-import { bvToColor } from './helper';
+import { bvToColor, realToModelSize, realToSpriteSize } from './helper';
 import { StarSprite } from './StarSprite';
 
 export default class PlanetaryScene {
@@ -28,7 +26,7 @@ export default class PlanetaryScene {
     this.scene = new Scene(engine);
     this.scene.autoClear = false;
 
-    this.camera = new AnimatedFlyCamera('camera', new Vector3(0, 0, -WATCH_DISTANCE), this.scene);
+    this.camera = new AnimatedFlyCamera('camera', Vector3.One(), this.scene);
     this.camera.speed = CAMERA_SPEED_DEFAULT;
     this.camera.fov = CAMERA_FOV;
     this.camera.minZ = MODEL_SIZE / 2.0;
@@ -56,9 +54,8 @@ export default class PlanetaryScene {
     this.dispose();
 
     const color = bvToColor(star.ci, PARTICLE_ALPHA);
-    const size = star.absmag + 20.0;
-    const spriteSize = size * PARTICLE_SIZE;
-    const particleSystemSize = size * MODEL_SIZE;
+    const spriteSize = realToSpriteSize(star);
+    const particleSystemSize = realToModelSize(star);
 
     // Create star sprite
     this.spriteManager = new SpriteManager('closeupStarManager', starTexture, 1, 256, this.scene);

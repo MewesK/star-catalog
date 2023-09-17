@@ -21,9 +21,7 @@ import {
   FOG_END,
   FOG_START,
   PARTICLE_ALPHA,
-  PARTICLE_SIZE,
-  RENDER_DISTANCE_3D,
-  WATCH_DISTANCE
+  RENDER_DISTANCE_3D
 } from '@renderer/defaults';
 import { isDev } from '@renderer/helper';
 import { selectStar, starsInRange } from '@renderer/state';
@@ -31,7 +29,7 @@ import { selectStar, starsInRange } from '@renderer/state';
 import milkywayTexture from '../assets/milkyway_gaia_4000x2000.png';
 import starTexture from '../assets/particle_light.png';
 import { AnimatedFlyCamera } from './AnimatedFlyCamera';
-import { bvToColor, realToWorld } from './helper';
+import { bvToColor, realToSpriteSize, realToWorld } from './helper';
 import { StarSprite } from './StarSprite';
 
 export default class GalacticScene {
@@ -50,7 +48,7 @@ export default class GalacticScene {
     this.scene.fogStart = FOG_START;
     this.scene.fogEnd = FOG_END;
 
-    this.camera = new AnimatedFlyCamera('camera', new Vector3(0, 0, -WATCH_DISTANCE), this.scene);
+    this.camera = new AnimatedFlyCamera('camera', Vector3.One(), this.scene);
     this.camera.speed = CAMERA_SPEED_DEFAULT;
     this.camera.fov = CAMERA_FOV;
     this.camera.minZ = RENDER_DISTANCE_3D;
@@ -101,7 +99,7 @@ export default class GalacticScene {
       starSprite = new StarSprite('starSprite', star, this.spriteManager);
       starSprite.position = realToWorld(star.x, star.y, star.z);
       starSprite.color = bvToColor(star.ci, PARTICLE_ALPHA);
-      starSprite.size = (star.absmag + 20.0) * PARTICLE_SIZE;
+      starSprite.size = realToSpriteSize(star);
       starSprite.isPickable = true;
       starSprite.actionManager = new ActionManager(this.scene);
       starSprite.actionManager.registerAction(

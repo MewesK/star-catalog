@@ -1,5 +1,11 @@
-import { Engine, KeyboardEventTypes, Vector3 } from '@babylonjs/core';
-import { CAMERA_SPEED_DEFAULT, CAMERA_SPEED_WARP, RENDER_DISTANCE_3D } from '@renderer/defaults';
+import { Engine, KeyboardEventTypes, Sprite, Vector3 } from '@babylonjs/core';
+import {
+  CAMERA_SPEED_DEFAULT,
+  CAMERA_SPEED_WARP,
+  MODEL_SIZE,
+  RENDER_DISTANCE_3D,
+  WATCH_DISTANCE_MULTIPLIER
+} from '@renderer/defaults';
 import { starPositionsInRange } from '@renderer/state';
 import { useThrottleFn } from '@vueuse/core';
 import { Star } from 'src/types/Star';
@@ -41,6 +47,17 @@ export default class Galaxy {
     this.engine.runRenderLoop((): void => {
       if (!this.lastCameraPosition.equals(this.galacticScene.camera.position)) {
         this.lastCameraPosition = this.galacticScene.camera.position.clone();
+
+        // Update distance based sprite transparency
+        if (this.planetaryScene.spriteManager && this.planetaryScene.spriteManager.sprites.at(0)) {
+          console.log(
+            (this.planetaryScene.spriteManager.sprites.at(0) as Sprite).position
+              .subtract(this.planetaryScene.camera.position)
+              .length()
+          );
+        }
+
+        // Check nearby stars
         this.updateStarObjectsThrotteled();
       }
       this.galacticScene.scene.render();
@@ -52,7 +69,8 @@ export default class Galaxy {
     console.log(`Flying to star #${target.id}...`);
 
     const galacticSceneEndFrame = this.galacticScene.camera.setTargetAnimated(
-      realToWorld(target.x, target.y, target.z)
+      realToWorld(target.x, target.y, target.z),
+      (target.absmag + 20.0) * MODEL_SIZE * WATCH_DISTANCE_MULTIPLIER
     );
     this.galacticScene.scene.beginAnimation(
       this.galacticScene.camera,
