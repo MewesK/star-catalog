@@ -1,4 +1,4 @@
-import {  Engine, ParticleSystemSet, Scene, SpriteManager, Vector3 } from '@babylonjs/core';
+import { Engine, ParticleSystemSet, Scene, SpriteManager, Vector3 } from '@babylonjs/core';
 import {
   CAMERA_FOV,
   CAMERA_SENSIBILITY,
