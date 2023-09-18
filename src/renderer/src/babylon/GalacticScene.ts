@@ -107,4 +107,8 @@ export default class GalacticScene {
       );
     }
   }
+
+  render(): void {
+    this.scene.render();
+  }
 }

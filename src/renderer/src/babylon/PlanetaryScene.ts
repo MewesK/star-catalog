@@ -38,17 +38,6 @@ export default class PlanetaryScene {
     ParticleSystemSet.BaseAssetsUrl = '';
   }
 
-  dispose(): void {
-    if (this.spriteManager) {
-      this.spriteManager.dispose();
-      this.spriteManager = null;
-    }
-    if (this.starParticleSystemSet) {
-      this.starParticleSystemSet.dispose();
-      this.starParticleSystemSet = null;
-    }
-  }
-
   initialize(star: Star): void {
     // Clean up
     this.dispose();
@@ -285,5 +274,20 @@ export default class PlanetaryScene {
       this.scene
     );
     this.starParticleSystemSet.start();
+  }
+
+  render(): void {
+    this.scene.render();
+  }
+
+  dispose(): void {
+    if (this.spriteManager) {
+      this.spriteManager.dispose();
+      this.spriteManager = null;
+    }
+    if (this.starParticleSystemSet) {
+      this.starParticleSystemSet.dispose();
+      this.starParticleSystemSet = null;
+    }
   }
 }

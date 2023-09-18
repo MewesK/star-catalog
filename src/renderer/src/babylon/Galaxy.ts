@@ -6,7 +6,7 @@ import {
   RENDER_DISTANCE_3D,
   WATCH_DISTANCE_MULTIPLIER
 } from '@renderer/defaults';
-import { starPositionsInRange } from '@renderer/state';
+import { speedBase, speedMultiplier, starPositionsInRange } from '@renderer/state';
 import { useThrottleFn } from '@vueuse/core';
 import { Star } from 'src/types/Star';
 import { StarPosition } from 'src/types/StarPosition';
@@ -34,13 +34,13 @@ export default class Galaxy {
     this.galacticScene.scene.onKeyboardObservable.add((kbInfo) => {
       if (kbInfo.event.key === 'Shift') {
         if (kbInfo.type === KeyboardEventTypes.KEYDOWN) {
-          this.galacticScene.camera.speed = CAMERA_SPEED_WARP;
-          this.planetaryScene.camera.speed = CAMERA_SPEED_WARP;
+          speedMultiplier.value = CAMERA_SPEED_WARP;
         }
         if (kbInfo.type === KeyboardEventTypes.KEYUP) {
-          this.galacticScene.camera.speed = CAMERA_SPEED_DEFAULT;
-          this.planetaryScene.camera.speed = CAMERA_SPEED_DEFAULT;
+          speedMultiplier.value = CAMERA_SPEED_DEFAULT;
         }
+        this.galacticScene.camera.speed = speedBase.value * speedMultiplier.value;
+        this.planetaryScene.camera.speed = speedBase.value * speedMultiplier.value;
       }
     });
 
@@ -50,18 +50,24 @@ export default class Galaxy {
 
         // Update distance based sprite transparency
         if (this.planetaryScene.spriteManager && this.planetaryScene.spriteManager.sprites.at(0)) {
-          console.log(
-            (this.planetaryScene.spriteManager.sprites.at(0) as Sprite).position
-              .subtract(this.planetaryScene.camera.position)
-              .length()
-          );
+          const sprite = this.planetaryScene.spriteManager.sprites.at(0) as Sprite;
+          const distance = sprite.position.subtract(this.planetaryScene.camera.position).length();
+          if (distance < 1.0) {
+            sprite.color.a = distance;
+            speedBase.value = distance;
+          } else if (sprite.color.a < 1.0) {
+            sprite.color.a = 1.0;
+            speedBase.value = 1.0;
+          }
+          this.galacticScene.camera.speed = speedBase.value * speedMultiplier.value;
+          this.planetaryScene.camera.speed = speedBase.value * speedMultiplier.value;
         }
 
         // Check nearby stars
         this.updateStarObjectsThrotteled();
       }
-      this.galacticScene.scene.render();
-      this.planetaryScene.scene.render();
+      this.galacticScene.render();
+      this.planetaryScene.render();
     });
   }
 

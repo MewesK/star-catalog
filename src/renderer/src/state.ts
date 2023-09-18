@@ -4,13 +4,15 @@ import { computed, ref, shallowRef } from 'vue';
 
 import Galaxy from './babylon/Galaxy';
 import { realToWorld } from './babylon/helper';
-import { RENDER_DISTANCE, RENDER_DISTANCE_MAX } from './defaults';
+import { CAMERA_SPEED_DEFAULT, RENDER_DISTANCE, RENDER_DISTANCE_MAX } from './defaults';
 
 // State
 
 export const stars = ref<Star[]>([]);
 export const selectedStar = ref<Star | null>(null);
 export const galaxy = shallowRef<Galaxy | null>(null);
+export const speedBase = ref(1.0);
+export const speedMultiplier = ref(CAMERA_SPEED_DEFAULT);
 
 export const menu = ref(true);
 export const browser = ref(false);
