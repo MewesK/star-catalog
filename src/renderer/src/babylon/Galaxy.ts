@@ -48,6 +48,9 @@ export default class Galaxy {
       if (!this.lastCameraPosition.equals(this.galacticScene.camera.position)) {
         this.lastCameraPosition = this.galacticScene.camera.position.clone();
 
+        // Check nearby stars
+        this.updateStarObjectsThrotteled();
+
         // Update distance based sprite transparency
         if (this.planetaryScene.spriteManager && this.planetaryScene.spriteManager.sprites.at(0)) {
           const sprite = this.planetaryScene.spriteManager.sprites.at(0) as Sprite;
@@ -62,9 +65,6 @@ export default class Galaxy {
           this.galacticScene.camera.speed = speedBase.value * speedMultiplier.value;
           this.planetaryScene.camera.speed = speedBase.value * speedMultiplier.value;
         }
-
-        // Check nearby stars
-        this.updateStarObjectsThrotteled();
       }
       this.galacticScene.render();
       this.planetaryScene.render();
