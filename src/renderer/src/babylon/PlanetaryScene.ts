@@ -30,7 +30,7 @@ export default class PlanetaryScene {
     this.camera.speed = CAMERA_SPEED_DEFAULT;
     this.camera.fov = CAMERA_FOV;
     this.camera.minZ = MODEL_SIZE / 2.0;
-    this.camera.maxZ = RENDER_DISTANCE_3D;
+    this.camera.maxZ = RENDER_DISTANCE_3D * 2.0;
     this.camera.angularSensibility = CAMERA_SENSIBILITY;
     this.camera.setTarget(Vector3.Zero());
     this.camera.attachControl(true);

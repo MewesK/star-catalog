@@ -2,7 +2,7 @@ import { Engine, KeyboardEventTypes, Sprite, Vector3 } from '@babylonjs/core';
 import {
   CAMERA_SPEED_DEFAULT,
   CAMERA_SPEED_WARP,
-  MODEL_SIZE,
+  PARTICLE_ALPHA,
   RENDER_DISTANCE_3D,
   WATCH_DISTANCE_MULTIPLIER
 } from '@renderer/defaults';
@@ -12,7 +12,7 @@ import { Star } from 'src/types/Star';
 import { StarPosition } from 'src/types/StarPosition';
 
 import GalacticScene from './GalacticScene';
-import { realToWorld } from './helper';
+import { realToModelSize, realToWorld } from './helper';
 import PlanetaryScene from './PlanetaryScene';
 
 export default class Galaxy {
@@ -29,6 +29,10 @@ export default class Galaxy {
   }
 
   initialize(): void {
+    if (this.engine.activeRenderLoops.length) {
+      return;
+    }
+
     this.galacticScene.initialize();
 
     this.galacticScene.scene.onKeyboardObservable.add((kbInfo) => {
@@ -45,27 +49,39 @@ export default class Galaxy {
     });
 
     this.engine.runRenderLoop((): void => {
+      const distance = this.planetaryScene.spriteManager
+        ? this.planetaryScene.camera.position.negate().length()
+        : Infinity;
+
+      // Update on camera movement
       if (!this.lastCameraPosition.equals(this.galacticScene.camera.position)) {
         this.lastCameraPosition = this.galacticScene.camera.position.clone();
 
         // Check nearby stars
         this.updateStarObjectsThrotteled();
 
-        // Update distance based sprite transparency
-        if (this.planetaryScene.spriteManager && this.planetaryScene.spriteManager.sprites.at(0)) {
+        // Set sprite visibility/transparency
+        if (this.planetaryScene.spriteManager) {
           const sprite = this.planetaryScene.spriteManager.sprites.at(0) as Sprite;
-          const distance = sprite.position.subtract(this.planetaryScene.camera.position).length();
-          if (distance < 1.0) {
-            sprite.color.a = distance;
-            speedBase.value = distance;
-          } else if (sprite.color.a < 1.0) {
-            sprite.color.a = 1.0;
-            speedBase.value = 1.0;
-          }
-          this.galacticScene.camera.speed = speedBase.value * speedMultiplier.value;
-          this.planetaryScene.camera.speed = speedBase.value * speedMultiplier.value;
+          sprite.color.a = distance < PARTICLE_ALPHA ? distance : PARTICLE_ALPHA;
+
+          // Enable/disable meshes based on distance
+          const visible = distance <= RENDER_DISTANCE_3D;
+          this.planetaryScene.scene.meshes.forEach((mesh) => {
+            mesh.isVisible = visible;
+          });
+          sprite.isVisible = visible;
         }
+
+        // Set base speed
+        speedBase.value = distance < 1.0 ? distance : 1.0;
       }
+
+      // Update speed
+      this.galacticScene.camera.speed = speedBase.value * speedMultiplier.value;
+      this.planetaryScene.camera.speed = speedBase.value * speedMultiplier.value;
+
+      // Render scenes
       this.galacticScene.render();
       this.planetaryScene.render();
     });
@@ -76,7 +92,7 @@ export default class Galaxy {
 
     const galacticSceneEndFrame = this.galacticScene.camera.setTargetAnimated(
       realToWorld(target.x, target.y, target.z),
-      (target.absmag + 20.0) * MODEL_SIZE * WATCH_DISTANCE_MULTIPLIER
+      realToModelSize(target) * WATCH_DISTANCE_MULTIPLIER
     );
     this.galacticScene.scene.beginAnimation(
       this.galacticScene.camera,
@@ -95,13 +111,14 @@ export default class Galaxy {
   updateStarObjects(): void {
     // Find nearby stars
     const start = performance.now();
+    const renderDistance = RENDER_DISTANCE_3D * 2.0;
     const newNearbyStars = starPositionsInRange.value.filter(
       (starPosition) =>
         Math.abs(starPosition.position.subtract(this.galacticScene.camera.position).length()) <=
-        RENDER_DISTANCE_3D
+        renderDistance
     );
 
-    console.log(
+    console.debug(
       `Searching for ${newNearbyStars.length} nearby stars: ${performance.now() - start} ms`
     );
 
@@ -113,11 +130,7 @@ export default class Galaxy {
 
       // Initialize close-up
       if (this.nearbyStars.length > 0) {
-        console.log(
-          `Initializing close-up of star #${this.nearbyStars[0].star.id}...`,
-          this.nearbyStars[0].star
-        );
-
+        console.log(`Initializing close-up of star #${this.nearbyStars[0].star.id}...`);
         this.planetaryScene.initialize(this.nearbyStars[0].star);
         this.planetaryScene.camera.position = this.galacticScene.camera.position.subtract(
           this.nearbyStars[0].position

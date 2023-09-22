@@ -48,7 +48,8 @@ export default class GalacticScene {
     this.scene.fogStart = FOG_START;
     this.scene.fogEnd = FOG_END;
 
-    this.camera = new AnimatedFlyCamera('camera', Vector3.One(), this.scene);
+    // Weird initial behaviour if camera is too close to 0,0,0
+    this.camera = new AnimatedFlyCamera('camera', new Vector3(10, 10, 10), this.scene);
     this.camera.speed = CAMERA_SPEED_DEFAULT;
     this.camera.fov = CAMERA_FOV;
     this.camera.minZ = RENDER_DISTANCE_3D;
