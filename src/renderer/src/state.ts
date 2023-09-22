@@ -37,7 +37,8 @@ export const starsInRange = computed((): Star[] => {
 
 export const starPositionsInRange = computed((): StarPosition[] =>
   starsInRange.value.map(
-    (star) => ({ star, position: realToWorld(star.x, star.y, star.z) }) as StarPosition
+    (star, index) =>
+      ({ index, star, position: realToWorld(star.x, star.y, star.z) }) as StarPosition
   )
 );
 

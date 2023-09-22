@@ -62,15 +62,21 @@ export default class Galaxy {
 
         // Set sprite visibility/transparency
         if (this.planetaryScene.spriteManager) {
-          const sprite = this.planetaryScene.spriteManager.sprites.at(0) as Sprite;
-          sprite.color.a = distance < PARTICLE_ALPHA ? distance : PARTICLE_ALPHA;
+          const planetarySprite = this.planetaryScene.spriteManager.sprites.at(0) as Sprite;
+          planetarySprite.color.a = distance < PARTICLE_ALPHA ? distance : PARTICLE_ALPHA;
 
-          // Enable/disable meshes based on distance
-          const visible = distance <= RENDER_DISTANCE_3D;
+          // Enable/disable meshes based on distance (slighty longer than RENDER_DISTANCE_3D to avoid running into the minZ of the galactic scene camera)
+          const visible = distance <= RENDER_DISTANCE_3D + RENDER_DISTANCE_3D / 10.0;
+          planetarySprite.isVisible = visible;
           this.planetaryScene.scene.meshes.forEach((mesh) => {
             mesh.isVisible = visible;
           });
-          sprite.isVisible = visible;
+          this.nearbyStars.forEach((star) => {
+            const galacticSprite = this.galacticScene.spriteManager?.sprites.at(star.index);
+            if (galacticSprite) {
+              galacticSprite.isVisible = !visible;
+            }
+          });
         }
 
         // Set base speed
@@ -109,7 +115,7 @@ export default class Galaxy {
 
   updateStarObjectsThrotteled = useThrottleFn(this.updateStarObjects, 500);
   updateStarObjects(): void {
-    // Find nearby stars
+    // Find nearby stars (twice the distance of RENDER_DISTANCE_3D to have time to load)
     const start = performance.now();
     const renderDistance = RENDER_DISTANCE_3D * 2.0;
     const newNearbyStars = starPositionsInRange.value.filter(
